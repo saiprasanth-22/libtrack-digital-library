@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}LibTrack — Your Library, Intelligently Connected{% endblock %}
+{% block content %}
+<main>
+  <section class="hero" id="home">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <nav class="navbar container" aria-label="Main navigation">
+      <a class="brand" href="#home"><span class="brand-mark">L</span><span>LibTrack</span></a>
+      <div class="nav-links">
+        <a href="#discover">Discover</a><a href="#resources">Digital Resources</a><a href="#how">How It Works</a><a href="#about">About</a>
+      </div>
+      <div class="nav-actions"><a href="#" class="sign-in">Sign In</a><a href="#discover" class="button button-primary button-small">Get Started</a></div>
+      <button class="menu-button" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+    </nav>
+
+    <div class="hero-grid container">
+      <div class="hero-copy">
+        <p class="eyebrow">Digital learning, reimagined</p>
+        <h1>Your entire library,<br><em>intelligently connected.</em></h1>
+        <div class="accent-line" aria-hidden="true"></div>
+        <p class="hero-lead">Discover books, access academic resources, and manage your reading journey from one beautifully organized platform.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#discover">Explore the Library <i data-lucide="arrow-right"></i></a>
+          <button class="button button-tour" data-tour-open><span class="play"><i data-lucide="play"></i></span>Watch Platform Tour</button>
+        </div>
+        <div class="micro-stats"><span><strong>12K+</strong> books</span><i></i><span><strong>3K</strong> students</span><i></i><span>Available anytime</span></div>
+      </div>
+
+      <div class="product-stage" aria-label="LibTrack product preview">
+        <label class="global-search"><i data-lucide="search"></i><input placeholder="Search books, authors, or resources"><kbd>Ctrl K</kbd></label>
+        <div class="availability"><span></span>Available now</div>
+        <article class="book-card book-one"><div class="book-cover"><small>LIBTRACK ACADEMIC</small><h3>The Architecture<br>of Knowledge</h3><b>01</b></div><h4>The Architecture of Knowledge</h4><p>A. Raman · Systems</p></article>
+        <article class="book-card book-two"><div class="book-cover cover-brown"><small>COMPUTER SCIENCE</small><h3>Data, Systems<br>&amp; Society</h3><b>02</b></div><h4>Data, Systems &amp; Society</h4><p>M. Desai · Technology</p></article>
+        <article class="book-card book-three"><div class="book-cover cover-ink"><small>FOUNDATIONS</small><h3>Algorithms for<br>Everyday Life</h3><b>03</b></div><h4>Algorithms for Everyday Life</h4><p>N. Shah · Algorithms</p></article>
+        <article class="progress-card"><span>Reading progress</span><strong>68% complete</strong><div class="progress-track"><i></i></div></article>
+        <article class="activity-card"><span>Weekly reading activity</span><div class="chart" aria-label="Weekly reading activity chart"><i style="--h:30%"></i><i style="--h:52%"></i><i style="--h:42%"></i><i style="--h:68%"></i><i style="--h:56%"></i><i class="active" style="--h:84%"></i><i style="--h:64%"></i></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="intro" id="discover">
+    <div class="container intro-grid">
+      <p class="eyebrow dark">Built for academic discovery</p>
+      <h2>A library experience built around <em>discovery</em>, not administration.</h2>
+      <p>Search across books, journals, papers, course material and digital resources—without losing the calm, considered feeling of a great library.</p>
+      <div class="feature-row">
+        <article><span>01</span><h3>One intelligent search</h3><p>Books, authors, subjects, ISBNs and resources in one command centre.</p></article>
+        <article><span>02</span><h3>Personal reading space</h3><p>Loans, saved resources, progress and recommendations made useful.</p></article>
+        <article><span>03</span><h3>Library intelligence</h3><p>Operational clarity for librarians without a generic admin experience.</p></article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="tour-dialog" aria-labelledby="tour-title">
+  <div class="tour-head"><div><p class="eyebrow dark">Guided walkthrough</p><h2 id="tour-title">Platform Tour</h2></div><button class="icon-button" data-tour-close aria-label="Close tour"><i data-lucide="x"></i></button></div>
+  <div class="tour-steps" role="tablist"></div>
+  <section class="tour-stage" aria-live="polite">
+    <div class="tour-icon"><i data-lucide="search"></i></div>
+    <div><p class="tour-count">Step 1 of 5</p><h3>Find knowledge in seconds.</h3><p>Search across books, research papers, journals, course material, authors, subjects and ISBNs from one command centre.</p></div>
+  </section>
+  <div class="tour-footer"><button class="text-button" data-tour-prev>← Previous</button><button class="button button-primary" data-tour-next>Next: Recommendations <i data-lucide="arrow-right"></i></button></div>
+</dialog>
+{% endblock %}

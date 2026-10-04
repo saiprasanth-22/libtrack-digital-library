@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.vercel/
+db.sqlite3
+staticfiles/
+work/
+node_modules/
+package.json
+package-lock.json
+
+.vercel
+.env*
