@@ -1,0 +1,10 @@
+.git/
+.venv/
+.vercel/
+node_modules/
+work/
+docs/reference/
+staticfiles/
+db.sqlite3
+*.png
+!static/images/*.png
