@@ -49,3 +49,6 @@
   .container{width:calc(100% - 32px)}.hero-grid{padding-top:34px}.hero h1{font-size:40px}.hero-actions .button{height:46px}.micro-stats i{display:none}.micro-stats{justify-content:space-between}
   .product-stage{height:520px}.book-card{width:126px;height:220px}.book-cover{height:143px}.book-cover h3{font-size:15px}.book-one{left:-11px}.book-two{left:calc(50% - 63px)}.book-three{right:-11px}.progress-card,.activity-card{top:365px;height:108px}.intro-grid>h2{font-size:34px}
 }
+
+/* Original LibTrack Press artwork; typography remains live and sharp. */
+.book-cover{background-image:linear-gradient(180deg,rgba(7,26,22,.1),rgba(7,26,22,.58)),url("../images/cover-database-architecture.jpg");background-size:cover;background-position:center}.book-cover.cover-brown{background-image:linear-gradient(180deg,rgba(46,27,16,.05),rgba(46,27,16,.68)),url("../images/cover-data-topography.jpg");background-size:cover;background-position:center}.book-cover.cover-ink{background-image:linear-gradient(180deg,rgba(7,15,23,.06),rgba(7,15,23,.68)),url("../images/cover-pragmatic-systems.jpg");background-size:cover;background-position:center}.book-cover:before,.book-cover.cover-brown:before,.book-cover.cover-ink:before{display:none}.book-cover:after{background:linear-gradient(180deg,rgba(8,18,29,.04),rgba(8,18,29,.3));z-index:-1}
