@@ -15,3 +15,8 @@
 .cover-brown{background:linear-gradient(135deg,#75563e,#422f25)}.cover-ink{background:linear-gradient(135deg,#203040,#0b1520)}
 .book-one{transform:rotateY(11deg) rotateZ(-5deg) translateZ(5px)}.book-two{transform:translateZ(45px)}.book-three{transform:rotateY(-11deg) rotateZ(5deg) translateZ(8px)}
 .progress-card,.activity-card{box-shadow:0 26px 60px rgba(0,0,0,.33);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.12);transition:translate .2s ease}
+
+/* Keep readable cover artwork on the pixel grid; depth comes from the shell. */
+.book-one{transform:rotateZ(-4deg) translateZ(5px)}.book-two{transform:translateZ(45px)}.book-three{transform:rotateZ(4deg) translateZ(8px)}
+.book-card,.book-cover,.book-cover h3,.book-cover small,.book-card h4,.book-card>p{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;backface-visibility:hidden}
+.book-cover{filter:none;transform:none}
