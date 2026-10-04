@@ -7,9 +7,9 @@
     <nav class="navbar container" aria-label="Main navigation">
       <a class="brand" href="#home"><span class="brand-mark">L</span><span>LibTrack</span></a>
       <div class="nav-links">
-        <a href="#discover">Discover</a><a href="#resources">Digital Resources</a><a href="#how">How It Works</a><a href="#about">About</a>
+        <a href="{% url 'core:discover' %}">Discover</a><a href="{% url 'core:discover' %}#papers">Digital Resources</a><a href="#discover">How It Works</a><a href="#discover">About</a>
       </div>
-      <div class="nav-actions"><a href="#" class="sign-in">Sign In</a><a href="#discover" class="button button-primary button-small">Get Started</a></div>
+      <div class="nav-actions"><a href="{% url 'core:student' %}" class="sign-in">Sign In</a><a href="{% url 'core:discover' %}" class="button button-primary button-small">Get Started</a></div>
       <button class="menu-button" aria-label="Open navigation"><i data-lucide="menu"></i></button>
     </nav>
 
@@ -20,7 +20,7 @@
         <div class="accent-line" aria-hidden="true"></div>
         <p class="hero-lead">Discover books, access academic resources, and manage your reading journey from one beautifully organized platform.</p>
         <div class="hero-actions">
-          <a class="button button-primary" href="#discover">Explore the Library <i data-lucide="arrow-right"></i></a>
+          <a class="button button-primary" href="{% url 'core:discover' %}">Explore the Library <i data-lucide="arrow-right"></i></a>
           <button class="button button-tour" data-tour-open><span class="play"><i data-lucide="play"></i></span>Watch Platform Tour</button>
         </div>
         <div class="micro-stats"><span><strong>12K+</strong> books</span><i></i><span><strong>3K</strong> students</span><i></i><span>Available anytime</span></div>

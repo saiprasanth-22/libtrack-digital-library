@@ -1,0 +1,29 @@
+{
+  "color": {
+    "ink950": "#08121D",
+    "ink900": "#0B1622",
+    "forest950": "#0E2A24",
+    "forest900": "#15382F",
+    "forest800": "#1C463B",
+    "emerald500": "#28B98A",
+    "emerald400": "#49CFA3",
+    "emerald200": "#A9E8D1",
+    "cream50": "#FFF9EE",
+    "cream100": "#F7F0E3",
+    "cream200": "#F0E5D2",
+    "paper": "#FFFDF8",
+    "brown900": "#33251D",
+    "brown700": "#5B4332",
+    "brown500": "#7A5E46",
+    "brown300": "#B79B7B",
+    "warmGray700": "#625D56",
+    "warmGray500": "#8A8178",
+    "warmGray300": "#B9B0A5",
+    "danger": "#C65A49",
+    "warning": "#C88731",
+    "success": "#25886B"
+  },
+  "radius": {"sm": 8, "control": 12, "card": 16, "feature": 20, "hero": 24, "pill": 999},
+  "spacing": [4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96],
+  "font": {"serif": "Instrument Serif", "sans": "Manrope"}
+}

@@ -30,5 +30,39 @@ document.addEventListener("DOMContentLoaded", () => {
   steps?.addEventListener("click", event => { const button = event.target.closest("[data-step]"); if (button) { current = Number(button.dataset.step); draw(); } });
   dialog?.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
   document.addEventListener("keydown", event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") { event.preventDefault(); document.querySelector(".global-search input")?.focus(); } });
+  const sidebar = document.querySelector(".app-sidebar");
+  document.querySelector("[data-sidebar]")?.addEventListener("click", () => sidebar?.classList.toggle("open"));
+
+  const catalogSearch = document.querySelector("[data-catalog-search]");
+  const resources = [...document.querySelectorAll("[data-resource]")];
+  const filters = [...document.querySelectorAll("[data-filter]")];
+  let activeFilter = "all";
+  const filterCatalog = () => {
+    const query = (catalogSearch?.value || "").trim().toLowerCase();
+    let shown = 0;
+    resources.forEach(resource => {
+      const text = resource.dataset.search.toLowerCase();
+      const matches = (!query || text.includes(query)) && (activeFilter === "all" || text.includes(activeFilter.toLowerCase()));
+      resource.classList.toggle("hidden", !matches);
+      if (matches) shown += 1;
+    });
+    const count = document.querySelector("[data-results]");
+    if (count) count.textContent = `${shown} resource${shown === 1 ? "" : "s"}`;
+  };
+  catalogSearch?.addEventListener("input", filterCatalog);
+  filters.forEach(filter => filter.addEventListener("click", () => {
+    filters.forEach(item => item.classList.remove("active"));
+    filter.classList.add("active"); activeFilter = filter.dataset.filter; filterCatalog();
+  }));
+  document.querySelector("[data-borrow]")?.addEventListener("click", event => {
+    const button = event.currentTarget;
+    button.innerHTML = '<i data-lucide="check"></i> Borrowed successfully';
+    button.disabled = true; lucide.createIcons();
+  });
+  document.querySelector(".top-search input")?.addEventListener("keydown", event => {
+    if (event.key === "Enter" && event.currentTarget.value.trim()) window.location.href = `/discover/?q=${encodeURIComponent(event.currentTarget.value.trim())}`;
+  });
+  const initialQuery = new URLSearchParams(location.search).get("q");
+  if (initialQuery && catalogSearch) { catalogSearch.value = initialQuery; filterCatalog(); }
   lucide.createIcons();
 });

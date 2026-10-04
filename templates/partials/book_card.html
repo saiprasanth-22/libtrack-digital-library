@@ -1,0 +1,4 @@
+<a class="catalog-book" href="{% url 'core:book_detail' %}" data-resource data-search="{{ item.title }} {{ item.author }} {{ item.kind }}">
+  <div class="mini-cover cover-{{ item.cover }}"><span>{{ item.kind }}</span><strong>{{ item.title }}</strong><small>LIBTRACK PRESS</small></div>
+  <div><h3>{{ item.title }}</h3><p>{{ item.author }}</p><span class="available"><i></i> Available</span></div>
+</a>
