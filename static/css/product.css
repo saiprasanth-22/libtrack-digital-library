@@ -16,3 +16,13 @@
 
 /* Sharp book faces: dimensionality without transformed text rasterization. */
 .mini-cover,.catalog-book:hover .mini-cover{transform:none}.mini-cover strong,.mini-cover span,.mini-cover small,.large-cover h2,.large-cover p,.large-cover small{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;backface-visibility:hidden}.large-cover,.book-showcase:hover .large-cover{transform:rotateZ(-1.5deg);filter:none}.large-cover:before{transform:none;left:-11px;box-shadow:inset -3px 0 4px rgba(255,255,255,.12)}
+
+/* A distinct visual language for every collection cover. */
+.mini-cover{isolation:isolate;border:1px solid rgba(255,255,255,.16)}.mini-cover:after{z-index:-1;background:none}
+.mini-cover.cover-architecture{background-image:linear-gradient(90deg,transparent 0 18%,rgba(169,232,209,.14) 19% 20%,transparent 21% 48%,rgba(169,232,209,.14) 49% 50%,transparent 51%),linear-gradient(0deg,transparent 0 30%,rgba(169,232,209,.13) 31% 32%,transparent 33% 62%,rgba(169,232,209,.13) 63% 64%,transparent 65%),linear-gradient(145deg,#26594b,#102b25)}
+.mini-cover.cover-topography{background-image:repeating-radial-gradient(ellipse at 76% 26%,transparent 0 9px,rgba(255,249,238,.16) 10px 11px,transparent 12px 18px),linear-gradient(135deg,#806047,#493326)}
+.mini-cover.cover-grid{background-image:linear-gradient(30deg,transparent 0 48%,rgba(73,207,163,.24) 49% 50%,transparent 51%),linear-gradient(150deg,transparent 0 58%,rgba(183,155,123,.24) 59% 60%,transparent 61%),radial-gradient(circle at 72% 30%,#49cfa3 0 2px,transparent 3px),linear-gradient(135deg,#283c4f,#0d1924)}
+.mini-cover.cover-orbital{background-image:radial-gradient(circle at 70% 28%,transparent 0 17px,#7a5e46 18px 19px,transparent 20px 27px,#25886b 28px 29px,transparent 30px),linear-gradient(145deg,#f1e8da,#d3c2a8)}
+.mini-cover strong{font-size:13px;line-height:1.03;letter-spacing:-.01em;text-shadow:0 1px rgba(0,0,0,.12)}
+.large-cover{background-image:linear-gradient(90deg,transparent 0 20%,rgba(169,232,209,.1) 21% 21.5%,transparent 22% 48%,rgba(169,232,209,.1) 49% 49.5%,transparent 50%),linear-gradient(0deg,transparent 0 28%,rgba(169,232,209,.1) 29% 29.5%,transparent 30% 61%,rgba(169,232,209,.1) 62% 62.5%,transparent 63%),radial-gradient(circle at 72% 28%,transparent 0 38px,rgba(169,232,209,.34) 39px 40px,transparent 41px),linear-gradient(135deg,#245447,#102c26)}
+.dashboard-hero{background-image:linear-gradient(90deg,rgba(7,22,20,.97),rgba(13,45,37,.74)),url("../images/library-hero-sharp-v2.png")}.librarian-hero{background-image:linear-gradient(90deg,rgba(6,18,27,.97),rgba(15,48,39,.7)),url("../images/library-hero-sharp-v2.png")}

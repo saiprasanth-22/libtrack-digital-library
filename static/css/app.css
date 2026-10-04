@@ -20,3 +20,14 @@
 .book-one{transform:rotateZ(-4deg) translateZ(5px)}.book-two{transform:translateZ(45px)}.book-three{transform:rotateZ(4deg) translateZ(8px)}
 .book-card,.book-cover,.book-cover h3,.book-cover small,.book-card h4,.book-card>p{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;backface-visibility:hidden}
 .book-cover{filter:none;transform:none}
+
+/* V2 artwork: full-depth sharp photography and individual editorial covers. */
+.hero{background-image:linear-gradient(90deg,rgba(4,12,17,.985) 0%,rgba(7,20,25,.91) 37%,rgba(7,17,22,.35) 68%,rgba(7,17,22,.38) 100%),url("../images/library-hero-sharp-v2.png");background-position:center;background-size:cover;image-rendering:auto}
+.book-cover{isolation:isolate;border:1px solid rgba(255,255,255,.12);background-color:#173b33;background-image:radial-gradient(circle at 72% 27%,transparent 0 29px,rgba(169,232,209,.45) 30px 31px,transparent 32px 43px,rgba(169,232,209,.18) 44px 45px,transparent 46px),linear-gradient(148deg,transparent 0 55%,rgba(169,232,209,.12) 56% 57%,transparent 58%),linear-gradient(135deg,#214e42,#102b25)}
+.book-cover:before{content:"";position:absolute;left:16px;right:16px;top:42px;height:1px;background:rgba(169,232,209,.45);box-shadow:0 4px rgba(169,232,209,.08)}
+.book-cover:after{z-index:-1;background:linear-gradient(90deg,transparent 0 73%,rgba(255,255,255,.035) 74% 75%,transparent 76%),repeating-linear-gradient(0deg,transparent 0 27px,rgba(255,255,255,.025) 28px 29px)}
+.book-cover.cover-brown{background-color:#684b37;background-image:linear-gradient(30deg,transparent 0 45%,rgba(255,246,228,.16) 46% 47%,transparent 48%),linear-gradient(150deg,transparent 0 54%,rgba(255,246,228,.1) 55% 56%,transparent 57%),radial-gradient(ellipse at 76% 22%,transparent 0 25px,rgba(255,246,228,.28) 26px 27px,transparent 28px),linear-gradient(135deg,#7b5a40,#473225)}
+.book-cover.cover-brown:before{top:auto;left:18px;right:18px;bottom:42px;height:44px;border:1px solid rgba(255,246,228,.22);background:repeating-linear-gradient(90deg,transparent 0 10px,rgba(255,246,228,.13) 11px 12px);box-shadow:none}
+.book-cover.cover-ink{background-color:#142332;background-image:radial-gradient(circle at 72% 28%,rgba(40,185,138,.42) 0 3px,transparent 4px),linear-gradient(32deg,transparent 0 49%,rgba(73,207,163,.32) 50% 50.5%,transparent 51%),linear-gradient(145deg,transparent 0 60%,rgba(183,155,123,.21) 61% 61.5%,transparent 62%),linear-gradient(135deg,#223648,#0b1622)}
+.book-cover.cover-ink:before{top:48px;left:24px;width:90px;height:90px;border:1px solid rgba(73,207,163,.32);border-radius:50%;background:radial-gradient(circle at 70% 30%,#49cfa3 0 2px,transparent 3px),radial-gradient(circle at 30% 72%,#b79b7b 0 2px,transparent 3px);box-shadow:none}
+.book-cover h3{font-size:25px;text-shadow:0 1px 0 rgba(0,0,0,.22);letter-spacing:-.01em}.book-cover small{letter-spacing:.2em;font-weight:700}.book-cover b{font-size:54px;opacity:.8;color:rgba(255,255,255,.12)}
