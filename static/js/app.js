@@ -64,5 +64,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   const initialQuery = new URLSearchParams(location.search).get("q");
   if (initialQuery && catalogSearch) { catalogSearch.value = initialQuery; filterCatalog(); }
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const stage = document.querySelector(".product-stage");
+    const depthItems = stage?.querySelectorAll(".book-card, .progress-card, .activity-card, .global-search");
+    stage?.addEventListener("pointermove", event => {
+      const rect = stage.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - .5;
+      const y = (event.clientY - rect.top) / rect.height - .5;
+      depthItems?.forEach((item, index) => {
+        const depth = 4 + index * 2;
+        item.style.translate = `${x * depth}px ${y * depth}px`;
+      });
+    });
+    stage?.addEventListener("pointerleave", () => depthItems?.forEach(item => item.style.translate = "0 0"));
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add("in-view");
+    }), { threshold: .12 });
+    document.querySelectorAll(".catalog-book, .collection-card, .analytics-card, .metric-grid article").forEach(item => observer.observe(item));
+  }
   lucide.createIcons();
 });
