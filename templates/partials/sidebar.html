@@ -4,14 +4,14 @@
     {% if section == 'librarian' %}
       <p class="nav-label">Workspace</p>
       <a class="active" href="{% url 'core:librarian' %}"><i data-lucide="layout-dashboard"></i>Overview</a>
-      <a href="#activity"><i data-lucide="book-copy"></i>Catalogue</a><a href="#activity"><i data-lucide="users"></i>Members</a><a href="#activity"><i data-lucide="repeat-2"></i>Circulation</a>
+      <a href="{% url 'core:librarian_catalogue' %}"><i data-lucide="book-copy"></i>Catalogue & loans</a><a href="{% url 'core:librarian_catalogue' %}#loans"><i data-lucide="repeat-2"></i>Circulation</a>
       <p class="nav-label">Intelligence</p><a href="#analytics"><i data-lucide="chart-no-axes-combined"></i>Analytics</a><a href="#insight"><i data-lucide="sparkles"></i>Insights</a>
     {% else %}
       <p class="nav-label">Library</p>
       <a class="{% if section == 'discover' %}active{% endif %}" href="{% url 'core:discover' %}"><i data-lucide="compass"></i>Discover</a>
       <a href="{% url 'core:discover' %}#popular"><i data-lucide="book-open"></i>Books</a><a href="{% url 'core:discover' %}#papers"><i data-lucide="file-text"></i>Research Papers</a><a href="#"><i data-lucide="tablet"></i>E-Books</a>
-      <p class="nav-label">My Space</p><a class="{% if section == 'student' %}active{% endif %}" href="{% url 'core:student' %}"><i data-lucide="layout-dashboard"></i>Dashboard</a><a href="#"><i data-lucide="bookmark"></i>Saved Resources</a><a href="#"><i data-lucide="history"></i>Reading History</a>
+      <p class="nav-label">My Space</p><a class="{% if section == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a><a href="{% if request.user.is_authenticated %}{% url 'core:student' %}#saved{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="bookmark"></i>Saved Resources</a><a href="{% url 'core:discover' %}"><i data-lucide="history"></i>Reading History</a>
     {% endif %}
   </nav>
-  <div class="sidebar-user"><span class="avatar">SP</span><div><strong>Sai Prasanth</strong><small>{% if section == 'librarian' %}Head Librarian{% else %}Computer Science{% endif %}</small></div><i data-lucide="more-horizontal"></i></div>
+  <div class="sidebar-user"><span class="avatar">{% if request.user.is_authenticated %}{{ request.user.first_name|default:request.user.username|slice:":2"|upper }}{% else %}LT{% endif %}</span><div><strong>{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% else %}Guest reader{% endif %}</strong><small>{% if request.user.is_staff %}Librarian{% elif request.user.student_profile %}{{ request.user.student_profile.department|default:"Student" }}{% else %}Browse the collection{% endif %}</small></div>{% if request.user.is_authenticated %}<form method="post" action="{% url 'core:logout' %}">{% csrf_token %}<button type="submit" aria-label="Sign out" title="Sign out" style="border:0;background:none;color:inherit;cursor:pointer"><i data-lucide="log-out"></i></button></form>{% else %}<a href="{% url 'core:login' %}" aria-label="Sign in"><i data-lucide="log-in"></i></a>{% endif %}</div>
 </aside>

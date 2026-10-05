@@ -9,6 +9,10 @@ LibTrack is a premium digital library management platform for college students a
 - Vercel deployment configuration through native Django detection
 - SQLite fallback for local development
 - MySQL configuration through environment variables
+- Relational catalogue, copies, students, loans, reservations, reading lists, reviews, materials, and activity records
+- Transaction-safe issue, return, fine, reservation-queue, and availability services
+- Student authentication and database-backed dashboard
+- Staff-only catalogue, circulation, analytics, and Django administration
 
 Production: https://libtrack-digital-library.vercel.app
 
@@ -19,6 +23,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py seed_library
 python manage.py runserver
 ```
 
@@ -40,6 +45,14 @@ DJANGO_DEBUG=false
 
 Without `MYSQL_DATABASE`, the project uses local SQLite.
 
+The seed command is idempotent and creates a presentation-ready catalogue plus:
+
+- Student: `demo.student`
+- Librarian: `demo.librarian`
+- Local-only default password: `LibTrackDemo2026!`
+
+Set `LIBTRACK_DEMO_PASSWORD` before seeding any shared environment.
+
 ## Architecture
 
 ```text
@@ -59,15 +72,14 @@ The design language combines academic heritage with modern product clarity:
 - Ink, forest green, paper, cream, warm brown, and functional emerald
 - Product-led layouts rather than generic admin dashboards
 
-Planned implementation order:
+Implemented product flow:
 
-1. Database models and seed data
-2. Authentication and role separation
-3. Discover and global search
-4. Book details and availability
-5. Student dashboard
-6. Librarian dashboard
-7. Borrowing, reservations, reports, and final QA
+1. Registration and authentication
+2. Catalogue search and book availability
+3. Borrowing, returns, reservations, and saved resources
+4. Student loans and reading workspace
+5. Librarian catalogue, circulation, analytics, and reports
+6. MySQL-ready deployment configuration
 
 ## Collaboration
 
