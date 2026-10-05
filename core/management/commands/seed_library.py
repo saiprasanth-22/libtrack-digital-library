@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         students = []
         sample_students = [
-            ("demo.student", "Sai", "Prasanth", "CS", 4),
+            ("demo.student", "Demo", "Student", "CS", 4),
             ("demo.student2", "Mira", "Rao", "Electronics", 6),
             ("demo.student3", "Arjun", "Kumar", "Mechanical", 3),
         ]
@@ -49,6 +49,9 @@ class Command(BaseCommand):
                 "first_name": first, "last_name": last, "is_active": True,
             })
             self._set_password_if_new(user, made, password)
+            if user.first_name != first or user.last_name != last:
+                user.first_name, user.last_name = first, last
+                user.save(update_fields=["first_name", "last_name"])
             profile, _ = StudentProfile.objects.get_or_create(user=user, defaults={
                 "student_id": f"LT2026{index:03d}", "department": department,
                 "semester": semester, "enrollment_year": 2024,
