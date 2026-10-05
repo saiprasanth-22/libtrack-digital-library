@@ -259,14 +259,25 @@ class ImportCommandTests(TestCase):
                          + Book.objects.exclude(cover_family="").count(), 0)
 
     def test_dry_run_rollback_on_crash(self):
-        """A crash inside a dry run must leave no partial data."""
-        with mock.patch("core.models.Book.objects.get_or_create",
+        """A crash mid-import must leave every table untouched.
+
+        ``BookCopy.objects.create`` is detonated: by the time the first book's
+        copies are created, the importer has already written courses, schemes,
+        semesters, subjects, authors and at least one book row - so the
+        assertions below prove those writes were rolled back, not merely that
+        nothing had happened yet.
+        """
+        with mock.patch("core.models.BookCopy.objects.create",
                         side_effect=RuntimeError("boom")):
-            try:
+            with self.assertRaises(RuntimeError):
                 self._run("--dry-run", "--source", str(self.tmp))
-            except RuntimeError:
-                pass
         self.assertEqual(Course.objects.count(), 0)
+        self.assertEqual(CurriculumScheme.objects.count(), 0)
+        self.assertEqual(Semester.objects.count(), 0)
+        self.assertEqual(Subject.objects.count(), 0)
+        self.assertEqual(Author.objects.count(), 0)
+        self.assertEqual(Book.objects.count(), 0)
+        self.assertEqual(BookCopy.objects.count(), 0)
 
     def test_strict_rollback_on_invalid_row(self):
         from pathlib import Path
@@ -301,10 +312,21 @@ class ImportCommandTests(TestCase):
         self.assertGreater(blank.count(), 20)
 
     def test_copies_created_to_requested_count(self):
+        """Exact copy counts from the CSV, and a re-import adds none."""
         self._run("--source", str(self.tmp))
-        from django.db.models import F
-        seeded = Book.objects.filter(cover_family="cybersecurity")
-        self.assertTrue(seeded.exists())
+        # The test database starts empty, so counts must match the CSV exactly.
+        self.assertEqual(
+            BookCopy.objects.filter(book__slug="programming-in-ansi-c").count(), 5)
+        self.assertEqual(
+            BookCopy.objects.filter(book__slug="php-manual-companion").count(), 1)
+        total_after_first = BookCopy.objects.count()
+
+        # Second import: copies must be recognised, never duplicated.
+        output = self._run("--source", str(self.tmp))
+        self.assertEqual(
+            BookCopy.objects.filter(book__slug="programming-in-ansi-c").count(), 5)
+        self.assertEqual(BookCopy.objects.count(), total_after_first)
+        self.assertIn("copies", output)
 
     def test_author_names_split_on_semicolon(self):
         self._run("--source", str(self.tmp))
