@@ -39,6 +39,59 @@ class BookManagementTests(LibrarianTestCase):
         self.assertEqual(book.slug, "transactions-in-practice")
         self.assertTrue(ActivityLog.objects.filter(action=ActivityLog.Action.ADMIN).exists())
 
+    def test_librarian_added_book_is_visible_in_the_public_catalogue(self):
+        """A title added at the desk must actually appear for students.
+
+        `is_active` is a checkbox, so an unchecked box silently creates a book
+        that is hidden everywhere. This guards that regression.
+        """
+        self.client.post(reverse("core:librarian_books"), {
+            "title": "Visible In Catalogue",
+            "isbn": "9780000000009",
+            "total_copies": "2",
+            "is_active": "on",
+        })
+        book = Book.objects.get(isbn="9780000000009")
+        self.assertTrue(book.is_active)
+
+        response = self.client.get(reverse("core:discover"), {"q": "Visible In Catalogue"})
+        self.assertContains(response, "Visible In Catalogue")
+
+        detail = self.client.get(reverse("core:book_detail", args=[book.slug]))
+        self.assertEqual(detail.status_code, 200)
+        self.assertContains(detail, "2 of 2 copies")
+
+    def test_a_retired_book_disappears_from_the_catalogue(self):
+        """Both delete paths must remove the title from the public catalogue.
+
+        Asserted against the rendered result set rather than the raw HTML,
+        because the search term itself is echoed back in the search box.
+        """
+        _, profile = make_student()
+        # No history -> removed outright.
+        removable = make_book(title="Removable Title", copies=1)
+        self.client.post(reverse("core:librarian_book_delete", args=[removable.pk]))
+        self.assertFalse(Book.objects.filter(pk=removable.pk).exists())
+        self.assertEqual(
+            self.client.get(reverse("core:book_detail", args=[removable.slug])).status_code, 404)
+
+        # Has history -> retired, so the record and its loans survive.
+        kept = make_book(title="Retained Title", copies=1)
+        services.borrow_book(profile, kept)
+        self.client.post(reverse("core:librarian_book_delete", args=[kept.pk]))
+        kept.refresh_from_db()
+        self.assertFalse(kept.is_active)
+        self.assertTrue(Loan.objects.filter(book=kept).exists())
+        self.assertEqual(
+            self.client.get(reverse("core:book_detail", args=[kept.slug])).status_code, 404)
+
+        for title in ("Removable Title", "Retained Title"):
+            with self.subTest(title=title):
+                response = self.client.get(reverse("core:discover"), {"q": title})
+                listed = [b.title for b in response.context["books"]]
+                self.assertNotIn(title, listed)
+                self.assertEqual(response.context["total_results"], 0)
+
     def test_adding_a_book_without_a_title_is_rejected(self):
         response = self.client.post(reverse("core:librarian_books"), {
             "title": "", "total_copies": "1"})

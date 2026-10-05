@@ -149,19 +149,19 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(os.getenv("DJANGO_MEDIA_ROOT", BASE_DIR / "media"))
 
-# The hashed manifest only works after `collectstatic` has run. Using it while
-# DEBUG is on (and inside the test suite) raises "Missing staticfiles manifest
-# entry", so the cheap development/test storage is used instead.
-if DEBUG:
-    STORAGES = {
-        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
-    }
-else:
-    STORAGES = {
-        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
-    }
+# The hashed manifest storage is always configured so that `collectstatic`
+# always writes a manifest, whatever DJANGO_DEBUG happens to be at the time.
+# Otherwise running `collectstatic` locally and then serving with
+# DJANGO_DEBUG=false would fail with "Missing staticfiles manifest entry".
+# While DEBUG is on, Django's `{% static %}` tag bypasses the manifest, so
+# development is unaffected. The test suite swaps in a plain backend via
+# LibTrackTestRunner, because it has no collectstatic step.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+TEST_RUNNER = "core.test_runner.LibTrackTestRunner"
 
 WHITENOISE_MAX_AGE = 60 * 60 * 24 * 30 if not DEBUG else 0
 
