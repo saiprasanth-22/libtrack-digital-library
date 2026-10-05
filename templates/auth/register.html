@@ -1,1 +1,53 @@
-{% extends "base.html" %}{% block title %}Create account — LibTrack{% endblock %}{% block content %}<main style="min-height:100vh;background:var(--ink);display:grid;place-items:center;padding:32px;color:var(--cream)"><section style="width:min(100%,560px);padding:42px;background:var(--paper);color:var(--brown);border-radius:24px;box-shadow:0 32px 90px #0007"><a class="brand" style="color:var(--brown);text-decoration:none" href="{% url 'core:home' %}"><span class="brand-mark">L</span><span>LibTrack</span></a><p class="app-eyebrow" style="margin-top:30px">STUDENT MEMBERSHIP</p><h1 style="font:46px/1 var(--serif);margin:0 0 12px">Make room to learn.</h1><p style="color:var(--muted);line-height:1.6;margin-bottom:24px">Create your account to borrow books and save resources.</p><form method="post">{% csrf_token %}<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><label style="font-size:13px;font-weight:700">First name<input name="first_name" autocomplete="given-name" required value="{{ request.POST.first_name|default:'' }}" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label><label style="font-size:13px;font-weight:700">Last name<input name="last_name" autocomplete="family-name" value="{{ request.POST.last_name|default:'' }}" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label></div><label style="display:block;font-size:13px;font-weight:700;margin-top:14px">Student ID<input name="student_id" required value="{{ request.POST.student_id|default:'' }}" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label><label style="display:block;font-size:13px;font-weight:700;margin-top:14px">Department<input name="department" value="{{ request.POST.department|default:'' }}" placeholder="e.g. Computer Science" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label><label style="display:block;font-size:13px;font-weight:700;margin-top:14px">Email<input type="email" name="email" autocomplete="email" required value="{{ request.POST.email|default:'' }}" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label><label style="display:block;font-size:13px;font-weight:700;margin-top:14px">Username<input name="username" autocomplete="username" required value="{{ request.POST.username|default:'' }}" style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><label style="font-size:13px;font-weight:700;margin-top:14px">Password<input type="password" name="password" autocomplete="new-password" required style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label><label style="font-size:13px;font-weight:700;margin-top:14px">Confirm password<input type="password" name="password_confirm" autocomplete="new-password" required style="display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d9d0c2;border-radius:10px"></label></div><button class="button button-primary" style="width:100%;margin-top:24px" type="submit">Create account <i data-lucide="arrow-right"></i></button></form><p style="margin-top:22px;color:var(--muted);font-size:14px">Already a member? <a href="{% url 'core:login' %}" style="color:#21775e">Sign in</a></p></section></main>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Create account — LibTrack{% endblock %}
+{% block content %}
+<main class="auth-shell">
+  <section class="auth-card auth-card-wide">
+    <a class="brand auth-brand" href="{% url 'core:home' %}"><span class="brand-mark">L</span><span>LibTrack</span></a>
+    <p class="app-eyebrow">STUDENT MEMBERSHIP</p>
+    <h1 class="auth-title">Make room to learn.</h1>
+    <p class="auth-lead">Create your account to borrow books and save resources.</p>
+
+    <form method="post" novalidate>{% csrf_token %}
+      {% if form.non_field_errors %}
+        <ul class="form-errors" role="alert">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      {% endif %}
+
+      <div class="form-grid form-grid-2">
+        {% for field in form %}
+          {% if field.name == "first_name" or field.name == "last_name" or field.name == "student_id" or field.name == "department" or field.name == "semester" %}
+            {% include "partials/form_field.html" %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% for field in form %}
+        {% if field.name == "email" or field.name == "username" %}
+          {% include "partials/form_field.html" %}
+        {% endif %}
+      {% endfor %}
+
+      <div class="form-grid form-grid-2">
+        {% for field in form %}
+          {% if field.name == "phone" or field.name == "enrollment_year" or field.name == "password1" or field.name == "password2" %}
+            {% include "partials/form_field.html" %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% for field in form %}
+        {% if field.name == "password1" and field.help_text %}<p class="help-text">{{ field.help_text|safe }}</p>{% endif %}
+      {% endfor %}
+
+      <button class="button button-primary auth-submit" type="submit">Create account <i data-lucide="arrow-right"></i></button>
+    </form>
+
+    <p class="auth-alt">Already a member? <a href="{% url 'core:login' %}">Sign in</a></p>
+  </section>
+  <aside class="auth-aside" aria-hidden="true">
+    <p class="app-eyebrow">MEMBERSHIP</p>
+    <p class="auth-quote">Borrow up to {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }} books at a time for {{ LIBRARY_RULES.LOAN_DAYS }} days.</p>
+    <p class="auth-aside-meta">Free for all registered students</p>
+  </aside>
+</main>
+{% endblock %}

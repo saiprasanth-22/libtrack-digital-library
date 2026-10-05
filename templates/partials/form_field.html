@@ -1,0 +1,11 @@
+{% comment %}Renders one bound form field with its label, help text and errors.{% endcomment %}
+<div class="form-field{% if field.errors %} has-error{% endif %}">
+  {% if field.field.widget.input_type == "checkbox" %}
+    <label class="checkbox-field" for="{{ field.id_for_label }}">{{ field }} <span>{{ field.label }}</span></label>
+  {% else %}
+    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="req" aria-hidden="true">*</span>{% endif %}</label>
+    {{ field }}
+  {% endif %}
+  {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+  {% if field.errors %}<ul class="field-errors" role="alert">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+</div>

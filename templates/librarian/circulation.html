@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Circulation desk — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">CIRCULATION DESK</p>
+        <h1>Issue, approve and return</h1>
+        <p>Every action here runs inside a database transaction, so the available-copy count can never drift.</p>
+      </div>
+
+      <div class="panel-grid">
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-head">
+              <div><p class="app-eyebrow">BOOKS OUT</p><h2>{{ active_loans|length }} active loan{{ active_loans|length|pluralize }}</h2></div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Student</th><th>Title</th><th>Due</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                  {% for loan in active_loans %}
+                    <tr>
+                      <td><a href="{% url 'core:librarian_student_detail' loan.student.pk %}">{{ loan.student.display_name }}</a><br><small style="color:#8a8178">{{ loan.student.student_id }}</small></td>
+                      <td>{{ loan.book.title }}</td>
+                      <td>{{ loan.due_at|date:"d M Y" }}</td>
+                      <td><span class="badge {% if loan.is_overdue %}badge-overdue{% else %}badge-{{ loan.status }}{% endif %}"><i></i>{{ loan.get_status_display }}</span></td>
+                      <td>
+                        <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                          <input type="hidden" name="next" value="{% url 'core:librarian_circulation' %}">
+                          <button class="btn-inline" type="submit"><i data-lucide="undo-2"></i>Return</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="5" class="inline-note">No books are currently checked out.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div><p class="app-eyebrow">AWAITING REVIEW</p><h2>{{ pending_requests|length }} pending request{{ pending_requests|length|pluralize }}</h2></div>
+            </div>
+            <div class="desk-list">
+              {% for loan in pending_requests %}
+                <div class="desk-row">
+                  <div><strong>{{ loan.book.title }}</strong><small>{{ loan.student.display_name }} · {{ loan.student.student_id }} · requested {{ loan.requested_at|timesince }} ago</small></div>
+                  <div class="desk-actions">
+                    <form method="post" action="{% url 'core:librarian_request_approve' loan.pk %}" class="form-inline">{% csrf_token %}<button class="btn-inline is-primary" type="submit">Approve &amp; issue</button></form>
+                    <form method="post" action="{% url 'core:librarian_request_reject' loan.pk %}" class="form-inline">
+                      {% csrf_token %}<input type="hidden" name="reason" value="Declined by librarian">
+                      <button class="btn-inline is-danger" type="submit">Reject</button>
+                    </form>
+                  </div>
+                </div>
+              {% empty %}
+                <p class="inline-note">No requests are waiting for review.</p>
+              {% endfor %}
+            </div>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-head"><div><p class="app-eyebrow">NEW LOAN</p><h2>Issue a book</h2></div></div>
+            <form method="post" action="{% url 'core:librarian_circulation' %}" novalidate>{% csrf_token %}
+              <input type="hidden" name="action" value="issue">
+              {% if issue_form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in issue_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              {% for field in issue_form %}{% include "partials/form_field.html" %}{% endfor %}
+              <button class="button button-primary" type="submit" style="width:100%">Issue book <i data-lucide="arrow-right"></i></button>
+            </form>
+            <p class="inline-note" style="margin-top:12px">Leave the due date blank to use the standard {{ LIBRARY_RULES.LOAN_DAYS }}-day loan. A student may hold at most {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }} books.</p>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><p class="app-eyebrow">ON THE SHELF</p><h2>Titles with free copies</h2></div></div>
+            <div class="bar-list">
+              {% for book in available_copies %}
+                <div class="bar-item">
+                  <span title="{{ book.title }}">{{ book.title }}</span>
+                  <b>{{ book.available_copies }}</b>
+                </div>
+              {% empty %}
+                <p class="inline-note">No title currently has a free copy.</p>
+              {% endfor %}
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.display_name }} — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">STUDENT RECORD</p>
+        <h1>{{ profile.display_name }}</h1>
+        <p>{{ profile.student_id }} · {{ profile.department|default:"No course recorded" }} · semester {{ profile.semester|default:"—" }} · joined {{ profile.created_at|date:"F Y" }}</p>
+      </div>
+
+      <div class="metric-list" style="margin-bottom:24px">
+        <div><small>Active loans</small><strong>{{ stats.active_loans }}</strong></div>
+        <div><small>Overdue</small><strong>{{ stats.overdue_loans }}</strong></div>
+        <div><small>Returned</small><strong>{{ stats.returned_loans }}</strong></div>
+        <div><small>Pending requests</small><strong>{{ stats.pending_requests }}</strong></div>
+        <div><small>Loan limit</small><strong>{{ LIBRARY_RULES.MAX_ACTIVE_LOANS }}</strong></div>
+      </div>
+
+      <div class="panel-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">ACCOUNT</p><h2>Access</h2></div>
+            {% if profile.user_id == request.user.pk %}
+              <span class="badge badge-neutral">This is you</span>
+            {% else %}
+              <form method="post" action="{% url 'core:librarian_student_toggle' profile.pk %}" class="form-inline"
+                    onsubmit="return confirm('{% if profile.is_active %}Deactivate{% else %}Reactivate{% endif %} this account?');">
+                {% csrf_token %}
+                <button class="btn-inline {% if profile.is_active %}is-danger{% else %}is-primary{% endif %}" type="submit">
+                  {% if profile.is_active %}Deactivate account{% else %}Reactivate account{% endif %}
+                </button>
+              </form>
+            {% endif %}
+          </div>
+          <dl class="detail-list">
+            <div><dt>Email</dt><dd>{{ profile.user.email }}</dd></div>
+            <div><dt>Username</dt><dd>{{ profile.user.username }}</dd></div>
+            <div><dt>Phone</dt><dd>{{ profile.phone|default:"—" }}</dd></div>
+            <div><dt>Enrollment year</dt><dd>{{ profile.enrollment_year|default:"—" }}</dd></div>
+            <div><dt>Borrowing rights</dt><dd>{% if profile.is_active %}Active{% else %}Suspended{% endif %}</dd></div>
+            <div><dt>Login</dt><dd>{% if profile.user.is_active %}Enabled{% else %}Disabled{% endif %}</dd></div>
+          </dl>
+          <p class="inline-note" style="margin-top:14px">Deactivating a student blocks new borrowing but keeps every loan on record. The password hash is never displayed.</p>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="app-eyebrow">ON LOAN NOW</p><h2>{{ active_loans|length }} active</h2></div></div>
+          <div class="desk-list">
+            {% for loan in active_loans %}
+              <div class="desk-row">
+                <div><strong>{{ loan.book.title }}</strong><small>Due {{ loan.due_at|date:"d M Y" }}{% if loan.is_overdue %} · overdue{% endif %}</small></div>
+                <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                  <input type="hidden" name="next" value="{% url 'core:librarian_student_detail' profile.pk %}">
+                  <button class="btn-inline" type="submit">Record return</button>
+                </form>
+              </div>
+            {% empty %}
+              <p class="inline-note">No books are currently on loan.</p>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+
+      {% if requested_loans %}
+        <div class="section-heading"><div><p class="app-eyebrow">AWAITING REVIEW</p><h2>Pending requests</h2></div></div>
+        <div class="panel">
+          <div class="desk-list">
+            {% for loan in requested_loans %}
+              <div class="desk-row">
+                <div><strong>{{ loan.book.title }}</strong><small>Requested {{ loan.requested_at|timesince }} ago</small></div>
+                <div class="desk-actions">
+                  <form method="post" action="{% url 'core:librarian_request_approve' loan.pk %}" class="form-inline">{% csrf_token %}<button class="btn-inline is-primary" type="submit">Approve</button></form>
+                  <form method="post" action="{% url 'core:librarian_request_reject' loan.pk %}" class="form-inline">{% csrf_token %}<button class="btn-inline is-danger" type="submit">Reject</button></form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="section-heading"><div><p class="app-eyebrow">COMPLETE HISTORY</p><h2>{{ returned_loans|length }} returned</h2></div></div>
+      {% if returned_loans %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Issued</th><th>Due</th><th>Returned</th><th>Renewals</th><th>Fine</th></tr></thead>
+            <tbody>
+              {% for loan in returned_loans %}
+                <tr>
+                  <td><a href="{% url 'core:book_detail' loan.book.slug %}">{{ loan.book.title }}</a></td>
+                  <td>{{ loan.issued_at|date:"d M Y"|default:"—" }}</td>
+                  <td>{{ loan.due_at|date:"d M Y"|default:"—" }}</td>
+                  <td>{{ loan.returned_at|date:"d M Y"|default:"—" }}</td>
+                  <td>{{ loan.renewal_count }}</td>
+                  <td>{{ loan.fine_amount }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="inline-note">This student has not returned any books yet.</p>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Catalogue — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">LIBRARIAN WORKSPACE</p>
+        <h1>Catalogue management</h1>
+        <p>Add titles, adjust how many physical copies the library holds, and keep availability accurate.</p>
+      </div>
+
+      <div class="panel-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">IN THE CATALOGUE</p><h2>{{ total_results }} title{{ total_results|pluralize }}</h2></div>
+          </div>
+          <form class="discovery-search" action="{% url 'core:librarian_books' %}" method="get" role="search" style="box-shadow:none;border:1px solid #e2d8c8">
+            <i data-lucide="search"></i>
+            <label class="visually-hidden" for="admin-book-search">Search the catalogue</label>
+            <input id="admin-book-search" name="q" value="{{ query }}" placeholder="Search title, author or ISBN…">
+            <button type="submit">Search <i data-lucide="search"></i></button>
+          </form>
+
+          <div class="table-wrap" style="margin-top:18px">
+            <table class="data-table">
+              <thead><tr><th>Title</th><th>Copies</th><th>Available</th><th>State</th><th>Actions</th></tr></thead>
+              <tbody>
+                {% for book in books %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'core:book_detail' book.slug %}">{{ book.title }}</a><br>
+                      <small style="color:#8a8178">{{ book.isbn|default:"No ISBN" }} · {{ book.author_names|truncatechars:38 }}</small>
+                    </td>
+                    <td>{{ book.total_copies }}</td>
+                    <td>{% if book.available_copies %}<span class="badge badge-available"><i></i>{{ book.available_copies }}</span>{% else %}<span class="badge badge-unavailable"><i></i>0</span>{% endif %}</td>
+                    <td>{% if book.is_active %}<span class="badge badge-available"><i></i>Active</span>{% else %}<span class="badge badge-neutral"><i></i>Retired</span>{% endif %}</td>
+                    <td>
+                      <div class="desk-actions">
+                        <a class="btn-inline" href="{% url 'core:librarian_book_edit' book.pk %}">Edit</a>
+                        <a class="btn-inline" href="{% url 'core:librarian_copies' book.pk %}">Copies</a>
+                        <form method="post" action="{% url 'core:librarian_book_delete' book.pk %}" class="form-inline"
+                              onsubmit="return confirm('Retire or delete “{{ book.title|escapejs }}”? Borrowing history is always kept.');">
+                          {% csrf_token %}<button class="btn-inline is-danger" type="submit">Delete</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="5" class="inline-note">No catalogue records yet. Add the first title using the form.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% include "partials/pagination.html" %}
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">ADD TO COLLECTION</p><h2>New book</h2></div>
+          </div>
+          <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+            {% if form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+            <button class="button button-primary" type="submit" style="width:100%;margin-top:10px">Add book <i data-lucide="plus"></i></button>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

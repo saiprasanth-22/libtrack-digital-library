@@ -5,12 +5,22 @@
   <section class="hero" id="home">
     <div class="hero-glow" aria-hidden="true"></div>
     <nav class="navbar container" aria-label="Main navigation">
-      <a class="brand" href="#home"><span class="brand-mark">L</span><span>LibTrack</span></a>
+      <a class="brand" href="{% url 'core:home' %}"><span class="brand-mark">L</span><span>LibTrack</span></a>
       <div class="nav-links">
-        <a href="{% url 'core:discover' %}">Discover</a><a href="{% url 'core:discover' %}#papers">Digital Resources</a><a href="#discover">How It Works</a><a href="#discover">About</a>
+        <a href="{% url 'core:discover' %}">Discover</a>
+        <a href="{% url 'core:materials' %}">Digital Resources</a>
+        <a href="#discover">How It Works</a>
+        {% if request.user.is_authenticated %}<a href="{% url 'core:student' %}">My Library</a>{% endif %}
       </div>
-      <div class="nav-actions"><a href="{% url 'core:login' %}" class="sign-in">Sign In</a><a href="{% url 'core:register' %}" class="button button-primary button-small">Get Started</a></div>
-      <button class="menu-button" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <div class="nav-actions">
+        {% if request.user.is_authenticated %}
+          <a class="sign-in" href="{% url 'core:dashboard' %}">My dashboard</a>
+        {% else %}
+          <a class="sign-in" href="{% url 'core:login' %}">Sign In</a>
+          <a class="button button-primary button-small" href="{% url 'core:register' %}">Get Started</a>
+        {% endif %}
+      </div>
+      <button class="menu-button" data-tour-open aria-label="Open platform tour"><i data-lucide="menu"></i></button>
     </nav>
 
     <div class="hero-grid container">
@@ -23,26 +33,70 @@
           <a class="button button-primary" href="{% url 'core:discover' %}">Explore the Library <i data-lucide="arrow-right"></i></a>
           <button class="button button-tour" data-tour-open><span class="play"><i data-lucide="play"></i></span>Watch Platform Tour</button>
         </div>
-        <div class="micro-stats"><span><strong>12K+</strong> books</span><i></i><span><strong>3K</strong> students</span><i></i><span>Available anytime</span></div>
+        <div class="micro-stats">
+          <span><strong>{{ total_books }}</strong> titles</span><i></i>
+          <span><strong>{{ available_copies }}</strong> of {{ total_copies }} copies ready</span><i></i>
+          <span><strong>{{ student_count }}</strong> students</span>
+        </div>
       </div>
 
       <div class="product-stage" aria-label="LibTrack product preview">
-        <label class="global-search"><i data-lucide="search"></i><input placeholder="Search books, authors, or resources"><kbd>Ctrl K</kbd></label>
-        <div class="availability"><span></span>Available now</div>
-        <article class="book-card hero-book book-one" aria-label="The Architecture of Knowledge by A. Raman">
-          <div class="book-pages" aria-hidden="true"></div><div class="book-spine" aria-hidden="true"><span>THE ARCHITECTURE OF KNOWLEDGE</span></div>
-          <div class="book-cover"><small>LIBTRACK ACADEMIC · VOL. 01</small><h3>The Architecture<br>of Knowledge</h3><span class="book-author">LIBTRACK EDITIONS</span><b aria-hidden="true">01</b><span class="book-imprint">LIBTRACK PRESS</span></div>
+        <form class="global-search" action="{% url 'core:discover' %}" method="get" role="search">
+          <i data-lucide="search"></i>
+          <label class="visually-hidden" for="hero-search">Search the library</label>
+          <input id="hero-search" name="q" placeholder="Search books, authors, or resources">
+          <kbd>Ctrl K</kbd>
+        </form>
+        <div class="availability"><span></span>{{ available_copies }} available now</div>
+
+        <article class="book-card hero-book book-one" aria-label="{{ featured_books.0.title|default:'The Architecture of Knowledge' }}">
+          <div class="book-pages" aria-hidden="true"></div>
+          <div class="book-spine" aria-hidden="true"><span>{{ featured_books.0.title|default:"THE ARCHITECTURE OF KNOWLEDGE"|upper }}</span></div>
+          <div class="book-cover">
+            <small>{% with cat=featured_books.0.category_names.first %}{{ cat|default:"LIBTRACK ACADEMIC"|upper }} · VOL. 01{% endwith %}</small>
+            <h3>{% if featured_books.0 %}{{ featured_books.0.title }}{% else %}The Architecture<br>of Knowledge{% endif %}</h3>
+            <span class="book-author">{{ featured_books.0.author_names|default:"LIBTRACK EDITIONS"|upper }}</span>
+            <b aria-hidden="true">01</b>
+            <span class="book-imprint">LIBTRACK PRESS</span>
+          </div>
         </article>
-        <article class="book-card hero-book book-two" aria-label="Data, Systems and Society by M. Desai">
-          <div class="book-pages" aria-hidden="true"></div><div class="book-spine"><span>DATA, SYSTEMS &amp; SOCIETY</span></div>
-          <div class="book-cover cover-brown"><small>COMPUTER SCIENCE · VOL. 02</small><h3>Data, Systems<br>&amp; Society</h3><span class="book-author">LIBTRACK EDITIONS</span><b aria-hidden="true">02</b><span class="book-imprint">LIBTRACK PRESS</span></div>
+
+        <article class="book-card hero-book book-two" aria-label="{{ featured_books.1.title|default:'Data, Systems and Society' }}">
+          <div class="book-pages" aria-hidden="true"></div>
+          <div class="book-spine"><span>{{ featured_books.1.title|default:"DATA, SYSTEMS & SOCIETY"|upper }}</span></div>
+          <div class="book-cover cover-brown">
+            <small>{% with cat=featured_books.1.category_names.first %}{{ cat|default:"COMPUTER SCIENCE"|upper }} · VOL. 02{% endwith %}</small>
+            <h3>{% if featured_books.1 %}{{ featured_books.1.title }}{% else %}Data, Systems<br>&amp; Society{% endif %}</h3>
+            <span class="book-author">{{ featured_books.1.author_names|default:"LIBTRACK EDITIONS"|upper }}</span>
+            <b aria-hidden="true">02</b>
+            <span class="book-imprint">LIBTRACK PRESS</span>
+          </div>
         </article>
-        <article class="book-card hero-book book-three" aria-label="Algorithms for Everyday Life by N. Shah">
-          <div class="book-pages" aria-hidden="true"></div><div class="book-spine"><span>ALGORITHMS FOR EVERYDAY LIFE</span></div>
-          <div class="book-cover cover-ink"><small>FOUNDATIONS · VOL. 03</small><h3>Algorithms for<br>Everyday Life</h3><span class="book-author">LIBTRACK EDITIONS</span><b aria-hidden="true">03</b><span class="book-imprint">LIBTRACK PRESS</span></div>
+
+        <article class="book-card hero-book book-three" aria-label="{{ featured_books.2.title|default:'Algorithms for Everyday Life' }}">
+          <div class="book-pages" aria-hidden="true"></div>
+          <div class="book-spine"><span>{{ featured_books.2.title|default:"ALGORITHMS FOR EVERYDAY LIFE"|upper }}</span></div>
+          <div class="book-cover cover-ink">
+            <small>{% with cat=featured_books.2.category_names.first %}{{ cat|default:"FOUNDATIONS"|upper }} · VOL. 03{% endwith %}</small>
+            <h3>{% if featured_books.2 %}{{ featured_books.2.title }}{% else %}Algorithms for<br>Everyday Life{% endif %}</h3>
+            <span class="book-author">{{ featured_books.2.author_names|default:"LIBTRACK EDITIONS"|upper }}</span>
+            <b aria-hidden="true">03</b>
+            <span class="book-imprint">LIBTRACK PRESS</span>
+          </div>
         </article>
-        <article class="progress-card"><span>Reading progress</span><strong>68% complete</strong><div class="progress-track"><i></i></div></article>
-        <article class="activity-card"><span>Weekly reading activity</span><div class="chart" aria-label="Weekly reading activity chart"><i style="--h:30%"></i><i style="--h:52%"></i><i style="--h:42%"></i><i style="--h:68%"></i><i style="--h:56%"></i><i class="active" style="--h:84%"></i><i style="--h:64%"></i></div></article>
+
+        <article class="progress-card">
+          <span>Copies on the shelf</span>
+          <strong>{{ available_copies }} ready</strong>
+          <div class="progress-track"><i style="width:{% if total_copies %}{% widthratio available_copies total_copies 100 %}{% else %}0{% endif %}%"></i></div>
+        </article>
+        <article class="activity-card">
+          <span>Collection at a glance</span>
+          <div class="chart" role="img" aria-label="{{ total_books }} titles across {{ total_copies }} copies">
+            <i style="--h:30%"></i><i style="--h:52%"></i><i style="--h:42%"></i>
+            <i style="--h:68%"></i><i style="--h:56%"></i><i class="active" style="--h:84%"></i><i style="--h:64%"></i>
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -59,15 +113,30 @@
       </div>
     </div>
   </section>
+
+  {% if featured_books %}
+  <section class="intro" style="background:var(--cream);padding-top:0">
+    <div class="container">
+      <div class="section-heading" id="popular"><div><p class="app-eyebrow dark">FROM THE COLLECTION</p><h2>Featured titles</h2></div><a href="{% url 'core:discover' %}">Browse the catalogue <i data-lucide="arrow-right"></i></a></div>
+      <div class="book-grid">{% for book in featured_books %}{% include "partials/book_card.html" %}{% endfor %}</div>
+    </div>
+  </section>
+  {% endif %}
 </main>
 
 <dialog class="tour-dialog" aria-labelledby="tour-title">
-  <div class="tour-head"><div><p class="eyebrow dark">Guided walkthrough</p><h2 id="tour-title">Platform Tour</h2></div><button class="icon-button" data-tour-close aria-label="Close tour"><i data-lucide="x"></i></button></div>
+  <div class="tour-head">
+    <div><p class="eyebrow dark">Guided walkthrough</p><h2 id="tour-title">Platform Tour</h2></div>
+    <button class="icon-button" data-tour-close aria-label="Close tour"><i data-lucide="x"></i></button>
+  </div>
   <div class="tour-steps" role="tablist"></div>
   <section class="tour-stage" aria-live="polite">
     <div class="tour-icon"><i data-lucide="search"></i></div>
     <div><p class="tour-count">Step 1 of 5</p><h3>Find knowledge in seconds.</h3><p>Search across books, research papers, journals, course material, authors, subjects and ISBNs from one command centre.</p></div>
   </section>
-  <div class="tour-footer"><button class="text-button" data-tour-prev>← Previous</button><button class="button button-primary" data-tour-next>Next: Recommendations <i data-lucide="arrow-right"></i></button></div>
+  <div class="tour-footer">
+    <button class="text-button" data-tour-prev>← Previous</button>
+    <button class="button button-primary" data-tour-next>Next: Recommendations <i data-lucide="arrow-right"></i></button>
+  </div>
 </dialog>
 {% endblock %}

@@ -1,14 +1,140 @@
-{% extends "base.html" %}{% block title %}Discover — LibTrack{% endblock %}{% block content %}
-<div class="app-shell">{% include "partials/sidebar.html" with section="discover" %}<main class="app-main">{% include "partials/topbar.html" %}
-  <section class="discover-hero"><div class="architectural-bg"></div><div class="discover-copy"><p class="app-eyebrow">CURATED FOR CURIOUS MINDS</p><h1>Discover something<br><em>worth knowing.</em></h1><p>A considered collection of books, research papers, journals, and academic resources — all in one place.</p></div><div class="hero-index"><span>THE ACADEMIC COLLECTION</span><b>01</b></div></section>
-  <section class="content-pad">
-    <form class="discovery-search" action="{% url 'core:discover' %}" method="get"><i data-lucide="search"></i><input name="q" value="{{ query }}" data-catalog-search placeholder="Search books, authors, subjects, ISBNs, or resources…"><button type="submit">Search <i data-lucide="search"></i></button></form>
-    <div class="filter-row"><a class="{% if not category %}active{% endif %}" href="{% url 'core:discover' %}{% if query %}?q={{ query|urlencode }}{% endif %}">All resources</a><a class="{% if category == 'Computer Science' %}active{% endif %}" href="?category=Computer%20Science">Computer Science</a><a class="{% if category == 'Data Systems' %}active{% endif %}" href="?category=Data%20Systems">Data Systems</a><a class="{% if category == 'Machine Learning' %}active{% endif %}" href="?category=Machine%20Learning">Machine Learning</a></div>
-    <div class="section-heading"><div><p class="app-eyebrow">HANDPICKED FOR YOU</p><h2>Curated collections</h2></div><a href="#popular">View all <i data-lucide="arrow-right"></i></a></div>
-    <div class="collection-grid"><article class="collection-card forest-card"><span>01 · PERSONALIZED</span><h3>Recommended for<br>Computer Science</h3><p>32 resources selected from your semester and recent reading.</p><a href="#popular">Explore collection →</a></article><article class="collection-card paper-card"><span>02 · NEW ARRIVALS</span><h3>Fresh from<br>the catalogue</h3><p>New books, journals and papers added to the library this week.</p><a href="#popular">Browse additions →</a></article><article class="collection-card brown-card"><span>03 · FACULTY PICKS</span><h3>Essential reading<br>from your faculty</h3><p>Reference material selected by faculty across departments.</p><a href="#popular">Open the list →</a></article></div>
-    <div class="section-heading" id="popular"><div><p class="app-eyebrow">MOST BORROWED</p><h2>Popular books</h2></div><span class="result-count" data-results>{{ books|length }} resources</span></div>
-    <div class="book-grid">{% for item in books %}{% include "partials/book_card.html" %}{% endfor %}</div>
-    <div class="section-heading" id="papers"><div><p class="app-eyebrow">ACADEMIC RESEARCH</p><h2>Research papers</h2></div><a href="#">Explore archive <i data-lucide="arrow-right"></i></a></div>
-    <div class="paper-list">{% for material in materials %}<article><div class="paper-icon"><i data-lucide="file-text"></i></div><div><small>{{ material.get_material_type_display|upper }}{% if material.subject %} · {{ material.subject.name|upper }}{% endif %}</small><h3>{{ material.title }}</h3><p>{{ material.authors.all|join:", " }}{% if material.publication_date %} · {{ material.publication_date|date:"Y" }}{% endif %}</p></div>{% if material.file_url or material.external_url %}<a href="{{ material.file_url|default:material.external_url }}" target="_blank" rel="noopener">Open <i data-lucide="arrow-up-right"></i></a>{% else %}<span>Available in library</span>{% endif %}</article>{% empty %}<article><div class="paper-icon"><i data-lucide="file-text"></i></div><div><small>RESEARCH ARCHIVE</small><h3>Research materials will appear here</h3><p>Digital papers and journals added by your library.</p></div></article>{% endfor %}</div>
-  </section>
-</main></div>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Discover — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="discover-hero">
+      <div class="architectural-bg"></div>
+      <div class="discover-copy">
+        <p class="app-eyebrow">CURATED FOR CURIOUS MINDS</p>
+        <h1>Discover something<br><em>worth knowing.</em></h1>
+        <p>A considered collection of books, research papers, journals, and academic resources — all in one place.</p>
+      </div>
+      <div class="hero-index"><span>THE ACADEMIC COLLECTION</span><b>{{ total_results }}</b></div>
+    </section>
+
+    <section class="content-pad">
+      <form class="discovery-search" action="{% url 'core:discover' %}" method="get" role="search">
+        <i data-lucide="search"></i>
+        <label class="visually-hidden" for="catalogue-search">Search the catalogue</label>
+        <input id="catalogue-search" name="q" value="{{ form.q.value|default:'' }}" placeholder="Search books, authors, subjects, ISBNs, or resources…">
+        {% if form.category.value %}<input type="hidden" name="category" value="{{ form.category.value }}">{% endif %}
+        {% if form.availability.value %}<input type="hidden" name="availability" value="{{ form.availability.value }}">{% endif %}
+        {% if form.sort.value %}<input type="hidden" name="sort" value="{{ form.sort.value }}">{% endif %}
+        <button type="submit">Search <i data-lucide="search"></i></button>
+      </form>
+
+      <div class="filter-row" role="group" aria-label="Filter by category">
+        <a class="{% if not form.category.value %}active{% endif %}" href="{% url 'core:discover' %}{% if form.q.value %}?q={{ form.q.value|urlencode }}{% endif %}">All resources</a>
+        {% for category in categories %}
+          <a class="{% if form.category.value|stringformat:'s' == category.pk|stringformat:'s' %}active{% endif %}"
+             href="?{% if form.q.value %}q={{ form.q.value|urlencode }}&amp;{% endif %}category={{ category.pk }}">{{ category.name }}</a>
+        {% endfor %}
+      </div>
+
+      <form class="toolbar" method="get" action="{% url 'core:discover' %}" style="margin-top:18px">
+        <div class="toolbar-row">
+          <div class="form-field">
+            <label for="id_q">Search</label>
+            <input class="field-input" id="id_q" name="q" value="{{ form.q.value|default:'' }}" placeholder="Title, author, ISBN or keyword…">
+          </div>
+          <div class="form-field">
+            <label for="id_category">Category</label>
+            <select class="field-input" id="id_category" name="category">
+              <option value="">All categories</option>
+              {% for category in categories %}
+                <option value="{{ category.pk }}" {% if form.category.value|stringformat:'s' == category.pk|stringformat:'s' %}selected{% endif %}>{{ category.name }} ({{ category.book_count }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_availability">Availability</label>
+            <select class="field-input" id="id_availability" name="availability">
+              {% for value, label in form.fields.availability.choices %}
+                <option value="{{ value }}" {% if form.availability.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_sort">Sort by</label>
+            <select class="field-input" id="id_sort" name="sort">
+              {% for value, label in form.fields.sort.choices %}
+                <option value="{{ value }}" {% if form.sort.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="button button-primary" type="submit" style="height:42px">Apply</button>
+        </div>
+      </form>
+
+      {% if not form.is_filtered and categories %}
+        <div class="section-heading"><div><p class="app-eyebrow">BROWSE THE SHELVES</p><h2>Collections</h2></div></div>
+        <div class="collection-grid">
+          <article class="collection-card forest-card">
+            <span>01 · {{ categories.0.book_count }} TITLES</span>
+            <h3>{{ categories.0.name }}</h3>
+            <p>{{ categories.0.description|default:"Titles filed under this subject across the collection." }}</p>
+            <a href="?category={{ categories.0.pk }}">Explore collection →</a>
+          </article>
+          <article class="collection-card paper-card">
+            <span>02 · {{ categories.1.book_count }} TITLES</span>
+            <h3>{{ categories.1.name }}</h3>
+            <p>{{ categories.1.description|default:"Titles filed under this subject across the collection." }}</p>
+            <a href="?category={{ categories.1.pk }}">Explore collection →</a>
+          </article>
+          <article class="collection-card brown-card">
+            <span>03 · {{ categories.2.book_count }} TITLES</span>
+            <h3>{{ categories.2.name }}</h3>
+            <p>{{ categories.2.description|default:"Titles filed under this subject across the collection." }}</p>
+            <a href="?category={{ categories.2.pk }}">Explore collection →</a>
+          </article>
+        </div>
+      {% endif %}
+
+      <div class="section-heading" id="popular">
+        <div><p class="app-eyebrow">{% if form.is_filtered %}SEARCH RESULTS{% else %}MOST BORROWED{% endif %}</p><h2>{% if form.is_filtered %}Matching titles{% else %}Popular books{% endif %}</h2></div>
+        <span class="result-count">{{ total_results }} title{{ total_results|pluralize }}</span>
+      </div>
+
+      {% if books %}
+        <div class="book-grid">{% for book in books %}{% include "partials/book_card.html" %}{% endfor %}</div>
+        {% include "partials/pagination.html" %}
+      {% else %}
+        <div class="empty-state">
+          <i data-lucide="search-x"></i>
+          <h3>No titles matched</h3>
+          <p>Try a different keyword, or clear the filters to see the whole collection.</p>
+          <a class="btn-inline is-primary" href="{% url 'core:discover' %}">Clear all filters</a>
+        </div>
+      {% endif %}
+
+      <div class="section-heading" id="papers">
+        <div><p class="app-eyebrow">ACADEMIC RESEARCH</p><h2>Research papers</h2></div>
+        <a href="{% url 'core:materials' %}">Explore archive <i data-lucide="arrow-right"></i></a>
+      </div>
+      <div class="paper-list">
+        {% for material in materials %}
+          <article>
+            <div class="paper-icon"><i data-lucide="file-text"></i></div>
+            <div>
+              <small>{{ material.get_material_type_display|upper }}{% if material.subject %} · {{ material.subject.name|upper }}{% endif %}</small>
+              <h3>{{ material.title }}</h3>
+              <p>{{ material.author_names }}{% if material.book %} · {{ material.book.title }}{% endif %}</p>
+            </div>
+            {% if material.external_url %}
+              <a href="{{ material.external_url }}" target="_blank" rel="noopener noreferrer">Open <i data-lucide="arrow-up-right"></i></a>
+            {% else %}
+              <span>Available in library</span>
+            {% endif %}
+          </article>
+        {% empty %}
+          <article><div class="paper-icon"><i data-lucide="file-text"></i></div><div><small>RESEARCH ARCHIVE</small><h3>Research materials will appear here</h3><p>Digital papers and journals added by your library.</p></div></article>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

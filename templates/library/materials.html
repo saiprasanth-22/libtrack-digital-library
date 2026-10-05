@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Digital resources — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="discover-hero">
+      <div class="architectural-bg"></div>
+      <div class="discover-copy">
+        <p class="app-eyebrow">DIGITAL LEARNING</p>
+        <h1>Resources worth<br><em>opening a tab for.</em></h1>
+        <p>Study notes, research papers, journals and e-books curated by the library for every registered student.</p>
+      </div>
+      <div class="hero-index"><span>THE DIGITAL ARCHIVE</span><b>{{ total_results }}</b></div>
+    </section>
+
+    <section class="content-pad">
+      <form class="discovery-search" action="{% url 'core:materials' %}" method="get" role="search">
+        <i data-lucide="search"></i>
+        <label class="visually-hidden" for="materials-search">Search digital resources</label>
+        <input id="materials-search" name="q" value="{{ query }}" placeholder="Search papers, notes and e-books…">
+        <button type="submit">Search <i data-lucide="search"></i></button>
+      </form>
+
+      <div class="section-heading">
+        <div><p class="app-eyebrow">{% if query %}SEARCH RESULTS{% else %}AVAILABLE NOW{% endif %}</p><h2>{% if query %}Matching resources{% else %}All digital materials{% endif %}</h2></div>
+        <span class="result-count">{{ total_results }} resource{{ total_results|pluralize }}</span>
+      </div>
+
+      {% if materials %}
+        <div class="paper-list">
+          {% for material in materials %}
+            <article>
+              <div class="paper-icon"><i data-lucide="file-text"></i></div>
+              <div>
+                <small>{{ material.get_material_type_display|upper }}{% if material.subject %} · {{ material.subject.name|upper }}{% endif %}</small>
+                <h3>{{ material.title }}</h3>
+                <p>{{ material.description|default:material.author_names }}</p>
+                {% if material.book %}<p><a href="{% url 'core:book_detail' material.book.slug %}">Related title: {{ material.book.title }}</a></p>{% endif %}
+              </div>
+              <div class="desk-actions">
+                {% if material.external_url %}
+                  <a class="btn-inline is-primary" href="{{ material.external_url }}" target="_blank" rel="noopener noreferrer">Open <i data-lucide="arrow-up-right"></i></a>
+                {% elif material.file %}
+                  <a class="btn-inline is-primary" href="{{ material.file.url }}">Download <i data-lucide="download"></i></a>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+        {% include "partials/pagination.html" %}
+      {% else %}
+        <div class="empty-state">
+          <i data-lucide="folder-open"></i>
+          <h3>No resources found</h3>
+          <p>{% if query %}Nothing matched “{{ query }}”. Try a broader term.{% else %}The librarian has not published any digital materials yet.{% endif %}</p>
+          {% if query %}<a class="btn-inline is-primary" href="{% url 'core:materials' %}">Clear search</a>{% endif %}
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -1,11 +1,166 @@
-{% extends "base.html" %}{% block title %}{{ book.title }} — LibTrack{% endblock %}{% block content %}
-<div class="app-shell">{% include "partials/sidebar.html" with section="discover" %}<main class="app-main">{% include "partials/topbar.html" %}<section class="content-pad detail-page">
-  <div class="breadcrumb"><a href="{% url 'core:discover' %}">Discover</a><span>/</span><a href="#">Computer Science</a><span>/</span><b>{{ book.title }}</b></div>
-  <div class="detail-grid"><div class="book-showcase"><div class="book-spine"></div><div class="large-cover"><small>SEVENTH EDITION</small><h2>DATABASE<br>SYSTEM<br>CONCEPTS</h2><div class="cover-lines"></div><p>SILBERSCHATZ · KORTH · SUDARSHAN</p></div><div class="edition-stamp">07<br><small>EDITION</small></div></div>
-    <div class="book-copy"><p class="app-eyebrow">{{ book.kind|default:"ACADEMIC COLLECTION"|upper }}</p><h1>{{ book.title }}</h1><p class="byline">{{ book.author }}</p><div class="rating"><b>4.8</b><span>★★★★★</span><small> 128 student ratings</small></div><p class="description">{{ book.description|default:"A considered addition to the LibTrack academic collection." }}</p><dl><div><dt>Edition</dt><dd>{{ book.edition|default:"—" }}</dd></div><div><dt>Publisher</dt><dd>{{ book.publisher|default:"—" }}</dd></div><div><dt>ISBN</dt><dd>{{ book.isbn|default:"—" }}</dd></div><div><dt>Language</dt><dd>{{ book.record.language|default:"English" }}</dd></div></dl><div class="tag-row"><span>{{ book.kind|default:"Academic" }}</span><span>Library collection</span></div></div>
-    <aside class="availability-panel"><div class="status"><i></i><div><small>CURRENT STATUS</small><strong>{% if book.available %}Available now{% else %}Currently on loan{% endif %}</strong></div></div><div class="location"><div><i data-lucide="map-pin"></i><span>Central Library<strong>See librarian for shelf location</strong></span></div><div><i data-lucide="copy"></i><span>Copies available<strong>{{ book.copies_available|default:"—" }}{% if book.copies_total %} of {{ book.copies_total }} copies{% endif %}</strong></span></div></div><form method="post" action="{% url 'core:borrow_book' book.slug %}">{% csrf_token %}<button class="button button-primary" type="submit"><i data-lucide="arrow-right"></i>Borrow this book</button></form><button class="outline-action" type="button"><i data-lucide="tablet"></i>Read digitally</button><form method="post" action="{% url 'core:save_book' book.slug %}">{% csrf_token %}<button class="text-save" type="submit"><i data-lucide="bookmark"></i>{% if is_saved %}Remove from reading list{% else %}Add to reading list{% endif %}</button></form><p class="loan-note"><i data-lucide="clock-3"></i> Standard loan period: 14 days</p></aside>
-  </div>
-  <div class="detail-tabs"><button class="active">Overview</button><button>Contents</button><button>Availability</button><button>Reviews <span>128</span></button><button>Similar resources</button></div>
-  <section class="about-grid"><article><p class="app-eyebrow">ABOUT THIS BOOK</p><h2>A complete foundation for<br><em>modern data systems.</em></h2><p>From relational models and SQL to storage, indexing, query processing, transactions, and distributed databases, this text connects theory with the decisions engineers make every day.</p><blockquote>“The clearest bridge between database theory and the systems we actually build.”<cite>— Priya K., CSE final year</cite></blockquote></article><aside><p class="app-eyebrow">YOU'LL LEARN</p><ul><li><span>01</span>Relational database design</li><li><span>02</span>Advanced SQL and normalization</li><li><span>03</span>Transactions and concurrency</li><li><span>04</span>Distributed database systems</li></ul></aside></section>
-  <div class="section-heading"><div><p class="app-eyebrow">CONTINUE EXPLORING</p><h2>Students also read</h2></div></div><div class="book-grid">{% for item in books %}{% include "partials/book_card.html" %}{% endfor %}</div>
-</section></main></div>{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ book.title }} — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad detail-page">
+      <div class="breadcrumb">
+        <a href="{% url 'core:discover' %}">Discover</a><span>/</span>
+        {% with first=book.category_names.first %}
+          {% if first %}<a href="{% url 'core:discover' %}?category={{ book.categories.first.pk }}">{{ first }}</a><span>/</span>{% endif %}
+        {% endwith %}
+        <b>{{ book.title }}</b>
+      </div>
+
+      <div class="detail-grid">
+        <div class="book-showcase">
+          <div class="book-spine"></div>
+          <div class="large-cover">
+            {% if book.cover %}
+              <img class="cover-image" src="{{ book.cover.url }}" alt="Cover of {{ book.title }}">
+            {% else %}
+              <small>{{ book.edition|default:"LIBTRACK EDITION"|upper }}</small>
+              <h2>{{ book.title|upper }}</h2>
+              <div class="cover-lines"></div>
+              <p>{{ book.author_names|upper }}</p>
+            {% endif %}
+          </div>
+          <div class="edition-stamp">{% if book.publication_year %}{{ book.publication_year|stringformat:"02d"|slice:"-2" }}{% else %}··{% endif %}<small>EDITION</small></div>
+        </div>
+
+        <div class="book-copy">
+          <p class="app-eyebrow">{{ book.category_names|join:" · "|default:"ACADEMIC COLLECTION"|upper }}</p>
+          <h1>{{ book.title }}</h1>
+          {% if book.subtitle %}<p class="byline">{{ book.subtitle }}</p>{% endif %}
+          <p class="byline">{{ book.author_names }}</p>
+          {% if rating_count %}
+            <div class="rating">
+              <b>{{ rating_average|floatformat:1 }}</b>
+              <span aria-hidden="true">★★★★★</span>
+              <small>{{ rating_count }} student rating{{ rating_count|pluralize }}</small>
+            </div>
+          {% endif %}
+          {% if book.description %}<p class="description">{{ book.description }}</p>{% endif %}
+
+          <dl class="detail-list">
+            {% if book.edition %}<div><dt>Edition</dt><dd>{{ book.edition }}</dd></div>{% endif %}
+            {% if book.publisher %}<div><dt>Publisher</dt><dd>{{ book.publisher }}</dd></div>{% endif %}
+            {% if book.isbn %}<div><dt>ISBN</dt><dd>{{ book.isbn }}</dd></div>{% endif %}
+            <div><dt>Language</dt><dd>{{ book.language|default:"English" }}</dd></div>
+            {% if book.publication_year %}<div><dt>Published</dt><dd>{{ book.publication_year }}</dd></div>{% endif %}
+            {% if book.page_count %}<div><dt>Pages</dt><dd>{{ book.page_count }}</dd></div>{% endif %}
+            <div><dt>Total copies</dt><dd>{{ book.total_copies }}</dd></div>
+            <div><dt>Available now</dt><dd>{{ book.available_copies }}</dd></div>
+          </dl>
+
+          {% if book.category_names %}
+            <div class="tag-row">{% for category in book.categories.all %}<span>{{ category.name }}</span>{% endfor %}{% if book.subject %}<span>{{ book.subject.name }}</span>{% endif %}</div>
+          {% endif %}
+        </div>
+
+        <aside class="availability-panel">
+          <div class="status">
+            <i></i>
+            <div>
+              <small>CURRENT STATUS</small>
+              <strong>{% if book.is_available %}Available now{% else %}Currently on loan{% endif %}</strong>
+            </div>
+          </div>
+
+          <div class="location">
+            <div><i data-lucide="map-pin"></i><span>Central Library<strong>Ask the librarian for the shelf location</strong></span></div>
+            <div><i data-lucide="copy"></i><span>Copies available<strong>{{ book.available_copies }} of {{ book.total_copies }} copies</strong></span></div>
+            {% if request.user.is_authenticated and not request.user.is_staff %}
+              <div><i data-lucide="bookmark-check"></i><span>Your active loans<strong>{{ active_loan_count }} of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }} used</strong></span></div>
+            {% endif %}
+          </div>
+
+          {% if request.user.is_authenticated and not request.user.is_staff %}
+            {% if already_issued %}
+              <button class="button button-primary" type="button" disabled>Already on your loan</button>
+            {% elif already_requested %}
+              <button class="button button-primary" type="button" disabled>Request pending</button>
+            {% elif can_borrow and active_loan_count < LIBRARY_RULES.MAX_ACTIVE_LOANS %}
+              {% if book.is_available %}
+                <form method="post" action="{% url 'core:borrow_book' book.slug %}">{% csrf_token %}
+                  <button class="button button-primary" type="submit"><i data-lucide="arrow-right"></i>Borrow this book</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'core:request_book' book.slug %}">{% csrf_token %}
+                  <button class="button button-primary" type="submit"><i data-lucide="clock-3"></i>Request this book</button>
+                </form>
+              {% endif %}
+            {% else %}
+              <button class="button button-primary" type="button" disabled>Loan limit reached</button>
+            {% endif %}
+
+            <form method="post" action="{% url 'core:save_book' book.slug %}" class="form-inline">{% csrf_token %}
+              <input type="hidden" name="next" value="{% url 'core:book_detail' book.slug %}">
+              <button class="text-save" type="submit"><i data-lucide="bookmark"></i>{% if is_saved %}Remove from reading list{% else %}Add to reading list{% endif %}</button>
+            </form>
+          {% elif not request.user.is_authenticated %}
+            <a class="button button-primary" href="{% url 'core:login' %}?next={{ request.path }}"><i data-lucide="arrow-right"></i>Sign in to borrow</a>
+          {% endif %}
+
+          {% if materials %}
+            <a class="outline-action" href="#digital"><i data-lucide="tablet"></i>Digital material available</a>
+          {% endif %}
+          <p class="loan-note"><i data-lucide="clock-3"></i> Standard loan period: {{ LIBRARY_RULES.LOAN_DAYS }} days · up to {{ LIBRARY_RULES.MAX_RENEWALS }} renewal</p>
+        </aside>
+      </div>
+
+      {% if materials %}
+        <div class="panel" id="digital" style="margin-top:36px">
+          <p class="app-eyebrow">DIGITAL MATERIAL</p>
+          <h2 style="font:29px/1.05 var(--serif);margin:6px 0 16px">Read this title online</h2>
+          {% for material in materials %}
+            <div class="desk-row">
+              <div><strong>{{ material.title }}</strong><small>{{ material.get_material_type_display }}{% if material.subject %} · {{ material.subject.name }}{% endif %}</small></div>
+              <div class="desk-actions">
+                {% if material.external_url %}
+                  <a class="btn-inline is-primary" href="{{ material.external_url }}" target="_blank" rel="noopener noreferrer">Open resource <i data-lucide="arrow-up-right"></i></a>
+                {% elif material.file %}
+                  <a class="btn-inline is-primary" href="{{ material.file.url }}">Download <i data-lucide="download"></i></a>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="detail-tabs" role="tablist" aria-label="Book sections">
+        <button class="active" type="button">Overview</button>
+        <button type="button">Availability</button>
+        <button type="button">Digital resources{% if materials %} <span>{{ materials|length }}</span>{% endif %}</button>
+        <button type="button">Reviews <span>{{ rating_count }}</span></button>
+      </div>
+
+      <section class="about-grid">
+        <article>
+          <p class="app-eyebrow">ABOUT THIS BOOK</p>
+          <h2>{{ book.title }}<br><em>in the LibTrack collection.</em></h2>
+          {% if book.description %}<p>{{ book.description }}</p>{% else %}<p>This title is part of the LibTrack academic collection. Ask the librarian for a full summary.</p>{% endif %}
+          {% if book.subject %}<blockquote>{{ book.publication_year|default:"Current edition" }} · {{ book.publisher|default:"Library edition" }}<cite>{{ book.subject.name }} department copy</cite></blockquote>{% endif %}
+        </article>
+        <aside>
+          <p class="app-eyebrow">AT A GLANCE</p>
+          <ul>
+            <li><span>01</span>Category: {% for category in book.categories.all %}{{ category.name }}{% if not forloop.last %}, {% endif %}{% empty %}Uncategorised{% endfor %}</li>
+            <li><span>02</span>Copies in the library: {{ book.total_copies }}</li>
+            <li><span>03</span>Available to borrow: {{ book.available_copies }}</li>
+            <li><span>04</span>Loan period: {{ LIBRARY_RULES.LOAN_DAYS }} days</li>
+          </ul>
+        </aside>
+      </section>
+
+      {% if related %}
+        <div class="section-heading"><div><p class="app-eyebrow">CONTINUE EXPLORING</p><h2>Students also read</h2></div></div>
+        <div class="book-grid">{% for book in related %}{% include "partials/book_card.html" %}{% endfor %}</div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -1,4 +1,12 @@
-<a class="catalog-book" href="{% url 'core:book_detail_slug' item.slug %}" data-resource data-search="{{ item.title }} {{ item.author }} {{ item.kind }}">
-  <div class="mini-cover cover-{{ item.cover }}"><span>{{ item.kind }}</span><strong>{{ item.title }}</strong><small>LIBTRACK PRESS</small></div>
-  <div><h3>{{ item.title }}</h3><p>{{ item.author }}</p><span class="available"><i></i> {% if item.available %}Available{% else %}Currently on loan{% endif %}</span></div>
+<a class="catalog-book" href="{% url 'core:book_detail' book.slug %}" data-resource data-search="{{ book.title }} {{ book.author_names }} {{ book.category_names|join:' ' }} {{ book.isbn|default:'' }}">
+  <div class="mini-cover cover-{{ book.cover_variant }}"><span>{{ book.category_names|first|default:"Library"|upper }}</span><strong>{{ book.title }}</strong><small>{{ book.publisher|default:"LIBTRACK PRESS"|upper }}</small></div>
+  <div>
+    <h3>{{ book.title }}</h3>
+    <p>{{ book.author_names }}</p>
+    {% if book.is_available %}
+      <span class="available"><i></i>{{ book.available_copies }} available</span>
+    {% else %}
+      <span class="unavailable"><i></i>Currently on loan</span>
+    {% endif %}
+  </div>
 </a>

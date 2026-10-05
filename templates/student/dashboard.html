@@ -1,7 +1,163 @@
-{% extends "base.html" %}{% block title %}Student Dashboard — LibTrack{% endblock %}{% block content %}<div class="app-shell">{% include "partials/sidebar.html" with section="student" %}<main class="app-main">{% include "partials/topbar.html" %}
-<section class="dashboard-hero"><div><p class="app-eyebrow">YOUR LIBRARY</p><h1>{{ request.user.first_name|default:request.user.username }}.<br>What are we <em>learning today?</em></h1><p>Your library is ready — pick up where you left off or discover something new.</p></div><div class="hero-shelf"><span>{% now "l · d F" %}</span><b>“A library is infinity under a roof.”</b></div></section>
-<section class="content-pad student-grid"><div class="student-main"><div class="metric-grid"><article><span class="metric-icon"><i data-lucide="book-open"></i></span><div><small>ACTIVE LOANS</small><strong>{{ active_loan_count|stringformat:"02d" }}</strong><p>{{ due_soon }} due this week</p></div></article><article><span class="metric-icon amber"><i data-lucide="clock-3"></i></span><div><small>DUE SOON</small><strong>{{ due_soon|stringformat:"02d" }}</strong><p>Next 7 days</p></div></article><article><span class="metric-icon"><i data-lucide="bookmark"></i></span><div><small>SAVED RESOURCES</small><strong>{{ saved_count|stringformat:"02d" }}</strong><p>Your reading list</p></div></article></div>
-<div class="section-heading"><div><p class="app-eyebrow">CURRENTLY ON LOAN</p><h2>Your borrowed books</h2></div></div>{% if active_loans %}<div class="loan-list">{% for loan in active_loans %}<article class="continue-card"><div class="mini-cover cover-architecture"><span>LIBRARY BOOK</span><strong>{{ loan.copy.book.title }}</strong><small>LIBTRACK PRESS</small></div><div><small>DUE {{ loan.due_at|date:"d M Y"|upper }}</small><h3>{{ loan.copy.book.title }}</h3><p>{{ loan.copy.book.authors.all|join:", " }}</p><form method="post" action="{% url 'core:return_loan' loan.pk %}">{% csrf_token %}<button class="text-save" type="submit">Return book</button></form></div></article>{% endfor %}</div>{% else %}<p class="empty-note">No books checked out yet. Browse the catalogue to find your next read.</p>{% endif %}
-<div class="section-heading" id="saved"><div><p class="app-eyebrow">YOUR READING LIST</p><h2>Saved resources</h2></div><a href="{% url 'core:discover' %}">Discover more →</a></div>{% if saved_resources %}<div class="book-grid compact-books">{% for saved in saved_resources %}{% if saved.book %}<a class="catalog-book" href="{% url 'core:book_detail_slug' saved.book.title|slugify %}"><div class="mini-cover cover-architecture"><span>LIBRARY BOOK</span><strong>{{ saved.book.title }}</strong><small>LIBTRACK PRESS</small></div><div><h3>{{ saved.book.title }}</h3><p>{{ saved.book.authors.all|join:", " }}</p><span class="available"><i></i>Saved to your list</span></div></a>{% endif %}{% endfor %}</div>{% else %}<p class="empty-note">Save a book from its details page and it will appear here.</p>{% endif %}
-<div class="section-heading"><div><p class="app-eyebrow">BASED ON YOUR COURSES</p><h2>Recommended for you</h2></div></div><div class="book-grid compact-books">{% for item in books|slice:':3' %}{% include "partials/book_card.html" %}{% endfor %}</div></div>
-<aside class="student-rail"><article class="calendar-card"><div class="calendar-head"><div><p class="app-eyebrow">YOUR PROFILE</p><h3>{{ profile.department|default:"Student account" }}</h3></div><span>{{ profile.semester|default:"—" }}</span></div><div class="agenda"><div><time>ID</time><span><i></i><strong>{{ profile.student_id }}</strong><small>{{ request.user.email }}</small></span></div><div><time>YEAR</time><span><i></i><strong>{{ profile.enrollment_year|default:"—" }}</strong><small>Enrollment year</small></span></div></div></article><article class="reading-card"><p class="app-eyebrow">LIBRARY STATUS</p><div class="activity-summary"><strong>{{ active_loan_count }}</strong><span>active<br><b>loans</b></span></div><p>Your active borrowing and saved resources update here as you use the library.</p></article><article class="insight-card"><i data-lucide="sparkles"></i><small>START EXPLORING</small><h3>Find your next great read</h3><p>Search books and academic resources from across the collection.</p><a href="{% url 'core:discover' %}">Explore catalogue →</a></article></aside></section></main></div>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Student Dashboard — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="dashboard-hero">
+      <div>
+        <p class="app-eyebrow">YOUR LIBRARY</p>
+        <h1>{{ request.user.first_name|default:request.user.username }}.<br>What are we <em>learning today?</em></h1>
+        <p>Your library is ready — pick up where you left off or discover something new.</p>
+      </div>
+      <div class="hero-shelf">
+        <span>{% now "l · d F" %}</span>
+        <b>“A library is infinity under a roof.”</b>
+      </div>
+    </section>
+
+    <section class="content-pad student-grid">
+      <div class="student-main">
+        <div class="metric-grid">
+          <article><span class="metric-icon"><i data-lucide="book-open"></i></span><div><small>ACTIVE LOANS</small><strong>{{ stats.active_loans|stringformat:"02d" }}</strong><p>of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }} allowed</p></div></article>
+          <article><span class="metric-icon amber"><i data-lucide="clock-3"></i></span><div><small>DUE SOON</small><strong>{{ stats.due_soon|stringformat:"02d" }}</strong><p>Next {{ LIBRARY_RULES.DUE_SOON_DAYS }} days</p></div></article>
+          <article><span class="metric-icon"><i data-lucide="rotate-ccw"></i></span><div><small>RETURNED</small><strong>{{ stats.returned_loans|stringformat:"02d" }}</strong><p>All-time loans</p></div></article>
+          <article><span class="metric-icon amber"><i data-lucide="alert-triangle"></i></span><div><small>OVERDUE</small><strong>{{ stats.overdue_loans|stringformat:"02d" }}</strong><p>Return these now</p></div></article>
+        </div>
+
+        <div class="section-heading">
+          <div><p class="app-eyebrow">CURRENTLY ON LOAN</p><h2>Your borrowed books</h2></div>
+          <a href="{% url 'core:student_loans' %}">View all →</a>
+        </div>
+
+        {% if active_loan_list %}
+          <div class="loan-list">
+            {% for loan in active_loan_list %}
+              <article class="continue-card">
+                <div class="mini-cover cover-{{ loan.book.cover_variant }}">
+                  <span>{% with cat=loan.book.category_names.first %}{{ cat|default:"LIBRARY BOOK"|upper }}{% endwith %}</span>
+                  <strong>{{ loan.book.title }}</strong>
+                  <small>{{ loan.book.publisher|default:"LIBTRACK PRESS"|upper }}</small>
+                </div>
+                <div>
+                  <small>
+                    {% if loan.is_overdue %}OVERDUE · DUE {{ loan.due_at|date:"d M Y"|upper }}
+                    {% else %}DUE {{ loan.due_at|date:"d M Y"|upper }}{% endif %}
+                  </small>
+                  <h3>{{ loan.book.title }}</h3>
+                  <p>{{ loan.book.author_names }}</p>
+                  {% if loan.copy %}<p>Accession {{ loan.copy.accession_number }} · renewed {{ loan.renewal_count }}/{{ LIBRARY_RULES.MAX_RENEWALS }}</p>{% endif %}
+                  <div class="desk-actions" style="margin-top:14px">
+                    {% if loan.can_renew %}
+                      <form method="post" action="{% url 'core:renew_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'core:student' %}">
+                        <button class="btn-inline is-primary" type="submit"><i data-lucide="refresh-cw"></i>Renew {{ LIBRARY_RULES.RENEWAL_DAYS }} days</button>
+                      </form>
+                    {% else %}
+                      <span class="badge badge-neutral">{% if loan.renewal_count >= LIBRARY_RULES.MAX_RENEWALS %}Renewal used{% else %}Not renewable{% endif %}</span>
+                    {% endif %}
+                    <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                      <input type="hidden" name="next" value="{% url 'core:student' %}">
+                      <button class="btn-inline" type="submit"><i data-lucide="undo-2"></i>Return book</button>
+                    </form>
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <i data-lucide="book-open"></i>
+            <h3>No books checked out</h3>
+            <p>You have {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }} places on your shelf. Browse the catalogue to fill one.</p>
+            <a class="btn-inline is-primary" href="{% url 'core:discover' %}">Browse the catalogue</a>
+          </div>
+        {% endif %}
+
+        {% if upcoming_due %}
+          <div class="section-heading"><div><p class="app-eyebrow">COMING UP</p><h2>Upcoming due dates</h2></div></div>
+          <div class="panel">
+            <div class="desk-list">
+              {% for loan in upcoming_due %}
+                <div class="desk-row">
+                  <div><strong>{{ loan.book.title }}</strong><small>Due {{ loan.due_at|date:"l, d M Y" }} · {{ loan.days_until_due }} day{{ loan.days_until_due|pluralize }} left</small></div>
+                  <span class="badge {% if loan.days_until_due <= 3 %}badge-overdue{% else %}badge-issued{% endif %}">{{ loan.days_until_due }}d left</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="section-heading" id="saved">
+          <div><p class="app-eyebrow">YOUR READING LIST</p><h2>Saved resources</h2></div>
+          <a href="{% url 'core:discover' %}">Discover more →</a>
+        </div>
+        {% if saved_resources %}
+          <div class="book-grid compact-books">
+            {% for saved in saved_resources %}
+              {% if saved.book %}
+                <a class="catalog-book" href="{% url 'core:book_detail' saved.book.slug %}">
+                  <div class="mini-cover cover-{{ saved.book.cover_variant }}"><span>LIBRARY BOOK</span><strong>{{ saved.book.title }}</strong><small>LIBTRACK PRESS</small></div>
+                  <div><h3>{{ saved.book.title }}</h3><p>{{ saved.book.author_names }}</p><span class="available"><i></i>Saved to your list</span></div>
+                </a>
+              {% elif saved.material %}
+                <a class="catalog-book" href="{% url 'core:materials' %}">
+                  <div class="mini-cover cover-{{ saved.book.cover_variant|default:'architecture' }}"><span>DIGITAL RESOURCE</span><strong>{{ saved.material.title }}</strong><small>LIBTRACK DIGITAL</small></div>
+                  <div><h3>{{ saved.material.title }}</h3><p>{{ saved.material.author_names }}</p><span class="available"><i></i>Saved to your list</span></div>
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="inline-note">Save a book from its details page and it will appear here.</p>
+        {% endif %}
+
+        <div class="section-heading"><div><p class="app-eyebrow">FRESH ON THE SHELF</p><h2>Recently added</h2></div></div>
+        {% if recently_added %}
+          <div class="book-grid compact-books">{% for book in recently_added %}{% include "partials/book_card.html" %}{% endfor %}</div>
+        {% else %}
+          <p class="inline-note">New titles will appear here as the librarian adds them.</p>
+        {% endif %}
+      </div>
+
+      <aside class="student-rail">
+        <article class="calendar-card">
+          <div class="calendar-head">
+            <div><p class="app-eyebrow">YOUR PROFILE</p><h3>{{ profile.department|default:"Student account" }}</h3></div>
+            <span>{{ profile.semester|default:"—" }}</span>
+          </div>
+          <div class="agenda">
+            <div><time>ID</time><span><i></i><strong>{{ profile.student_id }}</strong><small>{{ request.user.email }}</small></span></div>
+            <div><time>YEAR</time><span><i></i><strong>{{ profile.enrollment_year|default:"—" }}</strong><small>Enrollment year</small></span></div>
+            <div><time>LOANS</time><span><i></i><strong>{{ stats.active_loans }} of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }}</strong><small>Active borrowing</small></span></div>
+          </div>
+          <a class="btn-inline" href="{% url 'core:student_profile' %}" style="margin-top:16px;width:100%;justify-content:center">Edit profile</a>
+        </article>
+
+        <article class="reading-card">
+          <p class="app-eyebrow">RECENT ACTIVITY</p>
+          <div class="desk-list">
+            {% for event in recent_activity %}
+              <div class="desk-row">
+                <div><strong>{{ event.get_action_display }}</strong><small>{{ event.description }} · {{ event.occurred_at|timesince }} ago</small></div>
+              </div>
+            {% empty %}
+              <p class="inline-note">Nothing here yet. Borrow a book to get started.</p>
+            {% endfor %}
+          </div>
+        </article>
+
+        <article class="insight-card">
+          <i data-lucide="sparkles"></i>
+          <small>START EXPLORING</small>
+          <h3>Find your next great read</h3>
+          <p>Search books and academic resources from across the collection.</p>
+          <a href="{% url 'core:discover' %}">Explore catalogue →</a>
+        </article>
+      </aside>
+    </section>
+  </main>
+</div>
+{% endblock %}

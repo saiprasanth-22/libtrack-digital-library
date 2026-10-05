@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}My books — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">MY BORROWING</p>
+        <h1>Books and requests</h1>
+        <p>Every loan you have taken, with its current status, due date and renewal options.</p>
+      </div>
+
+      <div class="tab-row" role="tablist" aria-label="Filter loans by status">
+        <a class="{% if tab == 'active' %}active{% endif %}" href="?tab=active">On loan <span class="tab-count">{{ active_count }}</span></a>
+        <a class="{% if tab == 'overdue' %}active{% endif %}" href="?tab=overdue">Overdue</a>
+        <a class="{% if tab == 'requested' %}active{% endif %}" href="?tab=requested">Requested</a>
+        <a class="{% if tab == 'returned' %}active{% endif %}" href="?tab=returned">Returned</a>
+        <a class="{% if tab == 'all' %}active{% endif %}" href="?tab=all">All</a>
+      </div>
+
+      {% if loans %}
+        <div class="panel">
+          <div class="desk-list">
+            {% for loan in loans %}
+              <div class="desk-row">
+                <div>
+                  <strong>{{ loan.book.title }}</strong>
+                  <small>
+                    {{ loan.book.author_names }} ·
+                    {% if loan.issued_at %}Issued {{ loan.issued_at|date:"d M Y" }}{% else %}Requested {{ loan.requested_at|date:"d M Y" }}{% endif %}
+                    {% if loan.due_at %} · due {{ loan.due_at|date:"d M Y" }}{% endif %}
+                    {% if loan.returned_at %} · returned {{ loan.returned_at|date:"d M Y" }}{% endif %}
+                    {% if loan.fine_amount %} · fine {{ loan.fine_amount }}{% endif %}
+                  </small>
+                </div>
+                <span class="badge {% if loan.is_overdue %}badge-overdue{% else %}badge-{{ loan.status }}{% endif %}"><i></i>{{ loan.get_status_display }}</span>
+                <div class="desk-actions">
+                  <a class="btn-inline" href="{% url 'core:book_detail' loan.book.slug %}">View title</a>
+                  {% if loan.status == 'issued' or loan.status == 'overdue' %}
+                    <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                      <input type="hidden" name="next" value="{% url 'core:student_loans' %}?tab={{ tab }}">
+                      <button class="btn-inline" type="submit"><i data-lucide="undo-2"></i>Return</button>
+                    </form>
+                    {% if loan.can_renew %}
+                      <form method="post" action="{% url 'core:renew_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'core:student_loans' %}?tab={{ tab }}">
+                        <button class="btn-inline is-primary" type="submit"><i data-lucide="refresh-cw"></i>Renew</button>
+                      </form>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% include "partials/pagination.html" %}
+      {% else %}
+        <div class="empty-state">
+          <i data-lucide="inbox"></i>
+          <h3>Nothing here</h3>
+          <p>{% if tab == 'overdue' %}You have no overdue books — nice work.{% elif tab == 'requested' %}You have no pending requests.{% elif tab == 'returned' %}You have not returned any books yet.{% else %}You are not holding any books right now.{% endif %}</p>
+          <a class="btn-inline is-primary" href="{% url 'core:discover' %}">Browse the catalogue</a>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

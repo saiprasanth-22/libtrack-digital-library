@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Reports — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">LIBRARIAN INTELLIGENCE</p>
+        <h1>Reports</h1>
+        <p>Every figure below is produced by an aggregate query over the circulation tables.</p>
+      </div>
+
+      <form class="toolbar" method="get" action="{% url 'core:librarian_reports' %}">
+        <div class="toolbar-row">
+          <div class="form-field">
+            <label for="report-start">From</label>
+            <input class="field-input" type="date" id="report-start" name="start" value="{{ start_value }}">
+          </div>
+          <div class="form-field">
+            <label for="report-end">To</label>
+            <input class="field-input" type="date" id="report-end" name="end" value="{{ end_value }}">
+          </div>
+          <button class="button button-primary" type="submit" style="height:42px">Run report</button>
+          <a class="btn-inline" href="{% url 'core:librarian_reports' %}" style="height:42px">Last 30 days</a>
+        </div>
+      </form>
+
+      <div class="metric-list" style="margin-bottom:26px">
+        <div><small>Active titles</small><strong>{{ report.total_books }}</strong></div>
+        <div><small>Total copies</small><strong>{{ report.total_copies }}</strong></div>
+        <div><small>Available copies</small><strong>{{ report.available_copies }}</strong></div>
+        <div><small>Active students</small><strong>{{ report.active_students }}</strong></div>
+        <div><small>Loans out</small><strong>{{ report.current_loans }}</strong></div>
+        <div><small>Overdue</small><strong>{{ report.overdue_loans }}</strong></div>
+        <div><small>Issued in period</small><strong>{{ report.issued_in_period }}</strong></div>
+        <div><small>Returned in period</small><strong>{{ report.returned_in_period }}</strong></div>
+      </div>
+
+      <div class="analytics-grid" style="margin-bottom:20px">
+        <article class="analytics-card">
+          <p class="app-eyebrow">DEMAND</p>
+          <h2>Most borrowed titles</h2>
+          <div class="bar-list">
+            {% for book in report.top_borrowed %}
+              <div class="bar-item">
+                <span title="{{ book.title }}">{{ book.title }}</span>
+                <b>{{ book.borrow_count }}</b>
+                <div class="bar-track"><i style="width:{% if report.top_borrowed.0.borrow_count %}{% widthratio book.borrow_count report.top_borrowed.0.borrow_count 100 %}{% else %}0{% endif %}%"></i></div>
+              </div>
+            {% empty %}
+              <p class="inline-note">No borrowing in the selected period.</p>
+            {% endfor %}
+          </div>
+        </article>
+
+        <article class="analytics-card">
+          <p class="app-eyebrow">INVENTORY</p>
+          <h2>Titles per category</h2>
+          <div class="bar-list">
+            {% for category in report.category_breakdown %}
+              <div class="bar-item">
+                <span>{{ category.name }}</span>
+                <b>{{ category.title_count }}</b>
+              </div>
+            {% empty %}
+              <p class="inline-note">No categories yet.</p>
+            {% endfor %}
+          </div>
+        </article>
+      </div>
+
+      <section class="panel" id="overdue" style="margin-bottom:20px">
+        <div class="panel-head"><div><p class="app-eyebrow">NEEDS ACTION</p><h2>Overdue books</h2></div><span class="badge badge-overdue"><i></i>{{ report.overdue_loans_qs|length }}</span></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Student</th><th>Title</th><th>Due</th><th>Days late</th><th></th></tr></thead>
+            <tbody>
+              {% for loan in report.overdue_loans_qs %}
+                <tr>
+                  <td>{{ loan.student.display_name }}<br><small style="color:#8a8178">{{ loan.student.student_id }}</small></td>
+                  <td><a href="{% url 'core:book_detail' loan.book.slug %}">{{ loan.book.title }}</a></td>
+                  <td>{{ loan.due_at|date:"d M Y" }}</td>
+                  <td>{{ loan.days_until_due|add:"-1" }} day{{ loan.days_until_due|add:"-1"|pluralize }}</td>
+                  <td>
+                    <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                      <input type="hidden" name="next" value="{% url 'core:librarian_reports' %}">
+                      <button class="btn-inline" type="submit">Record return</button>
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="inline-note">Nothing is overdue. The collection is in good order.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-bottom:20px">
+        <div class="panel-head"><div><p class="app-eyebrow">HISTORY</p><h2>Returned in period</h2></div></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Student</th><th>Title</th><th>Issued</th><th>Returned</th><th>Fine</th></tr></thead>
+            <tbody>
+              {% for loan in report.returned_loans_qs %}
+                <tr>
+                  <td>{{ loan.student.display_name }}</td>
+                  <td><a href="{% url 'core:book_detail' loan.book.slug %}">{{ loan.book.title }}</a></td>
+                  <td>{{ loan.issued_at|date:"d M Y" }}</td>
+                  <td>{{ loan.returned_at|date:"d M Y" }}</td>
+                  <td>{{ loan.fine_amount }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="inline-note">No returns recorded in the selected period.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><p class="app-eyebrow">DEPARTMENTS</p><h2>Borrowing by course</h2></div></div>
+        <div class="bar-list">
+          {% for row in report.department_loans %}
+            <div class="bar-item">
+              <span>{{ row.department|default:"Unassigned" }}</span>
+              <b>{{ row.loan_count }}</b>
+            </div>
+          {% empty %}
+            <p class="inline-note">No loans recorded in the selected period.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+{% endblock %}

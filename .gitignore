@@ -5,6 +5,7 @@ __pycache__/
 .vercel/
 db.sqlite3
 staticfiles/
+media/
 work/
 node_modules/
 package.json
@@ -13,3 +14,6 @@ package-lock.json
 .vercel
 .env*
 !.env.example
+
+# Freebuff desktop app metadata (local only)
+.freebuff/

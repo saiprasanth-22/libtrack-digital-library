@@ -1,0 +1,194 @@
+/* LibTrack interface modules.
+   Forms, tables, badges and states built from the tokens already defined in
+   app.css so new screens match the existing product without redesign. */
+
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.nav-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a8178;margin:22px 0 8px}
+.sidebar-icon-button{border:0;background:none;color:inherit;cursor:pointer;padding:4px;display:grid;place-items:center}
+.sidebar-icon-button svg{width:16px}
+.topbar-name{font-size:11px;color:#5b4332}
+.unavailable{font-size:8px;color:#a4671f;display:flex;align-items:center;gap:6px;margin-top:6px}
+.unavailable i{width:6px;height:6px;border-radius:50%;background:#c88731;display:inline-block}
+
+/* Flash messages */
+.flash-messages{position:fixed;top:14px;right:14px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:min(420px,calc(100vw - 28px))}
+.flash-message{padding:13px 17px;border-radius:12px;font-size:12px;font-weight:600;box-shadow:0 14px 40px rgba(0,0,0,.22);border-left:4px solid var(--emerald);background:#15382f;color:#fff9ee}
+.flash-message.error{border-left-color:#c65a49;background:#4a211c}
+.flash-message.warning{border-left-color:#c88731;background:#4d3a1a}
+.flash-message.info{border-left-color:#7aa7d8;background:#1e3448}
+.flash-message.success{border-left-color:var(--emerald);background:#15382f}
+
+/* Authentication screens */
+.auth-shell{min-height:100vh;background:var(--ink);display:grid;grid-template-columns:1fr;place-items:center;padding:32px 20px;gap:22px;color:var(--cream)}
+.auth-card{width:min(100%,470px);padding:42px;background:var(--paper);color:var(--brown);border-radius:24px;box-shadow:0 32px 90px #0007}
+.auth-card-wide{width:min(100%,620px)}
+.auth-brand{color:var(--brown);text-decoration:none;display:inline-flex}
+.auth-title{font:46px/1 var(--serif);margin:26px 0 12px}
+.auth-lead{color:var(--muted);line-height:1.6;margin:0 0 24px;font-size:14px}
+.auth-submit{width:100%;margin-top:24px}
+.auth-alt{margin-top:22px;color:var(--muted);font-size:14px}
+.auth-alt a{color:#21775e;font-weight:700}
+.auth-ghost{display:inline-block;margin-top:12px;color:var(--muted);font-size:13px}
+.auth-aside{width:min(100%,620px);padding:34px;background:linear-gradient(120deg,rgba(15,39,34,.9),rgba(8,18,29,.82));border:1px solid rgba(255,255,255,.09);border-radius:24px}
+.auth-quote{font:28px/1.25 var(--serif);color:var(--emerald-soft);margin:12px 0 18px}
+.auth-aside-meta{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#82a89d;margin:0}
+@media(min-width:900px){.auth-shell{grid-template-columns:auto minmax(280px,420px);justify-content:center;align-items:center}}
+
+/* Forms */
+.form-field{margin-bottom:15px;min-width:0}
+.form-field>label{display:block;font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#7a5e46;margin-bottom:7px}
+.form-field .req{color:#c65a49;margin-left:4px}
+.field-input{width:100%;padding:12px 14px;border:1px solid #ddd2c1;border-radius:10px;background:#fff;font:inherit;font-size:13px;color:var(--brown);box-sizing:border-box}
+.field-input:focus{outline:2px solid var(--emerald);outline-offset:1px;border-color:var(--emerald)}
+select.field-input,textarea.field-input{min-height:42px}
+.field-checkbox{width:16px;height:16px;accent-color:#15382f}
+.checkbox-field{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600;color:var(--brown);text-transform:none;letter-spacing:0;margin-bottom:6px}
+.help-text{font-size:10px;color:var(--muted);margin:6px 0 0;line-height:1.5}
+.help-text ul{margin:4px 0;padding-left:16px}
+.field-errors{list-style:none;margin:7px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.field-errors li{font-size:10px;color:#a6402f;background:#fbecea;border-left:3px solid #c65a49;padding:6px 9px;border-radius:5px}
+.form-errors{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;gap:7px}
+.form-errors li{font-size:11px;color:#a6402f;background:#fbecea;border-left:3px solid #c65a49;padding:9px 12px;border-radius:6px}
+.has-error .field-input{border-color:#c65a49}
+.form-grid{display:grid;gap:0 14px}
+.form-grid-2{grid-template-columns:1fr 1fr}
+@media(max-width:560px){.form-grid-2{grid-template-columns:1fr}}
+
+/* Toolbar / search + filter row */
+.toolbar{background:var(--paper);border:1px solid rgba(51,37,29,.1);border-radius:16px;padding:18px;margin-bottom:22px}
+.toolbar-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.toolbar-row .form-field{flex:1 1 190px;margin-bottom:0}
+.discovery-search{position:relative;display:flex;align-items:center;gap:11px;background:var(--paper);border-radius:15px;padding:0 8px 0 17px;box-shadow:0 18px 50px rgba(0,0,0,.16)}
+.discovery-search svg{width:19px;color:#7a5e46;flex:0 0 auto}
+.discovery-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;height:56px;font:inherit;font-size:14px;color:var(--brown)}
+.discovery-search button{height:40px;padding:0 17px;border:0;border-radius:10px;background:var(--forest);color:var(--cream);font:inherit;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.discovery-search button svg{width:15px;color:inherit}
+.filter-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:8px;margin-top:18px;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-row a{white-space:nowrap;padding:9px 15px;border-radius:99px;background:#f0e5d2;color:var(--brown-2);font-size:11px;font-weight:700;text-decoration:none}
+.filter-row a.active{background:var(--forest);color:var(--cream)}
+
+/* Result meta */
+.result-count{font-size:10px;color:var(--muted);letter-spacing:.06em}
+
+/* Tables - scroll on small screens rather than clipping.
+   `minmax(0,...)` on the grid track stops the table's intrinsic width from
+   pushing the page wider than the viewport. */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid #e2d8c8;background:#fff;max-width:100%}
+.data-table{width:100%;border-collapse:collapse;font-size:12px;min-width:620px}
+.data-table th{text-align:left;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:#8a8178;padding:12px 14px;background:#faf6ee;border-bottom:1px solid #e2d8c8;white-space:nowrap}
+.data-table td{padding:12px 14px;border-bottom:1px solid #efe7da;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:0}
+.data-table tbody tr:hover{background:#fdfbf6}
+.data-table a{color:#1d6f57;font-weight:600}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:99px;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.badge i{width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge-issued{background:#e2eee7;color:#175343}
+.badge-overdue{background:#fbe6e2;color:#a6402f}
+.badge-requested{background:#eef1f7;color:#3c5a7a}
+.badge-returned{background:#eef3ef;color:#3f6b52}
+.badge-rejected{background:#f1ede7;color:#7a5e46}
+.badge-available{background:#e2eee7;color:#175343}
+.badge-unavailable{background:#f6ecdc;color:#a4671f}
+.badge-neutral{background:#efe9de;color:#7a5e46}
+.badge-danger{background:#fbe6e2;color:#a6402f}
+
+/* Buttons inside tables and cards */
+.btn-inline{border:1px solid #d9cfbd;background:#fff;color:var(--brown);border-radius:8px;padding:7px 12px;font:inherit;font-size:10px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;min-height:34px}
+.btn-inline:hover{background:#f7f0e3}
+.btn-inline.is-primary{background:var(--forest);color:var(--cream);border-color:var(--forest)}
+.btn-inline.is-danger{background:#fbe6e2;color:#a6402f;border-color:#f0cfc8}
+.btn-inline.is-disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+.btn-inline svg{width:13px}
+.form-inline{display:inline}
+
+/* Panels */
+.panel{background:var(--paper);border:1px solid rgba(51,37,29,.1);border-radius:16px;padding:24px}
+.panel-head{display:flex;justify-content:space-between;align-items:start;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.panel-head h2{font:29px/1.05 var(--serif);margin:6px 0 0}
+.panel-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:1000px){.panel-grid{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+.panel,.analytics-card{min-width:0}
+.page-intro{margin-bottom:26px}
+.page-intro h1{font:44px/1 var(--serif);margin:8px 0 10px}
+.page-intro p{color:var(--muted);max-width:640px;line-height:1.6;font-size:13px}
+
+/* The tab strip uses a negative right margin to bleed to the screen edge.
+   That makes its own box wider than the viewport, so on small screens the
+   page picks up a few pixels of horizontal scroll. Keep the scrollable tab
+   row but drop the bleed. */
+@media(max-width:900px){
+  .detail-tabs{margin-right:0;padding-right:0;overflow-x:auto;overflow-y:hidden}
+}
+
+/* States */
+.empty-state{padding:40px 24px;text-align:center;background:var(--paper);border:1px dashed #d9cfbd;border-radius:16px;color:var(--muted)}
+.empty-state svg{width:30px;height:30px;margin-bottom:12px;color:#b79b7b}
+.empty-state h3{font:24px var(--serif);margin:0 0 8px;color:var(--brown)}
+.empty-state p{font-size:12px;margin:0 0 16px;line-height:1.6}
+.inline-note{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* Tabs */
+.tab-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:20px;scrollbar-width:none}
+.tab-row::-webkit-scrollbar{display:none}
+.tab-row a{white-space:nowrap;padding:9px 15px;border-radius:99px;background:#efe9de;color:var(--brown-2);font-size:11px;font-weight:700;text-decoration:none}
+.tab-row a.active{background:var(--forest);color:var(--cream)}
+.tab-row a .tab-count{opacity:.7;margin-left:5px}
+
+/* Pagination */
+.pagination{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:28px;padding-top:20px;border-top:1px solid #e2d8c8}
+.pagination-summary{font-size:10px;color:var(--muted);margin:0}
+.pagination-controls{display:flex;gap:6px;flex-wrap:wrap}
+.page-link{min-width:36px;height:36px;padding:0 11px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #d9cfbd;border-radius:9px;background:#fff;color:var(--brown);font-size:11px;font-weight:700;text-decoration:none}
+.page-link:hover{background:#f7f0e3}
+.page-link.is-current{background:var(--forest);color:var(--cream);border-color:var(--forest)}
+.page-link.is-disabled{opacity:.4;pointer-events:none}
+
+/* Definition list used on detail screens */
+.detail-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin:0;border-top:1px solid #ded3c1}
+@media(max-width:560px){.detail-list{grid-template-columns:1fr}}
+.detail-list>div{padding:12px 0;border-bottom:1px solid #ded3c1;display:flex;flex-direction:column;gap:4px;min-width:0}
+.detail-list dt{font-size:8px;letter-spacing:.13em;color:#8a8178;text-transform:uppercase}
+.detail-list dd{margin:0;font-size:11px;font-weight:700;overflow-wrap:anywhere}
+
+/* Loan rows on the student side */
+.loan-row{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px;background:var(--paper);border:1px solid rgba(51,37,29,.1);border-radius:14px}
+.loan-row+.loan-row{margin-top:10px}
+.loan-row .mini-cover{width:62px;height:88px}
+.loan-row h3{font-size:15px;margin:0 0 4px;font-family:var(--serif)}
+.loan-row p{font-size:10px;color:var(--muted);margin:0 0 8px}
+.loan-actions{display:flex;flex-direction:column;gap:7px;align-items:stretch;min-width:132px}
+@media(max-width:560px){
+  .loan-row{grid-template-columns:52px minmax(0,1fr);}
+  .loan-row .mini-cover{width:52px;height:74px}
+  .loan-actions{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}
+  .loan-actions .btn-inline{flex:1 1 130px;justify-content:center}
+}
+
+/* Metric list for reports */
+.metric-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.metric-list div{padding:16px;background:#faf6ee;border:1px solid #e7ddcc;border-radius:12px}
+.metric-list small{display:block;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8a8178;margin-bottom:6px}
+.metric-list strong{font:26px var(--serif);color:var(--brown)}
+
+/* Bar list used for "most borrowed" and breakdowns */
+.bar-list{display:flex;flex-direction:column;gap:12px}
+.bar-item{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:12px;align-items:center}
+.bar-item span{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-item b{font-size:12px;text-align:right;font-family:var(--serif)}
+.bar-track{grid-column:1/-1;height:6px;border-radius:99px;background:#efe7da;overflow:hidden}
+.bar-track i{display:block;height:100%;background:var(--emerald);border-radius:99px}
+
+/* Pagination-free list rows for circulation desk */
+.desk-list{display:flex;flex-direction:column}
+.desk-row{display:flex;gap:13px;align-items:center;padding:13px 0;border-top:1px solid #e2d8c8;flex-wrap:wrap}
+.desk-row>div{min-width:0;flex:1 1 200px}
+.desk-row strong{font-size:12px;display:block}
+.desk-row small{font-size:9px;color:#8a8178;display:block;margin-top:3px}
+.desk-actions{display:flex;gap:7px;flex-wrap:wrap}
+
+/* Cover fallback keeps the editorial artwork when no upload exists */
+.cover-image{width:100%;height:100%;object-fit:cover;border-radius:2px 8px 8px 2px;display:block}

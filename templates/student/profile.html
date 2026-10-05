@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}My profile — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">MY PROFILE</p>
+        <h1>{{ profile.display_name }}</h1>
+        <p>Registration number {{ profile.student_id }} · member since {{ profile.created_at|date:"F Y" }}.</p>
+      </div>
+
+      <div class="metric-list" style="margin-bottom:24px">
+        <div><small>Active loans</small><strong>{{ stats.active_loans }}</strong></div>
+        <div><small>Overdue</small><strong>{{ stats.overdue_loans }}</strong></div>
+        <div><small>Returned</small><strong>{{ stats.returned_loans }}</strong></div>
+        <div><small>Pending requests</small><strong>{{ stats.pending_requests }}</strong></div>
+        <div><small>Saved resources</small><strong>{{ stats.saved_resources }}</strong></div>
+      </div>
+
+      <div class="panel-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">ACADEMIC DETAILS</p><h2>Edit your profile</h2></div>
+          </div>
+          <form method="post" action="{% url 'core:student_profile_update' %}" novalidate>{% csrf_token %}
+            {% if form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <div class="form-grid form-grid-2">
+              {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+            </div>
+            <button class="button button-primary" type="submit" style="margin-top:18px">Save changes <i data-lucide="check"></i></button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">SECURITY</p><h2>Change password</h2></div>
+          </div>
+          <form method="post" action="{% url 'core:student_password' %}" novalidate>{% csrf_token %}
+            {% if password_form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in password_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {% for field in password_form %}{% include "partials/form_field.html" %}{% endfor %}
+            <button class="button button-primary" type="submit" style="margin-top:18px">Update password <i data-lucide="shield-check"></i></button>
+          </form>
+          <p class="inline-note" style="margin-top:14px">Your password is stored as a salted hash. Staff can never read it.</p>
+        </section>
+      </div>
+
+      <div class="section-heading"><div><p class="app-eyebrow">BORROWING HISTORY</p><h2>Every loan on record</h2></div></div>
+      {% if history %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Issued</th><th>Due</th><th>Returned</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for loan in history %}
+                <tr>
+                  <td><a href="{% url 'core:book_detail' loan.book.slug %}">{{ loan.book.title }}</a></td>
+                  <td>{{ loan.issued_at|date:"d M Y"|default:"—" }}</td>
+                  <td>{{ loan.due_at|date:"d M Y"|default:"—" }}</td>
+                  <td>{{ loan.returned_at|date:"d M Y"|default:"—" }}</td>
+                  <td><span class="badge {% if loan.is_overdue %}badge-overdue{% else %}badge-{{ loan.status }}{% endif %}">{{ loan.get_status_display }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i data-lucide="history"></i>
+          <h3>No borrowing history yet</h3>
+          <p>Once you borrow a book it will be listed here permanently.</p>
+          <a class="btn-inline is-primary" href="{% url 'core:discover' %}">Find a book</a>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

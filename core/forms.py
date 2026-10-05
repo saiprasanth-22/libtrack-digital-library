@@ -1,106 +1,376 @@
-"""Forms for LibTrack's catalogue and lending workflows."""
+"""Django forms for authentication, catalogue management and circulation.
+
+Templates render these forms directly so that labels, help text and error
+messages stay attached to their inputs and remain screen-reader friendly.
+"""
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from .models import Book, BookCopy, Category, Loan, StudentProfile
+from .models import (Book, BookCopy, Category, DigitalMaterial, Loan, StudentProfile,
+                     Subject)
+
+User = get_user_model()
+
+#: File extensions a librarian may attach as a digital material.
+ALLOWED_MATERIAL_EXTENSIONS = {"pdf", "epub", "txt", "csv", "pptx", "docx", "md"}
+MAX_MATERIAL_UPLOAD_MB = 10
+
+
+class LoginForm(AuthenticationForm):
+    """Sign-in form with placeholders and non-field error styling."""
+
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={
+            "autocomplete": "username", "placeholder": "e.g. maya.rao",
+            "class": "field-input"}),
+        label="Username")
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "autocomplete": "current-password", "placeholder": "Your password",
+            "class": "field-input"}),
+        label="Password")
+
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        "invalid_login": "Those sign-in details did not match an account.",
+        "inactive": "This account has been deactivated. Please contact the librarian.",
+    }
+
+    def clean(self):
+        """Explain a deactivated account instead of reporting a wrong password.
+
+        Django's auth backend refuses inactive users before the form gets a
+        chance to describe why. The account is only named when the supplied
+        password is correct, so this does not leak which usernames exist.
+        """
+        try:
+            return super().clean()
+        except forms.ValidationError:
+            data = getattr(self, "cleaned_data", None) or {}
+            user = User.objects.filter(username=data.get("username", "")).first()
+            if (user is not None and not user.is_active
+                    and user.check_password(data.get("password", ""))):
+                raise forms.ValidationError(self.error_messages["inactive"], code="inactive")
+            raise
 
 
 class StudentRegistrationForm(UserCreationForm):
-    """Register a Django user and their student profile in the view/service."""
+    """Creates the Django user and the linked student profile together."""
 
-    email = forms.EmailField()
-    first_name = forms.CharField(max_length=150)
-    last_name = forms.CharField(max_length=150)
-    student_id = forms.CharField(max_length=40)
-    department = forms.CharField(max_length=120)
-    semester = forms.IntegerField(min_value=1, max_value=12)
-    phone = forms.CharField(max_length=32, required=False)
-    enrollment_year = forms.IntegerField(min_value=1900, max_value=2200)
+    first_name = forms.CharField(max_length=150, label="First name")
+    last_name = forms.CharField(max_length=150, label="Last name")
+    email = forms.EmailField(label="Email address")
+    student_id = forms.CharField(max_length=32, label="Registration number")
+    department = forms.CharField(max_length=100, label="Course / department")
+    semester = forms.IntegerField(min_value=1, max_value=12, label="Semester")
+    phone = forms.CharField(max_length=24, required=False, label="Phone (optional)")
+    enrollment_year = forms.IntegerField(
+        min_value=1900, max_value=2200, required=False, label="Enrollment year (optional)")
 
-    class Meta(UserCreationForm.Meta):
-        model = get_user_model()
+    class Meta:
+        model = User
         fields = ("username", "email", "first_name", "last_name")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {"class": "field-input", "autocomplete": "username", "placeholder": "choose a username"})
+        self.fields["email"].widget.attrs.update(
+            {"class": "field-input", "autocomplete": "email", "placeholder": "you@college.edu"})
+        for name in ("first_name", "last_name", "student_id", "department", "semester",
+                     "phone", "enrollment_year", "password1", "password2"):
+            self.fields[name].widget.attrs.setdefault("class", "field-input")
 
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
-        if get_user_model().objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("An account with this email already exists.")
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError("An account with this email already exists.")
         return email
 
     def clean_student_id(self):
         student_id = self.cleaned_data["student_id"].strip()
-        from .models import StudentProfile
         if StudentProfile.objects.filter(student_id__iexact=student_id).exists():
-            raise forms.ValidationError("This student ID is already registered.")
-        return student_id
+            raise ValidationError("This registration number is already registered.")
+        return student_id.upper()
 
     @transaction.atomic
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"]
-        user.first_name = self.cleaned_data["first_name"]
-        user.last_name = self.cleaned_data["last_name"]
-        if commit:
-            user.save()
-            from .models import StudentProfile
-            StudentProfile.objects.create(
-                user=user,
-                student_id=self.cleaned_data["student_id"],
-                department=self.cleaned_data["department"],
-                semester=self.cleaned_data["semester"],
-                phone=self.cleaned_data["phone"],
-                enrollment_year=self.cleaned_data["enrollment_year"],
-            )
+        user.first_name = self.cleaned_data["first_name"].strip()
+        user.last_name = self.cleaned_data["last_name"].strip()
+        if not commit:
+            return user
+        user.save()
+        profile = StudentProfile.objects.create(
+            user=user,
+            student_id=self.cleaned_data["student_id"],
+            department=self.cleaned_data["department"],
+            semester=self.cleaned_data["semester"],
+            phone=self.cleaned_data.get("phone", ""),
+            enrollment_year=self.cleaned_data.get("enrollment_year"),
+        )
+        from .models import ReadingList
+        ReadingList.objects.create(student=profile, name="My reading list", is_default=True)
         return user
 
 
+class StudentProfileForm(forms.ModelForm):
+    """Lets a student edit their own academic details."""
+
+    first_name = forms.CharField(max_length=150, label="First name")
+    last_name = forms.CharField(max_length=150, label="Last name")
+    email = forms.EmailField(label="Email address")
+
+    class Meta:
+        model = StudentProfile
+        fields = ("first_name", "last_name", "email", "department", "semester",
+                  "phone", "enrollment_year")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user = self.instance.user
+        self.fields["first_name"].initial = user.first_name
+        self.fields["last_name"].initial = user.last_name
+        self.fields["email"].initial = user.email
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "field-input")
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.user_id).exists():
+            raise ValidationError("Another account already uses this email address.")
+        return email
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        user = profile.user
+        user.first_name = self.cleaned_data["first_name"].strip()
+        user.last_name = self.cleaned_data["last_name"].strip()
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save(update_fields=["first_name", "last_name", "email"])
+            profile.save()
+        return profile
+
+
 class BookSearchForm(forms.Form):
-    q = forms.CharField(required=False, max_length=160, label="Search books")
-    category = forms.ModelChoiceField(queryset=Category.objects.none(), required=False)
-    subject = forms.CharField(required=False, max_length=100)
-    availability = forms.ChoiceField(required=False, choices=(
-        ("", "Any availability"), ("available", "Available now"), ("unavailable", "Currently borrowed"),
-    ))
-    sort = forms.ChoiceField(required=False, choices=(
-        ("", "Relevance"), ("title", "Title"), ("year_desc", "Newest"),
-    ))
+    """Catalogue search box, filters and sort control."""
+
+    SORT_CHOICES = (
+        ("title", "Title (A–Z)"),
+        ("author", "Author (A–Z)"),
+        ("newest", "Newest first"),
+        ("availability", "Availability"),
+    )
+    AVAILABILITY_CHOICES = (
+        ("", "Any availability"),
+        ("available", "Available now"),
+        ("unavailable", "Currently borrowed"),
+    )
+
+    q = forms.CharField(required=False, max_length=160,
+                        widget=forms.TextInput(attrs={
+                            "placeholder": "Search title, author, ISBN or keyword…",
+                            "class": "field-input", "aria-label": "Search the catalogue"}),
+                        label="Search")
+    category = forms.ModelChoiceField(required=False, queryset=Category.objects.none(),
+                                      empty_label="All categories", label="Category")
+    availability = forms.ChoiceField(required=False, choices=AVAILABILITY_CHOICES,
+                                     widget=forms.Select(attrs={"class": "field-input"}),
+                                     label="Availability")
+    sort = forms.ChoiceField(required=False, choices=SORT_CHOICES,
+                             widget=forms.Select(attrs={"class": "field-input"}), label="Sort by")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["category"].queryset = Category.objects.order_by("name")
+        for name in ("category", "availability", "sort"):
+            self.fields[name].widget.attrs.setdefault("class", "field-input")
+
+    @property
+    def is_filtered(self):
+        return any(self.data.get(name) for name in ("q", "category", "availability"))
 
 
 class BookForm(forms.ModelForm):
+    """Add / edit a catalogue title. Copy count is managed separately."""
+
+    total_copies = forms.IntegerField(
+        min_value=0, max_value=500, initial=1, required=False, label="Total copies",
+        help_text="Number of physical copies to hold for this title.",
+        widget=forms.NumberInput(attrs={"class": "field-input", "min": 0, "max": 500}))
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(), required=False,
+        widget=forms.Select(attrs={"class": "field-input"}), label="Category")
+    isbn = forms.CharField(
+        required=False, max_length=20, label="ISBN",
+        widget=forms.TextInput(attrs={"class": "field-input"}),
+        help_text="Digits and hyphens only. Must be unique.")
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.all(), required=False, label="Subject / department",
+        widget=forms.Select(attrs={"class": "field-input"}))
+
     class Meta:
         model = Book
-        fields = ("title", "subtitle", "isbn", "authors", "categories", "subject",
-                  "publisher", "publication_year", "edition", "language", "page_count", "description",
-                  "cover_image_url", "is_active")
-        widgets = {"description": forms.Textarea(attrs={"rows": 5}),
-                   "authors": forms.SelectMultiple(attrs={"size": 5}),
-                   "categories": forms.SelectMultiple(attrs={"size": 5})}
+        fields = ("title", "subtitle", "isbn", "authors", "category", "subject",
+                  "publisher", "publication_year", "edition", "language", "page_count",
+                  "description", "cover", "featured", "is_active")
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 5, "class": "field-input"}),
+            "authors": forms.SelectMultiple(attrs={"size": 6, "class": "field-input"}),
+            "subject": forms.Select(attrs={"class": "field-input"}),
+            "cover": forms.ClearableFileInput(attrs={"class": "field-input"}),
+            "featured": forms.CheckboxInput(attrs={"class": "field-checkbox"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "field-checkbox"}),
+            "title": forms.TextInput(attrs={"class": "field-input"}),
+            "subtitle": forms.TextInput(attrs={"class": "field-input"}),
+            "isbn": forms.TextInput(attrs={"class": "field-input"}),
+            "publisher": forms.TextInput(attrs={"class": "field-input"}),
+            "publication_year": forms.NumberInput(attrs={"class": "field-input"}),
+            "edition": forms.TextInput(attrs={"class": "field-input"}),
+            "language": forms.TextInput(attrs={"class": "field-input"}),
+            "page_count": forms.NumberInput(attrs={"class": "field-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # The model carries a default, but a ModelForm still treats the field
+        # as required, so make it optional and fall back on save.
+        self.fields["language"].required = False
+        self.fields["language"].initial = self.fields["language"].initial or "English"
+        self.fields["total_copies"].help_text = (
+            "Currently on the shelf: %(count)s."
+            % {"count": self.instance.total_copies if self.instance.pk else 0})
+
+    def clean_isbn(self):
+        isbn = (self.cleaned_data.get("isbn") or "").strip()
+        if isbn and not isbn.replace("-", "").isdigit():
+            raise ValidationError("An ISBN may only contain digits and hyphens.")
+        return isbn
+
+    def clean_cover(self):
+        cover = self.cleaned_data.get("cover")
+        if cover and cover.size > 4 * 1024 * 1024:
+            raise ValidationError("Cover images must be smaller than 4 MB.")
+        return cover
+
+    def save(self, commit=True):
+        """Persist the book and mirror the chosen category onto the M2M table."""
+        book = super().save(commit=False)
+        if not book.language:
+            book.language = "English"
+        category = self.cleaned_data.get("category")
+        if commit:
+            book.save()
+            if category:
+                book.categories.set([category])
+            else:
+                book.categories.clear()
+        return book
+
+
+class BookCopyForm(forms.ModelForm):
+    """Manage a single physical copy."""
+
+    class Meta:
+        model = BookCopy
+        fields = ("accession_number", "status", "shelf_location", "acquired_on", "notes")
+        widgets = {
+            "status": forms.Select(attrs={"class": "field-input"}),
+            "acquired_on": forms.DateInput(attrs={"type": "date", "class": "field-input"}),
+            "notes": forms.Textarea(attrs={"rows": 2, "class": "field-input"}),
+            "accession_number": forms.TextInput(attrs={"class": "field-input"}),
+            "shelf_location": forms.TextInput(attrs={"class": "field-input"}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        copy = self.instance
+        if copy.pk and copy.status in (BookCopy.Status.AVAILABLE,):
+            active = copy.loans.filter(status__in=Loan.ON_LOAN_STATUSES).exists()
+            if active and not self.data.get("status"):
+                raise ValidationError(
+                    "This copy is currently on loan and cannot be marked available.")
+        return cleaned
+
+
+class DigitalMaterialForm(forms.ModelForm):
+    """Add or edit a digital learning resource."""
+
+    class Meta:
+        model = DigitalMaterial
+        fields = ("title", "description", "material_type", "book", "subject",
+                  "categories", "authors", "file", "external_url",
+                  "publication_date", "is_public")
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 4, "class": "field-input"}),
+            "material_type": forms.Select(attrs={"class": "field-input"}),
+            "book": forms.Select(attrs={"class": "field-input"}),
+            "subject": forms.Select(attrs={"class": "field-input"}),
+            "categories": forms.SelectMultiple(attrs={"size": 5, "class": "field-input"}),
+            "authors": forms.SelectMultiple(attrs={"size": 5, "class": "field-input"}),
+            "file": forms.ClearableFileInput(attrs={"class": "field-input"}),
+            "external_url": forms.URLInput(attrs={"class": "field-input",
+                                                  "placeholder": "https://…"}),
+            "publication_date": forms.DateInput(attrs={"type": "date", "class": "field-input"}),
+            "is_public": forms.CheckboxInput(attrs={"class": "field-checkbox"}),
+            "title": forms.TextInput(attrs={"class": "field-input"}),
+        }
+
+    def clean_file(self):
+        uploaded = self.cleaned_data.get("file")
+        if not uploaded:
+            return uploaded
+        extension = (uploaded.name.rsplit(".", 1)[-1] or "").lower()
+        if extension not in ALLOWED_MATERIAL_EXTENSIONS:
+            raise ValidationError(
+                "Unsupported file type. Allowed: %s."
+                % ", ".join(sorted(ALLOWED_MATERIAL_EXTENSIONS)))
+        if uploaded.size > MAX_MATERIAL_UPLOAD_MB * 1024 * 1024:
+            raise ValidationError("Files must be smaller than %d MB." % MAX_MATERIAL_UPLOAD_MB)
+        return uploaded
+
+    def clean(self):
+        cleaned = super().clean()
+        if not cleaned.get("file") and not cleaned.get("external_url"):
+            raise ValidationError("Attach a file or provide an external URL.")
+        return cleaned
 
 
 class LoanIssueForm(forms.Form):
-    """Fields needed to issue a copy; final checks happen under a DB lock."""
+    """Counter-top issue form used by the librarian."""
+
     student = forms.ModelChoiceField(queryset=StudentProfile.objects.none())
-    copy = forms.ModelChoiceField(queryset=BookCopy.objects.none())
-    due_at = forms.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",),
-                                  widget=forms.DateTimeInput(attrs={"type": "datetime-local"}))
+    book = forms.ModelChoiceField(queryset=Book.objects.none())
+    due_at = forms.DateTimeField(
+        required=False, input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"],
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "class": "field-input"}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["student"].queryset = StudentProfile.objects.select_related("user").order_by("student_id")
-        self.fields["copy"].queryset = BookCopy.objects.filter(status=BookCopy.Status.AVAILABLE).select_related("book")
+        self.fields["student"].queryset = (
+            StudentProfile.objects.filter(is_active=True)
+            .select_related("user").order_by("student_id"))
+        self.fields["book"].queryset = Book.objects.filter(is_active=True).order_by("title")
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "field-input")
 
 
 class LoanReturnForm(forms.Form):
-    loan = forms.ModelChoiceField(queryset=Loan.objects.none())
-    notes = forms.CharField(required=False, max_length=500, widget=forms.Textarea(attrs={"rows": 3}))
+    """Notes recorded when the desk takes a book back."""
+
+    loan = forms.ModelChoiceField(queryset=Loan.objects.none(), widget=forms.HiddenInput)
+    notes = forms.CharField(required=False, max_length=500,
+                            widget=forms.Textarea(attrs={"rows": 2, "class": "field-input"}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["loan"].queryset = Loan.objects.filter(status=Loan.Status.ACTIVE).select_related("copy__book", "student__user")
+        # Only live loans can be returned; closed records are filtered out so a
+        # second submission cannot reopen a settled transaction.
+        self.fields["loan"].queryset = Loan.objects.filter(
+            status__in=Loan.ON_LOAN_STATUSES).select_related("book", "student__user")

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Edit material{% else %}Add material{% endif %} — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">LIBRARIAN WORKSPACE</p>
+        <h1>{% if is_edit %}Edit “{{ material.title }}”{% else %}Add a digital material{% endif %}</h1>
+        <p>Attach an uploaded file or an external URL. Students only ever see the published link, never a server file path.</p>
+      </div>
+
+      <div class="panel-grid">
+        <section class="panel">
+          <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+            {% if form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+            <div class="desk-actions" style="margin-top:20px">
+              <button class="button button-primary" type="submit">{% if is_edit %}Save changes{% else %}Add material{% endif %} <i data-lucide="check"></i></button>
+              <a class="btn-inline" href="{% url 'core:librarian_materials' %}">Cancel</a>
+            </div>
+          </form>
+        </section>
+
+        <aside class="stack">
+          <section class="panel">
+            <p class="app-eyebrow">CURRENT</p>
+            <h2 style="font:26px/1.05 var(--serif);margin:6px 0 14px">{{ material.title|default:"New material" }}</h2>
+            <dl class="detail-list">
+              <div><dt>Source</dt><dd>{% if material.external_url %}External URL{% elif material.file %}Uploaded file{% else %}Not set{% endif %}</dd></div>
+              <div><dt>Visibility</dt><dd>{% if material.is_public %}Public{% else %}Hidden{% endif %}</dd></div>
+            </dl>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

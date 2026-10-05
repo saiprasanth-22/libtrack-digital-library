@@ -1,17 +1,35 @@
 <aside class="app-sidebar" id="app-sidebar">
   <a class="brand sidebar-brand" href="{% url 'core:home' %}"><span class="brand-mark">L</span><span>LibTrack</span></a>
   <nav class="side-nav" aria-label="Product navigation">
-    {% if section == 'librarian' %}
+    {% if request.user.is_staff %}
       <p class="nav-label">Workspace</p>
-      <a class="active" href="{% url 'core:librarian' %}"><i data-lucide="layout-dashboard"></i>Overview</a>
-      <a href="{% url 'core:librarian_catalogue' %}"><i data-lucide="book-copy"></i>Catalogue & loans</a><a href="{% url 'core:librarian_catalogue' %}#loans"><i data-lucide="repeat-2"></i>Circulation</a>
-      <p class="nav-label">Intelligence</p><a href="#analytics"><i data-lucide="chart-no-axes-combined"></i>Analytics</a><a href="#insight"><i data-lucide="sparkles"></i>Insights</a>
+      <a class="{% if section == 'librarian' %}active{% endif %}" href="{% url 'core:librarian' %}"><i data-lucide="layout-dashboard"></i>Overview</a>
+      <a class="{% if request.resolver_match.url_name == 'librarian_books' or request.resolver_match.url_name == 'librarian_book_edit' or request.resolver_match.url_name == 'librarian_copies' %}active{% endif %}" href="{% url 'core:librarian_books' %}"><i data-lucide="book-copy"></i>Catalogue</a>
+      <a class="{% if request.resolver_match.url_name == 'librarian_circulation' %}active{% endif %}" href="{% url 'core:librarian_circulation' %}"><i data-lucide="repeat-2"></i>Circulation</a>
+      <a class="{% if request.resolver_match.url_name == 'librarian_students' or request.resolver_match.url_name == 'librarian_student_detail' %}active{% endif %}" href="{% url 'core:librarian_students' %}"><i data-lucide="users"></i>Students</a>
+      <p class="nav-label">Intelligence</p>
+      <a class="{% if request.resolver_match.url_name == 'librarian_reports' %}active{% endif %}" href="{% url 'core:librarian_reports' %}"><i data-lucide="chart-no-axes-combined"></i>Reports</a>
+      <a class="{% if request.resolver_match.url_name == 'librarian_materials' or request.resolver_match.url_name == 'librarian_material_edit' %}active{% endif %}" href="{% url 'core:librarian_materials' %}"><i data-lucide="file-text"></i>Materials</a>
     {% else %}
       <p class="nav-label">Library</p>
       <a class="{% if section == 'discover' %}active{% endif %}" href="{% url 'core:discover' %}"><i data-lucide="compass"></i>Discover</a>
-      <a href="{% url 'core:discover' %}#popular"><i data-lucide="book-open"></i>Books</a><a href="{% url 'core:discover' %}#papers"><i data-lucide="file-text"></i>Research Papers</a><a href="#"><i data-lucide="tablet"></i>E-Books</a>
-      <p class="nav-label">My Space</p><a class="{% if section == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a><a href="{% if request.user.is_authenticated %}{% url 'core:student' %}#saved{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="bookmark"></i>Saved Resources</a><a href="{% url 'core:discover' %}"><i data-lucide="history"></i>Reading History</a>
+      <a class="{% if section == 'materials' %}active{% endif %}" href="{% url 'core:materials' %}"><i data-lucide="file-text"></i>Digital resources</a>
+      <p class="nav-label">My Space</p>
+      <a class="{% if section == 'student' and request.resolver_match.url_name == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+      <a class="{% if request.resolver_match.url_name == 'student_loans' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_loans' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="book-open"></i>My books</a>
+      <a class="{% if request.resolver_match.url_name == 'student_profile' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_profile' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="user-round"></i>My profile</a>
     {% endif %}
   </nav>
-  <div class="sidebar-user"><span class="avatar">{% if request.user.is_authenticated %}{{ request.user.first_name|default:request.user.username|slice:":2"|upper }}{% else %}LT{% endif %}</span><div><strong>{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% else %}Guest reader{% endif %}</strong><small>{% if request.user.is_staff %}Librarian{% elif request.user.student_profile %}{{ request.user.student_profile.department|default:"Student" }}{% else %}Browse the collection{% endif %}</small></div>{% if request.user.is_authenticated %}<form method="post" action="{% url 'core:logout' %}">{% csrf_token %}<button type="submit" aria-label="Sign out" title="Sign out" style="border:0;background:none;color:inherit;cursor:pointer"><i data-lucide="log-out"></i></button></form>{% else %}<a href="{% url 'core:login' %}" aria-label="Sign in"><i data-lucide="log-in"></i></a>{% endif %}</div>
+  <div class="sidebar-user">
+    <span class="avatar">{% if request.user.is_authenticated %}{{ request.user.first_name|default:request.user.username|slice:":2"|upper }}{% else %}LT{% endif %}</span>
+    <div>
+      <strong>{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% else %}Guest reader{% endif %}</strong>
+      <small>{% if request.user.is_staff %}Librarian{% elif request.user.student_profile %}{{ request.user.student_profile.department|default:"Student" }}{% else %}Browse the collection{% endif %}</small>
+    </div>
+    {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'core:logout' %}">{% csrf_token %}<button type="submit" aria-label="Sign out" title="Sign out" class="sidebar-icon-button"><i data-lucide="log-out"></i></button></form>
+    {% else %}
+      <a href="{% url 'core:login' %}" aria-label="Sign in"><i data-lucide="log-in"></i></a>
+    {% endif %}
+  </div>
 </aside>

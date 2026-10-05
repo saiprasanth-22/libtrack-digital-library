@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Copies of {{ book.title }} — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">PHYSICAL INVENTORY</p>
+        <h1>Copies of “{{ book.title }}”</h1>
+        <p>{{ book.total_copies }} copies held · {{ book.available_copies }} available on the shelf.</p>
+      </div>
+
+      <div class="panel-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">SHELF LIST</p><h2>Every physical copy</h2></div>
+            <form method="post" class="desk-actions">{% csrf_token %}
+              <input type="hidden" name="action" value="add">
+              <label class="visually-hidden" for="shelf">Shelf location</label>
+              <input class="field-input" id="shelf" name="shelf_location" placeholder="Shelf" style="width:110px">
+              <button class="btn-inline is-primary" type="submit"><i data-lucide="plus"></i>Add copy</button>
+            </form>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Accession no.</th><th>Status</th><th>Shelf</th><th>Acquired</th><th></th></tr></thead>
+              <tbody>
+                {% for copy in copies %}
+                  <tr>
+                    <td>{{ copy.accession_number }}</td>
+                    <td><span class="badge {% if copy.status == 'available' %}badge-available{% elif copy.status == 'on_loan' %}badge-issued{% else %}badge-neutral{% endif %}"><i></i>{{ copy.get_status_display }}</span></td>
+                    <td>{{ copy.shelf_location|default:"—" }}</td>
+                    <td>{{ copy.acquired_on|date:"d M Y"|default:"—" }}</td>
+                    <td>
+                      <form method="post" class="desk-actions">{% csrf_token %}
+                        <input type="hidden" name="copy_id" value="{{ copy.pk }}">
+                        <label class="visually-hidden" for="status-{{ copy.pk }}">Status for {{ copy.accession_number }}</label>
+                        <select class="field-input" id="status-{{ copy.pk }}" name="status" style="padding:7px 9px;font-size:11px;min-height:34px">
+                          {% for value, label in copy_form.fields.status.choices %}
+                            <option value="{{ value }}" {% if copy.status == value %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                        <button class="btn-inline" type="submit">Save</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="5" class="inline-note">No physical copies recorded for this title yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="stack">
+          <section class="panel">
+            <p class="app-eyebrow">RECORD</p>
+            <h2 style="font:26px/1.05 var(--serif);margin:6px 0 14px">Bibliographic detail</h2>
+            <dl class="detail-list">
+              <div><dt>ISBN</dt><dd>{{ book.isbn|default:"—" }}</dd></div>
+              <div><dt>Publisher</dt><dd>{{ book.publisher|default:"—" }}</dd></div>
+              <div><dt>Published</dt><dd>{{ book.publication_year|default:"—" }}</dd></div>
+              <div><dt>Edition</dt><dd>{{ book.edition|default:"—" }}</dd></div>
+            </dl>
+            <a class="btn-inline" href="{% url 'core:librarian_book_edit' book.pk %}" style="margin-top:14px;width:100%;justify-content:center">Edit record</a>
+          </section>
+          <section class="panel">
+            <p class="app-eyebrow">NOTE</p>
+            <p class="inline-note">A copy that is on loan cannot be switched to available by hand. Returning the book through the circulation desk does this automatically, so the count stays accurate.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

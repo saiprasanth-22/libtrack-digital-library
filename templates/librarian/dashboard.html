@@ -1,7 +1,138 @@
-{% extends "base.html" %}{% block title %}Librarian Intelligence — LibTrack{% endblock %}{% block content %}<div class="app-shell">{% include "partials/sidebar.html" with section="librarian" %}<main class="app-main">{% include "partials/topbar.html" %}
-<section class="librarian-hero"><div><p class="app-eyebrow">LIBRARIAN DASHBOARD</p><h1>Manage knowledge.<br><em>Empower students.</em></h1><p>Track usage, manage resources, and gain insights to build a more engaged academic community.</p></div><div class="archive-mark"><span>LIBTRACK INTELLIGENCE</span><b>05</b></div></section>
-<section class="content-pad" id="analytics"><div class="metric-grid four"><article><span class="metric-icon"><i data-lucide="library"></i></span><div><small>TOTAL BOOKS</small><strong>{{ stats.total_books }}</strong><p>Active catalogue titles</p></div></article><article><span class="metric-icon"><i data-lucide="users"></i></span><div><small>REGISTERED STUDENTS</small><strong>{{ stats.student_count }}</strong><p>Student accounts</p></div></article><article><span class="metric-icon"><i data-lucide="book-check"></i></span><div><small>CURRENT LOANS</small><strong>{{ stats.current_loans }}</strong><p>{{ stats.overdue_count }} overdue</p></div></article><article><span class="metric-icon"><i data-lucide="rotate-ccw"></i></span><div><small>PENDING RESERVATIONS</small><strong>{{ stats.pending_requests }}</strong><p>Awaiting available copies</p></div></article></div>
-<div class="analytics-grid"><article class="analytics-card usage-card"><div class="card-head"><div><p class="app-eyebrow">CIRCULATION</p><h2>Library usage trend</h2></div><button>This semester <i data-lucide="chevron-down"></i></button></div><div class="chart-bars">{% for h in '123456789012' %}<i style="--h:{% cycle '42%' '55%' '48%' '68%' '62%' '80%' '72%' '88%' '76%' '91%' '82%' '96%' %}"><span></span></i>{% endfor %}</div><div class="chart-labels"><span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span></div></article><article class="analytics-card distribution"><p class="app-eyebrow">COLLECTION</p><h2>Resource distribution</h2><div class="donut"><strong>12.4K<small>resources</small></strong></div><ul><li><i></i>Books <b>62%</b></li><li><i></i>Research Papers <b>18%</b></li><li><i></i>Journals & E-Books <b>20%</b></li></ul></article></div>
-<div class="intel-card" id="insight"><div class="intel-icon"><i data-lucide="sparkles"></i></div><div><p class="app-eyebrow">LIBTRACK INTELLIGENCE · DEMAND SIGNAL</p><h2>23 students searched for “Machine Learning” this week, while only 4 copies are available.</h2><p>Demand has increased 38% over the last four weeks. The collection may not meet upcoming course needs.</p></div><a href="#">Consider acquisition <i data-lucide="arrow-right"></i></a></div>
-<div class="operations-grid" id="activity"><article class="analytics-card"><div class="card-head"><div><p class="app-eyebrow">LIVE FEED</p><h2>Recent activity</h2></div><a href="{% url 'core:librarian_catalogue' %}">Manage circulation →</a></div><div class="activity-list">{% for event in recent_activity %}<div><span class="avatar">{{ event.student.user.first_name|default:event.user.username|default:"LT"|slice:":2"|upper }}</span><p><strong>{{ event.student.user.get_full_name|default:event.user.username|default:"Library" }}</strong> {{ event.get_action_display|lower }} <b>{{ event.description }}</b><small>{{ event.occurred_at|timesince }} ago</small></p></div>{% empty %}<p>No activity has been recorded yet.</p>{% endfor %}</div></article><article class="analytics-card"><p class="app-eyebrow">OPERATIONS</p><h2>Needs attention</h2><div class="attention-list"><a href="{% url 'core:librarian_catalogue' %}"><span><i data-lucide="inbox"></i><b>Pending reservations</b></span><strong>{{ stats.pending_requests }}</strong></a><a href="{% url 'core:librarian_catalogue' %}#loans"><span><i data-lucide="clock-alert"></i><b>Overdue books</b></span><strong class="danger">{{ stats.overdue_count }}</strong></a><a href="{% url 'core:librarian_catalogue' %}"><span><i data-lucide="book-copy"></i><b>Manage catalogue</b></span><strong>→</strong></a></div></article></div>
-</section></main></div>{% endblock %}
+{% extends "base.html" %}
+{% block title %}Librarian Intelligence — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="librarian-hero">
+      <div>
+        <p class="app-eyebrow">LIBRARIAN DASHBOARD</p>
+        <h1>Manage knowledge.<br><em>Empower students.</em></h1>
+        <p>Track usage, manage resources, and gain insights to build a more engaged academic community.</p>
+      </div>
+      <div class="archive-mark"><span>LIBTRACK INTELLIGENCE</span><b>{{ stats.total_books }}</b></div>
+    </section>
+
+    <section class="content-pad" id="analytics">
+      <div class="metric-grid four">
+        <article><span class="metric-icon"><i data-lucide="library"></i></span><div><small>TOTAL TITLES</small><strong>{{ stats.total_books }}</strong><p>Active in the catalogue</p></div></article>
+        <article><span class="metric-icon"><i data-lucide="copy"></i></span><div><small>COPIES</small><strong>{{ stats.total_copies }}</strong><p>{{ stats.available_copies }} available now</p></div></article>
+        <article><span class="metric-icon"><i data-lucide="users"></i></span><div><small>REGISTERED STUDENTS</small><strong>{{ stats.student_count }}</strong><p>{{ stats.active_students }} active</p></div></article>
+        <article><span class="metric-icon"><i data-lucide="book-check"></i></span><div><small>CURRENT LOANS</small><strong>{{ stats.current_loans }}</strong><p>{{ stats.overdue_count }} overdue</p></div></article>
+      </div>
+
+      <div class="analytics-grid">
+        <article class="analytics-card usage-card">
+          <div class="card-head">
+            <div><p class="app-eyebrow">CIRCULATION</p><h2>Books issued per month</h2></div>
+            <a href="{% url 'core:librarian_reports' %}">Full reports →</a>
+          </div>
+          <div class="chart-bars" role="img" aria-label="Books issued in each of the last six months">
+            {% for month in stats.monthly_circulation %}
+              <i style="--h:{{ month.height }}%"><span></span></i>
+            {% endfor %}
+          </div>
+          <div class="chart-labels">
+            {% for month in stats.monthly_circulation %}<span>{{ month.label }}</span>{% endfor %}
+          </div>
+        </article>
+
+        <article class="analytics-card">
+          <p class="app-eyebrow">INVENTORY</p>
+          <h2>Availability snapshot</h2>
+          <div class="metric-list">
+            <div><small>Copies on shelf</small><strong>{{ stats.available_copies }}</strong></div>
+            <div><small>Copies on loan</small><strong>{{ stats.current_loans }}</strong></div>
+            <div><small>Pending requests</small><strong>{{ stats.pending_requests }}</strong></div>
+            <div><small>Digital materials</small><strong>{{ stats.digital_materials }}</strong></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="analytics-grid" style="margin-top:16px">
+        <article class="analytics-card">
+          <p class="app-eyebrow">COLLECTION</p>
+          <h2>Most borrowed titles</h2>
+          <div class="bar-list">
+            {% for book in top_books %}
+              <div class="bar-item">
+                <span title="{{ book.title }}">{{ book.title }}</span>
+                <b>{{ book.borrow_count }}</b>
+                <div class="bar-track"><i style="width:{% if top_books.0.borrow_count %}{% widthratio book.borrow_count top_books.0.borrow_count 100 %}{% else %}0{% endif %}%"></i></div>
+              </div>
+            {% empty %}
+              <p class="inline-note">No borrowing activity recorded yet.</p>
+            {% endfor %}
+          </div>
+        </article>
+        <article class="analytics-card">
+          <p class="app-eyebrow">OPERATIONS</p>
+          <h2>Recent loans</h2>
+          <div class="desk-list">
+            {% for loan in stats.recent_loans %}
+              <div class="desk-row">
+                <div><strong>{{ loan.book.title }}</strong><small>{{ loan.student.display_name }} · {{ loan.get_status_display }}</small></div>
+              </div>
+            {% empty %}
+              <p class="inline-note">No loans recorded yet.</p>
+            {% endfor %}
+          </div>
+        </article>
+      </div>
+
+      {% if pending_requests %}
+        <div class="panel" id="requests" style="margin:16px 0">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">AWAITING REVIEW</p><h2>Borrowing requests</h2></div>
+            <a class="btn-inline" href="{% url 'core:librarian_circulation' %}">Open circulation desk</a>
+          </div>
+          <div class="desk-list">
+            {% for loan in pending_requests %}
+              <div class="desk-row">
+                <div><strong>{{ loan.student.display_name }}</strong><small>{{ loan.student.student_id }} · requested {{ loan.requested_at|timesince }} ago</small></div>
+                <span class="badge badge-requested"><i></i>{{ loan.book.title }}</span>
+                <div class="desk-actions">
+                  <form method="post" action="{% url 'core:librarian_request_approve' loan.pk %}" class="form-inline">{% csrf_token %}<button class="btn-inline is-primary" type="submit">Approve</button></form>
+                  <form method="post" action="{% url 'core:librarian_request_reject' loan.pk %}" class="form-inline">{% csrf_token %}<button class="btn-inline is-danger" type="submit">Reject</button></form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="operations-grid" id="activity">
+        <article class="analytics-card">
+          <div class="card-head">
+            <div><p class="app-eyebrow">LIVE FEED</p><h2>Recent activity</h2></div>
+            <a href="{% url 'core:librarian_reports' %}">View reports →</a>
+          </div>
+          <div class="activity-list">
+            {% for event in stats.recent_activity %}
+              <div>
+                <span class="avatar">{{ event.actor_initials }}</span>
+                <p><strong>{{ event.actor_name }}</strong> {{ event.get_action_display|lower }}<b>{{ event.description }}</b><small>{{ event.occurred_at|timesince }} ago</small></p>
+              </div>
+            {% empty %}
+              <p class="inline-note">No activity has been recorded yet.</p>
+            {% endfor %}
+          </div>
+        </article>
+
+        <article class="analytics-card">
+          <p class="app-eyebrow">OPERATIONS</p>
+          <h2>Needs attention</h2>
+          <div class="attention-list">
+            <a href="{% url 'core:librarian_circulation' %}"><span><i data-lucide="inbox"></i><b>Pending requests</b></span><strong>{{ stats.pending_requests }}</strong></a>
+            <a href="{% url 'core:librarian_reports' %}#overdue"><span><i data-lucide="clock-alert"></i><b>Overdue books</b></span><strong class="danger">{{ stats.overdue_count }}</strong></a>
+            <a href="{% url 'core:librarian_books' %}"><span><i data-lucide="book-copy"></i><b>Manage catalogue</b></span><strong>→</strong></a>
+            <a href="{% url 'core:librarian_students' %}"><span><i data-lucide="user-cog"></i><b>Student accounts</b></span><strong>{{ stats.student_count }}</strong></a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

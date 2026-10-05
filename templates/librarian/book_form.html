@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Edit {{ book.title }}{% else %}Add a book{% endif %} — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="page-intro">
+        <p class="app-eyebrow">LIBRARIAN WORKSPACE</p>
+        <h1>{% if is_edit %}Edit “{{ book.title }}”{% else %}Add a new title{% endif %}</h1>
+        <p>{% if is_edit %}Update the bibliographic record or adjust how many copies the library holds.{% else %}Bibliographic details create the record; the copy count creates physical items on the shelf.{% endif %}</p>
+      </div>
+
+      <div class="panel-grid">
+        <section class="panel">
+          <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+            {% if form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <div class="form-grid form-grid-2">
+              {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+            </div>
+            <div class="desk-actions" style="margin-top:20px">
+              <button class="button button-primary" type="submit">{% if is_edit %}Save changes{% else %}Add book{% endif %} <i data-lucide="check"></i></button>
+              <a class="btn-inline" href="{% url 'core:librarian_books' %}">Cancel</a>
+            </div>
+          </form>
+        </section>
+
+        <aside class="stack">
+          <section class="panel">
+            <p class="app-eyebrow">INVENTORY</p>
+            <h2 style="font:26px/1.05 var(--serif);margin:6px 0 14px">Copies on the shelf</h2>
+            <div class="metric-list">
+              <div><small>Total copies</small><strong>{{ book.total_copies }}</strong></div>
+              <div><small>Available</small><strong>{{ book.available_copies }}</strong></div>
+            </div>
+            {% if is_edit %}
+              <a class="btn-inline" href="{% url 'core:librarian_copies' book.pk %}" style="margin-top:14px;width:100%;justify-content:center">Manage individual copies</a>
+            {% endif %}
+          </section>
+          <section class="panel">
+            <p class="app-eyebrow">RULES</p>
+            <p class="inline-note">A book can only be issued while at least one copy is marked available. Withdrawing copies below the number currently on loan is rejected, so availability can never go negative.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
