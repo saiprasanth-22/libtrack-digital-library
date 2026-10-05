@@ -13,40 +13,59 @@
         <p>Search by name, registration number or email. Passwords are never shown or stored in readable form.</p>
       </div>
 
-      <form class="discovery-search" action="{% url 'core:librarian_students' %}" method="get" role="search" style="box-shadow:none;border:1px solid #e2d8c8">
-        <i data-lucide="search"></i>
-        <label class="visually-hidden" for="student-search">Search students</label>
-        <input id="student-search" name="q" value="{{ query }}" placeholder="Search name, ID or email…">
-        <button type="submit">Search <i data-lucide="search"></i></button>
-      </form>
+      <div class="panel-grid">
+        <div>
+          <form class="discovery-search" action="{% url 'core:librarian_students' %}" method="get" role="search" style="box-shadow:none;border:1px solid #e2d8c8">
+            <i data-lucide="search"></i>
+            <label class="visually-hidden" for="student-search">Search students</label>
+            <input id="student-search" name="q" value="{{ query }}" placeholder="Search name, ID or email…">
+            <button type="submit">Search <i data-lucide="search"></i></button>
+          </form>
 
-      <div class="table-wrap" style="margin-top:20px">
-        <table class="data-table">
-          <thead><tr><th>Registration no.</th><th>Student</th><th>Course</th><th>Semester</th><th>Active loans</th><th>Status</th><th></th></tr></thead>
-          <tbody>
-            {% for profile in students %}
-              <tr>
-                <td>{{ profile.student_id }}</td>
-                <td><a href="{% url 'core:librarian_student_detail' profile.pk %}">{{ profile.display_name }}</a><br><small style="color:#8a8178">{{ profile.user.email }}</small></td>
-                <td>{{ profile.department|default:"—" }}</td>
-                <td>{{ profile.semester|default:"—" }}</td>
-                <td>{{ profile.active_loans }} of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }}</td>
-                <td>
-                  {% if profile.is_active and profile.user.is_active %}
-                    <span class="badge badge-available"><i></i>Active</span>
-                  {% else %}
-                    <span class="badge badge-danger"><i></i>Deactivated</span>
-                  {% endif %}
-                </td>
-                <td><a class="btn-inline" href="{% url 'core:librarian_student_detail' profile.pk %}">Open</a></td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="7" class="inline-note">{% if query %}No student matched “{{ query }}”.{% else %}No students have registered yet.{% endif %}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+          <div class="table-wrap" style="margin-top:20px">
+            <table class="data-table">
+              <thead><tr><th>Registration no.</th><th>Student</th><th>Course</th><th>Semester</th><th>Active loans</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                {% for profile in students %}
+                  <tr>
+                    <td>{{ profile.student_id }}</td>
+                    <td><a href="{% url 'core:librarian_student_detail' profile.pk %}">{{ profile.display_name }}</a><br><small style="color:#8a8178">{{ profile.user.email }}</small></td>
+                    <td>{{ profile.department|default:"—" }}</td>
+                    <td>{{ profile.semester|default:"—" }}</td>
+                    <td>{{ profile.active_loans }} of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }}</td>
+                    <td>
+                      {% if profile.is_active and profile.user.is_active %}
+                        <span class="badge badge-available"><i></i>Active</span>
+                      {% else %}
+                        <span class="badge badge-danger"><i></i>Deactivated</span>
+                      {% endif %}
+                    </td>
+                    <td><a class="btn-inline" href="{% url 'core:librarian_student_detail' profile.pk %}">Open</a></td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="7" class="inline-note">{% if query %}No student matched “{{ query }}”.{% else %}No students have registered yet.{% endif %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% include "partials/pagination.html" %}
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><p class="app-eyebrow">NEW REGISTRATION</p><h2>Add a student</h2></div>
+          </div>
+          <form method="post" action="{% url 'core:librarian_students' %}" novalidate>{% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            {% if add_form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in add_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <div class="form-grid form-grid-2">
+              {% for field in add_form %}{% include "partials/form_field.html" %}{% endfor %}
+            </div>
+            <button class="button button-primary" type="submit" style="width:100%">Register student <i data-lucide="user-plus"></i></button>
+          </form>
+          <p class="inline-note" style="margin-top:14px">The student signs in with this password and can change it from their profile page. Passwords are stored hashed, never in readable form.</p>
+        </section>
       </div>
-      {% include "partials/pagination.html" %}
     </section>
   </main>
 </div>

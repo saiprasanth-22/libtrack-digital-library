@@ -15,6 +15,7 @@ urlpatterns = [
     path("books/<slug:slug>/borrow/", views.borrow_book, name="borrow_book"),
     path("books/<slug:slug>/request/", views.request_book, name="request_book"),
     path("books/<slug:slug>/save/", views.save_book, name="save_book"),
+    path("books/<slug:slug>/review/", views.book_review, name="book_review"),
 
     # Authentication
     path("accounts/login/", views.login_view, name="login"),
@@ -41,6 +42,7 @@ urlpatterns = [
     path("librarian/students/", views.librarian_students, name="librarian_students"),
     path("librarian/students/<int:pk>/", views.librarian_student_detail, name="librarian_student_detail"),
     path("librarian/students/<int:pk>/toggle/", views.librarian_student_toggle, name="librarian_student_toggle"),
+    path("librarian/students/<int:pk>/delete/", views.librarian_student_delete, name="librarian_student_delete"),
     path("librarian/circulation/", views.librarian_circulation, name="librarian_circulation"),
     path("librarian/requests/<int:pk>/approve/", views.librarian_request_approve, name="librarian_request_approve"),
     path("librarian/requests/<int:pk>/reject/", views.librarian_request_reject, name="librarian_request_reject"),

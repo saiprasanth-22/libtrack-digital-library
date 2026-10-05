@@ -1,7 +1,9 @@
 """Librarian workflows: catalogue CRUD, students, circulation and reports."""
 
 from datetime import timedelta
+from unittest import mock
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -11,6 +13,8 @@ from core.models import ActivityLog, Book, BookCopy, DigitalMaterial, Loan, Stud
 
 from .factories import (make_book, make_librarian, make_material, make_student,
                         next_id)
+
+User = get_user_model()
 
 RULES = {"LOAN_DAYS": 14, "MAX_ACTIVE_LOANS": 3, "MAX_RENEWALS": 1,
          "RENEWAL_DAYS": 7, "DUE_SOON_DAYS": 7, "PAGE_SIZE": 12}
@@ -213,6 +217,104 @@ class StudentManagementTests(LibrarianTestCase):
         profile.refresh_from_db()
         self.assertFalse(profile.is_active)
         self.assertEqual(Loan.objects.filter(student=profile).count(), 1)
+
+    def test_librarian_can_register_a_student_at_the_desk(self):
+        response = self.client.post(reverse("core:librarian_students"), {
+            "action": "add",
+            "first_name": "Nikhil", "last_name": "Rao", "email": "nikhil@example.test",
+            "username": "nikhil.rao", "student_id": "STU-3003", "department": "Physics",
+            "semester": 5, "phone": "", "enrollment_year": 2024,
+            "password1": "Desk-Registered-2026", "password2": "Desk-Registered-2026",
+        })
+        self.assertRedirects(response, reverse("core:librarian_students"))
+
+        user = User.objects.get(username="nikhil.rao")
+        self.assertTrue(user.check_password("Desk-Registered-2026"))
+        self.assertFalse(user.is_staff)
+        profile = user.student_profile
+        self.assertEqual(profile.student_id, "STU-3003")
+        self.assertTrue(profile.is_active)
+        self.assertTrue(profile.reading_lists.filter(is_default=True).exists())
+
+        # The new student can immediately sign in and reach their dashboard.
+        self.client.logout()
+        self.client.post(reverse("core:login"),
+                         {"username": "nikhil.rao", "password": "Desk-Registered-2026"})
+        self.assertEqual(self.client.get(reverse("core:student")).status_code, 200)
+
+    def test_desk_registration_enforces_the_same_validation(self):
+        _, existing = make_student(student_id="STU-3003")
+        response = self.client.post(reverse("core:librarian_students"), {
+            "action": "add",
+            "first_name": "Nikhil", "last_name": "Rao", "email": "nikhil@example.test",
+            "username": "nikhil.rao", "student_id": "STU-3003", "department": "Physics",
+            "semester": 5, "password1": "Desk-Registered-2026",
+            "password2": "Desk-Registered-2026",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "already registered")
+        self.assertFalse(User.objects.filter(username="nikhil.rao").exists())
+        self.assertTrue(StudentProfile.objects.filter(pk=existing.pk).exists())
+
+    def test_librarian_cannot_delete_a_student(self):
+        """Remove the account outright, login included, when there is no history."""
+        user, profile = make_student(username="leaving.student", email="leaving@example.test")
+        self.client.post(reverse("core:librarian_student_delete", args=[profile.pk]))
+        self.assertFalse(StudentProfile.objects.filter(pk=profile.pk).exists())
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())
+
+    def test_student_with_history_is_deactivated_instead_of_deleted(self):
+        _, profile = make_student(username="historic.student")
+        services.borrow_book(profile, make_book(copies=1))
+        self.client.post(reverse("core:librarian_student_delete", args=[profile.pk]))
+        profile.refresh_from_db()
+        self.assertTrue(StudentProfile.objects.filter(pk=profile.pk).exists())
+        self.assertFalse(profile.is_active)
+        self.assertFalse(profile.user.is_active)
+        self.assertEqual(Loan.objects.filter(student=profile).count(), 1)
+
+    def test_protected_records_downgrade_delete_to_a_suspension(self):
+        profile = StudentProfile.objects.create(
+            user=self.librarian, student_id="STU-0002", department="Library")
+        self.client.post(reverse("core:librarian_student_delete", args=[profile.pk]))
+        self.assertTrue(StudentProfile.objects.filter(pk=profile.pk).exists())
+
+    def test_student_blocked_by_protected_records_can_no_longer_log_in(self):
+        """The defensive fallback must disable the login, not just the profile.
+
+        A student with loan history is caught by the pre-check and handled by
+        the deactivation branch. This forces the rarer ProtectedError path by
+        hiding the loan from that pre-check while keeping the PROTECT row, then
+        asserts the account ends up genuinely unusable rather than merely
+        flagged inactive.
+        """
+        user, profile = make_student(username="blocked.student")
+        services.borrow_book(profile, make_book(copies=1))
+
+        real_filter = Loan.objects.filter
+
+        def hide_the_loan(*args, **kwargs):
+            queryset = real_filter(*args, **kwargs)
+            return queryset.none() if kwargs.get("student") is not None else queryset
+
+        with mock.patch.object(Loan.objects, "filter", hide_the_loan):
+            self.client.post(reverse("core:librarian_student_delete", args=[profile.pk]))
+
+        profile.refresh_from_db()
+        user.refresh_from_db()
+        self.assertTrue(StudentProfile.objects.filter(pk=profile.pk).exists())
+        self.assertFalse(profile.is_active)
+        self.assertFalse(user.is_active)
+
+    def test_students_cannot_register_or_remove_other_students(self):
+        make_student(username="plain.student")
+        other, other_profile = make_student(username="other.student")
+        self.client.force_login(other)
+        self.assertEqual(self.client.get(reverse("core:librarian_students")).status_code, 302)
+        self.assertEqual(
+            self.client.post(reverse("core:librarian_student_delete",
+                                     args=[other_profile.pk])).status_code, 302)
+        self.assertTrue(StudentProfile.objects.filter(pk=other_profile.pk).exists())
 
     def test_librarian_cannot_deactivate_their_own_account(self):
         profile = StudentProfile.objects.create(

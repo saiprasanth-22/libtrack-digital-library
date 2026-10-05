@@ -18,13 +18,15 @@ from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from . import services
-from .forms import (BookCopyForm, BookForm, BookSearchForm, DigitalMaterialForm,
-                    LoanIssueForm, LoginForm, StudentProfileForm, StudentRegistrationForm)
+from .forms import (BookCopyForm, BookForm, BookReviewForm, BookSearchForm,
+                    DigitalMaterialForm, LoanIssueForm, LoginForm,
+                    StudentProfileForm, StudentRegistrationForm)
 from .models import (ActivityLog, Author, Book, BookCopy, Category, DigitalMaterial,
-                     Loan, SavedResource, StudentProfile)
+                     Loan, Review, SavedResource, StudentProfile)
 
 
 # ---------------------------------------------------------------------------
@@ -42,6 +44,21 @@ def _librarian_required(view):
     """Allow only authenticated staff through."""
     return user_passes_test(
         lambda u: u.is_authenticated and u.is_staff, login_url="core:login")(view)
+
+
+def _safe_next(request, fallback):
+    """Resolve a user-supplied ``next`` target, refusing anything off-site.
+
+    Templates always post a URL built by ``{% url %}``, but the value arrives
+    from the client and can be forged. Redirecting on it unchecked would turn
+    every form on the site into an open redirect, so an absolute or
+    protocol-relative target is discarded in favour of the named fallback.
+    """
+    target = (request.POST.get("next") or "").strip()
+    if target and url_has_allowed_host_and_scheme(
+            target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return target
+    return fallback
 
 
 def _student_required(view):
@@ -158,6 +175,13 @@ def book_detail(request, slug):
             reading_list__student=student, book=book).exists()
     ratings = book.reviews.filter(is_published=True)
 
+    # Copy-level stock, so the Availability tab reports the real shelf state
+    # rather than a single headline number.
+    copy_rows = (book.copies
+                 .annotate(on_loan=Count("loans", filter=Q(
+                     loans__status__in=Loan.ON_LOAN_STATUSES)))
+                 .order_by("accession_number"))
+
     context = {
         "book": book,
         "related": related,
@@ -165,6 +189,17 @@ def book_detail(request, slug):
         "materials": book.digital_materials.filter(is_public=True),
         "rating_average": ratings.aggregate(value=Avg("rating"))["value"],
         "rating_count": ratings.count(),
+        "reviews": ratings.select_related("student__user")[:6],
+        "my_review": (Review.objects.filter(student=student, book=book).first()
+                      if student else None),
+        "can_review": bool(student and services.can_review(student, book)),
+        "review_form": BookReviewForm(),
+        "copies": copy_rows,
+        "status_breakdown": [
+            {"status": value, "label": label,
+             "count": sum(1 for c in copy_rows if c.status == value)}
+            for value, label in BookCopy.Status.choices
+        ],
         "student": student,
         "can_borrow": student.can_borrow if student else False,
         "already_issued": bool(student and Loan.objects.filter(
@@ -211,7 +246,7 @@ def login_view(request):
         messages.success(request, f"Welcome back, {user.first_name or user.username}.")
         # Send each role straight to its own home screen.
         landing = "core:librarian" if user.is_staff else "core:student"
-        return redirect(request.POST.get("next") or landing)
+        return redirect(_safe_next(request, landing))
     return render(request, "auth/login.html", {"form": form})
 
 
@@ -390,7 +425,7 @@ def renew_loan(request, loan_id):
         messages.success(request, f"“{loan.book.title}” is renewed until {loan.due_at:%d %b %Y}.")
     except ValidationError as exc:
         messages.error(request, "; ".join(exc.messages))
-    return redirect(request.POST.get("next") or "core:student_loans")
+    return redirect(_safe_next(request, "core:student_loans"))
 
 
 @login_required
@@ -407,7 +442,7 @@ def return_loan(request, loan_id):
         messages.success(request, f"“{loan.book.title}” has been returned.")
     except ValidationError as exc:
         messages.error(request, "; ".join(exc.messages))
-    return redirect(request.POST.get("next") or "core:dashboard")
+    return redirect(_safe_next(request, "core:dashboard"))
 
 
 @_student_required
@@ -418,7 +453,29 @@ def save_book(request, slug):
     created = services.toggle_saved(profile, book)
     messages.success(request, "Added to your reading list." if created
                      else "Removed from your reading list.")
-    return redirect(request.POST.get("next") or "core:book_detail", slug=slug)
+    return redirect(_safe_next(request, f"/books/{book.slug}/"))
+
+
+@_student_required
+@require_POST
+def book_review(request, slug):
+    """Record or edit this student's rating of a book they have returned."""
+    book = get_object_or_404(Book, slug=slug)
+    profile = _profile_for(request.user)
+    form = BookReviewForm(request.POST)
+    if form.is_valid():
+        try:
+            services.submit_review(
+                profile, book, rating=form.cleaned_data["rating"],
+                title=form.cleaned_data["title"], body=form.cleaned_data["body"],
+                actor=request.user)
+            messages.success(request, f"Thanks — your review of “{book.title}” is live.")
+        except ValidationError as exc:
+            messages.error(request, "; ".join(exc.messages))
+    else:
+        messages.error(request, "Pick a rating from 1 to 5 before submitting.")
+    # Always return to the reviews panel so the outcome is visible.
+    return redirect(f"{reverse('core:book_detail', kwargs={'slug': slug})}#panel-reviews")
 
 
 # ---------------------------------------------------------------------------
@@ -565,7 +622,23 @@ def librarian_copies(request, pk):
 
 @_librarian_required
 def librarian_students(request):
-    """Search registered students and suspend or restore an account."""
+    """Search registered students, add one at the desk, and manage access."""
+    add_form = StudentRegistrationForm()
+    if request.method == "POST" and request.POST.get("action") == "add":
+        add_form = StudentRegistrationForm(request.POST)
+        if add_form.is_valid():
+            user = add_form.save()
+            services.log_action(
+                ActivityLog.Action.ADMIN, user=request.user,
+                student=user.student_profile,
+                description=f"Registered student {user.student_profile.student_id} at the desk")
+            messages.success(
+                request,
+                f"{user.get_full_name()} was registered. Share the initial password and ask "
+                f"them to change it from their profile page.")
+            return redirect("core:librarian_students")
+        messages.error(request, "Please correct the highlighted fields.")
+
     term = (request.GET.get("q") or "").strip()
     students = StudentProfile.objects.select_related("user").annotate(
         active_loans=Count("loans", filter=Q(loans__status__in=Loan.ON_LOAN_STATUSES),
@@ -580,7 +653,9 @@ def librarian_students(request):
     page = _page(request, students.order_by("student_id"), per_page=20)
     return render(request, "librarian/students.html", {
         "query": term, "page_obj": page, "students": page.object_list,
-        "total_results": page.paginator.count, "section": "librarian",
+        "total_results": page.paginator.count,
+        "add_form": add_form,
+        "section": "librarian",
     })
 
 
@@ -597,6 +672,62 @@ def librarian_student_detail(request, pk):
         "stats": services.student_dashboard_data(profile),
         "section": "librarian",
     })
+
+
+@_librarian_required
+@require_POST
+def librarian_student_delete(request, pk):
+    """Remove a student account.
+
+    A student who has never borrowed anything is deleted outright, together
+    with the login. Anyone with borrowing history is only deactivated, because
+    deleting them would erase the meaning of their past loans.
+    """
+    from django.db.models import ProtectedError
+
+    profile = get_object_or_404(StudentProfile, pk=pk)
+    if profile.user_id == request.user.pk:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect("core:librarian_student_detail", pk=pk)
+
+    name = profile.display_name
+    if Loan.objects.filter(student=profile).exists():
+        profile.is_active = False
+        profile.save(update_fields=["is_active", "updated_at"])
+        profile.user.is_active = False
+        profile.user.save(update_fields=["is_active"])
+        services.log_action(
+            ActivityLog.Action.ADMIN, user=request.user, student=profile,
+            description=f"Deactivated {profile.student_id} instead of deleting (has history)")
+        messages.warning(
+            request,
+            f"“{name}” has borrowing history, so the account was deactivated instead of deleted.")
+        return redirect("core:librarian_student_detail", pk=pk)
+
+    try:
+        with transaction.atomic():
+            # Deleting the login cascades down to the profile and everything
+            # hanging off it (reading lists, reviews, saved resources). The
+            # OneToOne does not cascade upwards, so the User row has to go
+            # first. `Loan.student` is PROTECT, so a surviving loan aborts
+            # this whole block and is handled by the fallback below.
+            profile.user.delete()
+    except ProtectedError:
+        # The block above rolled back, so the rows are intact. Suspend both
+        # sides: `User.is_active` is what actually blocks authentication.
+        messages.warning(
+            request, f"“{name}” still has records attached, so the account was deactivated instead.")
+        profile.is_active = False
+        profile.save(update_fields=["is_active", "updated_at"])
+        profile.user.is_active = False
+        profile.user.save(update_fields=["is_active"])
+        return redirect("core:librarian_student_detail", pk=pk)
+
+    services.log_action(
+        ActivityLog.Action.ADMIN, user=request.user,
+        description=f"Deleted student account {name}")
+    messages.success(request, f"“{name}” was removed from the register.")
+    return redirect("core:librarian_students")
 
 
 @_librarian_required

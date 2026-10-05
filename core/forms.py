@@ -374,3 +374,22 @@ class LoanReturnForm(forms.Form):
         # second submission cannot reopen a settled transaction.
         self.fields["loan"].queryset = Loan.objects.filter(
             status__in=Loan.ON_LOAN_STATUSES).select_related("book", "student__user")
+
+
+class BookReviewForm(forms.Form):
+    """A reader's rating of a book they borrowed and returned."""
+
+    RATING_CHOICES = [(value, f"{value} star" + ("s" if value != 1 else ""))
+                      for value in range(1, 6)]
+
+    rating = forms.TypedChoiceField(
+        choices=RATING_CHOICES, coerce=int,
+        widget=forms.RadioSelect(attrs={"class": "rating-input"}))
+    title = forms.CharField(required=False, max_length=160,
+                            widget=forms.TextInput(
+                                attrs={"class": "field-input",
+                                       "placeholder": "Sum it up in a line (optional)"}))
+    body = forms.CharField(required=False, max_length=4000,
+                           widget=forms.Textarea(
+                               attrs={"rows": 3, "class": "field-input",
+                                      "placeholder": "What worked, what didn't? (optional)"}))

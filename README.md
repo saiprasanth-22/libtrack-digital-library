@@ -158,10 +158,16 @@ Django's built-in back office.
   category; filter by category and availability; sort by title, author,
   newest or availability; pagination
 - Book details with full bibliographic record and live availability
+- Book detail tabs — Overview, Availability (copy-level shelf status),
+  Digital resources and Reviews — as a real ARIA tablist with arrow-key
+  navigation; every panel is present in the HTML and stays visible without
+  JavaScript
 - Borrow an available book, or request one that is out
 - Renew (once, by the configured number of days) and return
 - Borrowing history with status tabs
 - Reading list (save / unsave books)
+- Rate and review a title you have borrowed and returned (1–5 stars, one
+  review per student per title); the average and count feed the tab badge
 - Profile editing and a Django password-change flow
 - Digital materials list with search
 
@@ -171,8 +177,9 @@ Django's built-in back office.
 - Book CRUD: add, edit, delete (retire when history exists), search
 - Physical copy management: add copies, change status, shelf locations
 - Inventory validation — invalid copy counts are rejected
-- Student management: search, borrowing history per student,
-  activate/deactivate accounts
+- Student management: search, register a student at the desk, borrowing
+  history per student, activate/deactivate accounts, and remove a student
+  (deleted outright when they have no history, deactivated when they do)
 - Circulation desk: issue a book, approve or reject requests, record returns
 - Digital material management: add, edit, delete, visibility, file validation
 - Reports: active loans, returns, overdue, most borrowed, per-course
@@ -182,10 +189,25 @@ Django's built-in back office.
 ### Shared
 - CSRF protection on every form
 - `login_required` and role checks on every protected route
+- Every mutating route is POST-only, so a link prefetch can never change data
+- Redirect targets from the client are host-validated (`_safe_next`), so no
+  form can be turned into an open redirect
 - Django messages for all outcomes
 - Accessible labels, help text and inline errors on every form field
 - Empty states that match the existing design
 - Responsive from 360 px to desktop
+
+### Reference coverage
+
+Every function in the reference video has a working equivalent in LibTrack.
+The full function-by-function mapping — reference feature, LibTrack route,
+responsible role, status and the automated test that proves it — is in
+[`docs/REFERENCE_COVERAGE.md`](docs/REFERENCE_COVERAGE.md).
+
+Summary: **31 reference functions identified, 31 implemented, 0 uncovered**,
+plus 12 extensions beyond the reference. Three reference patterns were
+deliberately redesigned rather than copied (unsafe student deletion, unsafe
+book deletion, `GET`-reachable mutating links).
 
 ---
 
@@ -222,7 +244,7 @@ environment variables — no magic numbers in the views or services.
 | GET | `/` | `core:home` | Landing page with live statistics |
 | GET | `/discover/` | `core:discover` | Search, filter, sort, paginate the catalogue |
 | GET | `/materials/` | `core:materials` | Digital learning materials |
-| GET | `/books/<slug>/` | `core:book_detail` | Book details and availability |
+| GET | `/books/<slug>/` | `core:book_detail` | Book details, tab panels and availability |
 
 ### Authentication
 | Method | Path | Name | Purpose |
@@ -244,6 +266,7 @@ environment variables — no magic numbers in the views or services.
 | POST | `/books/<slug>/borrow/` | `core:borrow_book` | Borrow an available book |
 | POST | `/books/<slug>/request/` | `core:request_book` | Request an unavailable book |
 | POST | `/books/<slug>/save/` | `core:save_book` | Save / unsave to reading list |
+| POST | `/books/<slug>/review/` | `core:book_review` | Publish or update a review of a returned title |
 | POST | `/loans/<id>/renew/` | `core:renew_loan` | Renew a loan |
 | POST | `/loans/<id>/return/` | `core:return_loan` | Return a loan |
 
@@ -255,9 +278,10 @@ environment variables — no magic numbers in the views or services.
 | GET/POST | `/librarian/books/<pk>/edit/` | `core:librarian_book_edit` | Edit a title |
 | POST | `/librarian/books/<pk>/delete/` | `core:librarian_book_delete` | Delete or retire |
 | GET/POST | `/librarian/books/<pk>/copies/` | `core:librarian_copies` | Manage physical copies |
-| GET | `/librarian/students/` | `core:librarian_students` | Search students |
+| GET/POST | `/librarian/students/` | `core:librarian_students` | Search students, register a student at the desk |
 | GET | `/librarian/students/<pk>/` | `core:librarian_student_detail` | One student's record |
 | POST | `/librarian/students/<pk>/toggle/` | `core:librarian_student_toggle` | Activate / deactivate |
+| POST | `/librarian/students/<pk>/delete/` | `core:librarian_student_delete` | Remove, or deactivate when history exists |
 | GET/POST | `/librarian/circulation/` | `core:librarian_circulation` | Issue, requests, returns |
 | POST | `/librarian/requests/<pk>/approve/` | `core:librarian_request_approve` | Approve a request |
 | POST | `/librarian/requests/<pk>/reject/` | `core:librarian_request_reject` | Reject a request |
@@ -289,11 +313,15 @@ core/                      Single Django app
   context_processors.py    Shares library rules with templates
   migrations/              Schema history
   management/commands/seed_demo_data.py
+  test_runner.py           Swaps in plain staticfiles storage during tests
   tests/                   Automated tests
 templates/                 Django templates
 static/css/                Design system (app.css, product.css, modules.css)
 static/js/app.js           UI interactions
+static/js/tabs.js          Book detail tab panels (progressive enhancement)
 docs/                      Schema and ER diagram
+  DATABASE_SCHEMA.md       Tables, relationships, Mermaid ER diagram, 3NF notes
+  REFERENCE_COVERAGE.md    Reference video -> LibTrack coverage matrix
 ```
 
 The project keeps its original single-app (`core`) structure rather than being
@@ -310,7 +338,7 @@ templates easier to follow for a single-author project.
 python manage.py test
 ```
 
-**133 tests, all passing.** They cover:
+**167 tests, all passing.** They cover:
 
 - Registration (success, duplicate email, duplicate student number, password
   mismatch, weak password, semester range)
@@ -329,6 +357,14 @@ python manage.py test
 - Overdue calculation and status synchronisation
 - Deactivated-student restrictions
 - Librarian book/copy/student/material management and reports
+- Desk registration of a student, and safe student removal
+  (deleted when history-free, deactivated when history exists)
+- Book detail tab panels: every button wired to a real panel, all panels
+  present without JavaScript
+- Copy-level availability panel reacting to a real issue
+- Reader reviews: publish, edit-instead-of-duplicate, eligibility gated on a
+  returned loan, rating bounds, average reaching the tab badge
+- Open-redirect rejection on every view that accepts a `next` target
 - Seed command idempotency and account-password safety
 
 Other checks:
@@ -473,3 +509,25 @@ administrator. Sessions identify a logged-in user, `login_required` protects
 the student and staff views, role checks separate students from librarians, and
 CSRF tokens protect every form. Password strength is enforced by Django's
 validator set.
+
+**Why deleting a student is conditional.** Deleting a `StudentProfile` does not
+delete the login behind it, because a `OneToOneField`'s `CASCADE` only flows
+from the parent to the child, never back up. So the view deletes the `User` and
+lets Django cascade down to the profile, its reading lists and its reviews.
+`core_loan.student_id` is declared `PROTECT`, so a student with any loan
+history aborts the delete and the view falls back to deactivation instead.
+Deactivation is the correct outcome anyway: it blocks login and borrowing while
+keeping the history that makes past reports meaningful.
+
+**Why every mutating route is POST-only.** If a "delete student" link can be
+followed by a `GET`, then a link prefetcher, a crawler or a stray `<img>` tag
+can delete data without the user intending to. Every state-changing view is
+decorated with `@require_POST` and carries a CSRF token, so a `GET` returns
+405 and a cross-site POST is rejected.
+
+**Where the numbers come from.** No dashboard figure is typed into a template.
+`services.librarian_dashboard_data()` and `services.librarian_report_data()`
+build every counter with `Count` / `Sum` / `Avg` aggregate queries, so the
+dashboard is a live view of the database rather than a cached copy that can
+drift. The same applies to `Book.available_copies`, which is a property
+computed from the `BookCopy` rows rather than a stored counter.

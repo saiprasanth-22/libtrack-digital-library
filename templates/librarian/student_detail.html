@@ -28,13 +28,20 @@
             {% if profile.user_id == request.user.pk %}
               <span class="badge badge-neutral">This is you</span>
             {% else %}
-              <form method="post" action="{% url 'core:librarian_student_toggle' profile.pk %}" class="form-inline"
-                    onsubmit="return confirm('{% if profile.is_active %}Deactivate{% else %}Reactivate{% endif %} this account?');">
-                {% csrf_token %}
-                <button class="btn-inline {% if profile.is_active %}is-danger{% else %}is-primary{% endif %}" type="submit">
-                  {% if profile.is_active %}Deactivate account{% else %}Reactivate account{% endif %}
-                </button>
-              </form>
+              <div class="desk-actions">
+                <form method="post" action="{% url 'core:librarian_student_toggle' profile.pk %}" class="form-inline"
+                      onsubmit="return confirm('{% if profile.is_active %}Deactivate{% else %}Reactivate{% endif %} this account?');">
+                  {% csrf_token %}
+                  <button class="btn-inline {% if profile.is_active %}is-danger{% else %}is-primary{% endif %}" type="submit">
+                    {% if profile.is_active %}Deactivate account{% else %}Reactivate account{% endif %}
+                  </button>
+                </form>
+                <form method="post" action="{% url 'core:librarian_student_delete' profile.pk %}" class="form-inline"
+                      onsubmit="return confirm('Remove {{ profile.display_name|escapejs }}? Accounts with borrowing history are deactivated instead of deleted.');">
+                  {% csrf_token %}
+                  <button class="btn-inline is-danger" type="submit"><i data-lucide="user-x"></i>Remove from register</button>
+                </form>
+              </div>
             {% endif %}
           </div>
           <dl class="detail-list">
@@ -45,7 +52,7 @@
             <div><dt>Borrowing rights</dt><dd>{% if profile.is_active %}Active{% else %}Suspended{% endif %}</dd></div>
             <div><dt>Login</dt><dd>{% if profile.user.is_active %}Enabled{% else %}Disabled{% endif %}</dd></div>
           </dl>
-          <p class="inline-note" style="margin-top:14px">Deactivating a student blocks new borrowing but keeps every loan on record. The password hash is never displayed.</p>
+          <p class="inline-note" style="margin-top:14px">Deactivating a student blocks new borrowing but keeps every loan on record. Removing a student with no borrowing history deletes the login; anyone with history is deactivated instead, so past loans keep their meaning. The password hash is never displayed.</p>
         </section>
 
         <section class="panel">

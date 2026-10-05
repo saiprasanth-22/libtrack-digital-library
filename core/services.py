@@ -358,6 +358,42 @@ def toggle_saved(student, book):
     return created
 
 
+def can_review(student, book):
+    """Only students who have actually borrowed this title may rate it.
+
+    Reviews are the one piece of reader-generated content in the catalogue, so
+    they are gated on a real circulation record rather than on mere login.
+    """
+    return Loan.objects.filter(
+        student=student, book=book, status=Loan.Status.RETURNED).exists()
+
+
+def submit_review(student, book, *, rating, title="", body="", actor=None):
+    """Create or update this student's review of ``book``.
+
+    One review per student per title is enforced by a database constraint, so
+    a repeat submission edits the existing row instead of raising.
+    """
+    if not can_review(student, book):
+        raise ValidationError(
+            "You can only review a book you have borrowed and returned.")
+
+    rating = int(rating)
+    if not 1 <= rating <= 5:
+        raise ValidationError("Choose a rating between 1 and 5.")
+
+    with transaction.atomic():
+        review, created = Review.objects.update_or_create(
+            student=student, book=book,
+            defaults={"rating": rating, "title": title[:160], "body": body[:4000],
+                      "is_published": True})
+    log_action(
+        ActivityLog.Action.REVIEW, student=student, user=actor,
+        description=f"{'Reviewed' if created else 'Updated review of'} {book.title}",
+        obj=book, metadata={"rating": rating})
+    return review, created
+
+
 # ---------------------------------------------------------------------------
 # Dashboards and reports - all values come from aggregate queries
 # ---------------------------------------------------------------------------

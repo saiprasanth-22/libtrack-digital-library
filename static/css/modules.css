@@ -192,3 +192,23 @@ select.field-input,textarea.field-input{min-height:42px}
 
 /* Cover fallback keeps the editorial artwork when no upload exists */
 .cover-image{width:100%;height:100%;object-fit:cover;border-radius:2px 8px 8px 2px;display:block}
+
+/* Book detail tabs. The tab strip itself is styled in product.css; these rules
+   only make the panels behave. Every panel ships visible in the HTML and is
+   hidden here solely once tabs.js marks the container ready, so the page is
+   complete without JavaScript. */
+.detail-panels.is-ready>.detail-panel{display:none}
+.detail-panels.is-ready>.detail-panel.is-active{display:block;animation:panel-in .3s ease both}
+.detail-panels:not(.is-ready)>.detail-panel+.detail-panel{margin-top:34px}
+.detail-tabs button:focus-visible{outline:2px solid #28b98a;outline-offset:3px}
+@keyframes panel-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.detail-panels.is-ready>.detail-panel.is-active{animation:none}}
+
+/* Reader review form */
+.rating-input{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 13px;padding:0;list-style:none}
+.rating-input label{display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #ded4c4;border-radius:99px;font-size:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.rating-input label:hover{border-color:#28b98a;background:#f4faf7}
+.rating-input input{accent-color:#173c34;margin:0}
+.review-form .field-input{width:100%;margin-bottom:11px}
+.review-form .app-eyebrow{margin-bottom:11px}
+.review-form .button{margin-top:5px}

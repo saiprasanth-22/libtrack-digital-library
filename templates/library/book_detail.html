@@ -106,55 +106,126 @@
           {% endif %}
 
           {% if materials %}
-            <a class="outline-action" href="#digital"><i data-lucide="tablet"></i>Digital material available</a>
+            <a class="outline-action" href="#panel-resources" data-tab-open="resources"><i data-lucide="tablet"></i>Digital material available</a>
           {% endif %}
           <p class="loan-note"><i data-lucide="clock-3"></i> Standard loan period: {{ LIBRARY_RULES.LOAN_DAYS }} days · up to {{ LIBRARY_RULES.MAX_RENEWALS }} renewal</p>
         </aside>
       </div>
 
-      {% if materials %}
-        <div class="panel" id="digital" style="margin-top:36px">
-          <p class="app-eyebrow">DIGITAL MATERIAL</p>
-          <h2 style="font:29px/1.05 var(--serif);margin:6px 0 16px">Read this title online</h2>
-          {% for material in materials %}
-            <div class="desk-row">
-              <div><strong>{{ material.title }}</strong><small>{{ material.get_material_type_display }}{% if material.subject %} · {{ material.subject.name }}{% endif %}</small></div>
-              <div class="desk-actions">
-                {% if material.external_url %}
-                  <a class="btn-inline is-primary" href="{{ material.external_url }}" target="_blank" rel="noopener noreferrer">Open resource <i data-lucide="arrow-up-right"></i></a>
-                {% elif material.file %}
-                  <a class="btn-inline is-primary" href="{{ material.file.url }}">Download <i data-lucide="download"></i></a>
-                {% endif %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      <div class="detail-tabs" role="tablist" aria-label="Book sections">
-        <button class="active" type="button">Overview</button>
-        <button type="button">Availability</button>
-        <button type="button">Digital resources{% if materials %} <span>{{ materials|length }}</span>{% endif %}</button>
-        <button type="button">Reviews <span>{{ rating_count }}</span></button>
+      <div class="detail-tabs" role="tablist" aria-label="Book sections" data-tabs>
+        <button class="active" type="button" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" data-tab="overview">Overview</button>
+        <button type="button" role="tab" id="tab-availability" aria-controls="panel-availability" aria-selected="false" data-tab="availability">Availability</button>
+        <button type="button" role="tab" id="tab-resources" aria-controls="panel-resources" aria-selected="false" data-tab="resources">Digital resources{% if materials %} <span>{{ materials|length }}</span>{% endif %}</button>
+        <button type="button" role="tab" id="tab-reviews" aria-controls="panel-reviews" aria-selected="false" data-tab="reviews">Reviews <span>{{ rating_count }}</span></button>
       </div>
 
-      <section class="about-grid">
-        <article>
-          <p class="app-eyebrow">ABOUT THIS BOOK</p>
-          <h2>{{ book.title }}<br><em>in the LibTrack collection.</em></h2>
-          {% if book.description %}<p>{{ book.description }}</p>{% else %}<p>This title is part of the LibTrack academic collection. Ask the librarian for a full summary.</p>{% endif %}
-          {% if book.subject %}<blockquote>{{ book.publication_year|default:"Current edition" }} · {{ book.publisher|default:"Library edition" }}<cite>{{ book.subject.name }} department copy</cite></blockquote>{% endif %}
-        </article>
-        <aside>
-          <p class="app-eyebrow">AT A GLANCE</p>
-          <ul>
-            <li><span>01</span>Category: {% for category in book.categories.all %}{{ category.name }}{% if not forloop.last %}, {% endif %}{% empty %}Uncategorised{% endfor %}</li>
-            <li><span>02</span>Copies in the library: {{ book.total_copies }}</li>
-            <li><span>03</span>Available to borrow: {{ book.available_copies }}</li>
-            <li><span>04</span>Loan period: {{ LIBRARY_RULES.LOAN_DAYS }} days</li>
-          </ul>
-        </aside>
-      </section>
+      <div class="detail-panels" data-tab-panels>
+        <div class="detail-panel is-active" role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" data-panel="overview">
+          <section class="about-grid">
+            <article>
+              <p class="app-eyebrow">ABOUT THIS BOOK</p>
+              <h2>{{ book.title }}<br><em>in the LibTrack collection.</em></h2>
+              {% if book.description %}<p>{{ book.description }}</p>{% else %}<p>This title is part of the LibTrack academic collection. Ask the librarian for a full summary.</p>{% endif %}
+              {% if book.subject %}<blockquote>{{ book.publication_year|default:"Current edition" }} · {{ book.publisher|default:"Library edition" }}<cite>{{ book.subject.name }} department copy</cite></blockquote>{% endif %}
+            </article>
+            <aside>
+              <p class="app-eyebrow">AT A GLANCE</p>
+              <ul>
+                <li><span>01</span>Category: {% for category in book.categories.all %}{{ category.name }}{% if not forloop.last %}, {% endif %}{% empty %}Uncategorised{% endfor %}</li>
+                <li><span>02</span>Copies in the library: {{ book.total_copies }}</li>
+                <li><span>03</span>Available to borrow: {{ book.available_copies }}</li>
+                <li><span>04</span>Loan period: {{ LIBRARY_RULES.LOAN_DAYS }} days</li>
+              </ul>
+            </aside>
+          </section>
+        </div>
+
+        <div class="detail-panel" role="tabpanel" id="panel-availability" aria-labelledby="tab-availability" data-panel="availability">
+          <div class="panel">
+            <p class="app-eyebrow">SHELF STATUS</p>
+            <h2>Live copy availability</h2>
+            <p class="inline-note">Updated from the live inventory every time this page loads{% if book.is_available %} — {{ book.available_copies }} of {{ book.total_copies }} copies are on the shelf right now{% else %} — every copy is currently out{% endif %}.</p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Accession no.</th><th>Status</th><th>Shelf</th><th>Acquired</th></tr></thead>
+                <tbody>
+                  {% for copy in copies %}
+                    <tr>
+                      <td>{{ copy.accession_number }}</td>
+                      <td><span class="badge {% if copy.status == 'available' %}badge-available{% elif copy.status == 'on_loan' %}badge-issued{% elif copy.status == 'lost' %}badge-danger{% else %}badge-neutral{% endif %}"><i></i>{{ copy.get_status_display }}</span></td>
+                      <td>{{ copy.shelf_location|default:"—" }}</td>
+                      <td>{{ copy.acquired_on|date:"d M Y"|default:"—" }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="4" class="inline-note">No physical copies are catalogued for this title yet.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-panel" role="tabpanel" id="panel-resources" aria-labelledby="tab-resources" data-panel="resources">
+          <div class="panel">
+            <p class="app-eyebrow">DIGITAL MATERIAL</p>
+            <h2>Read this title online</h2>
+            {% for material in materials %}
+              <div class="desk-row">
+                <div><strong>{{ material.title }}</strong><small>{{ material.get_material_type_display }}{% if material.subject %} · {{ material.subject.name }}{% endif %}</small></div>
+                <div class="desk-actions">
+                  {% if material.external_url %}
+                    <a class="btn-inline is-primary" href="{{ material.external_url }}" target="_blank" rel="noopener noreferrer">Open resource <i data-lucide="arrow-up-right"></i></a>
+                  {% elif material.file %}
+                    <a class="btn-inline is-primary" href="{{ material.file.url }}">Download <i data-lucide="download"></i></a>
+                  {% endif %}
+                </div>
+              </div>
+            {% empty %}
+              <p class="inline-note">No digital material is attached to this title.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="detail-panel" role="tabpanel" id="panel-reviews" aria-labelledby="tab-reviews" data-panel="reviews">
+          <div class="panel">
+            <p class="app-eyebrow">READER REVIEWS</p>
+            <h2>{% if rating_average %}{{ rating_average|floatformat:1 }} out of 5{% else %}Not yet rated{% endif %}</h2>
+            <p class="inline-note">{{ rating_count }} review{{ rating_count|pluralize }} from students who borrowed and returned this title.</p>
+
+            {% for review in reviews %}
+              <div class="desk-row">
+                <div>
+                  <strong>{{ review.student.display_name }}</strong>
+                  <small>{{ review.created_at|date:"d M Y" }}{% if review.title %} · {{ review.title }}{% endif %}</small>
+                  {% if review.body %}<p class="inline-note">{{ review.body|linebreaksbr }}</p>{% endif %}
+                </div>
+                <div class="desk-actions"><span class="badge badge-neutral"><i></i>{{ review.rating }}/5</span></div>
+              </div>
+            {% empty %}
+              <p class="inline-note">No reviews yet.</p>
+            {% endfor %}
+
+            {% if student %}
+              {% if can_review %}
+                <form method="post" action="{% url 'core:book_review' book.slug %}" class="review-form" style="margin-top:18px">
+                  {% csrf_token %}
+                  <p class="app-eyebebrow">{% if my_review %}UPDATE YOUR REVIEW{% else %}RATE THIS BOOK{% endif %}</p>
+                  {{ review_form.rating }}
+                  {{ review_form.title }}
+                  {{ review_form.body }}
+                  <button class="button button-primary" type="submit">{% if my_review %}Update review{% else %}Publish review{% endif %}</button>
+                </form>
+              {% elif my_review %}
+                <p class="inline-note" style="margin-top:18px">You have already reviewed this title. Borrow and return it again to update your review.</p>
+              {% else %}
+                <p class="inline-note" style="margin-top:18px">Borrow and return this title to leave a review.</p>
+              {% endif %}
+            {% else %}
+              <p class="inline-note" style="margin-top:18px"><a href="{% url 'core:login' %}?next={{ request.path }}">Sign in</a> to review this title.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
 
       {% if related %}
         <div class="section-heading"><div><p class="app-eyebrow">CONTINUE EXPLORING</p><h2>Students also read</h2></div></div>
