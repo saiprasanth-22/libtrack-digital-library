@@ -1,0 +1,1031 @@
+{
+  "version": 1,
+  "method": "deterministic-svg",
+  "license": "Original LibTrack artwork, generated at build time; no third-party or scraped material.",
+  "covers": {
+    "textbook-environmental-studies": {
+      "file": "images/covers/mathematics/textbook-environmental-studies.svg",
+      "family": "mathematics",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "algorithm-design": {
+      "file": "images/covers/algorithms/algorithm-design.svg",
+      "family": "algorithms",
+      "palette": "teal",
+      "variant": 0,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "algorithms-sedgewick": {
+      "file": "images/covers/algorithms/algorithms-sedgewick.svg",
+      "family": "algorithms",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "introduction-statistical-learning": {
+      "file": "images/covers/data-science/introduction-statistical-learning.svg",
+      "family": "data-science",
+      "palette": "teal",
+      "variant": 2,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "android-programming-bignerdranch": {
+      "file": "images/covers/mobile/android-programming-bignerdranch.svg",
+      "family": "mobile",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract mobile artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "artificial-intelligence-rich": {
+      "file": "images/covers/artificial-intelligence/artificial-intelligence-rich.svg",
+      "family": "artificial-intelligence",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "artificial-intelligence-a-modern-approach": {
+      "file": "images/covers/artificial-intelligence/artificial-intelligence-a-modern-approach.svg",
+      "family": "artificial-intelligence",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "ai-new-synthesis": {
+      "file": "images/covers/artificial-intelligence/ai-new-synthesis.svg",
+      "family": "artificial-intelligence",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "beginning-php-mysql": {
+      "file": "images/covers/web/beginning-php-mysql.svg",
+      "family": "web",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "classic-data-structures": {
+      "file": "images/covers/algorithms/classic-data-structures.svg",
+      "family": "algorithms",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "clean-architecture-a-craftsmans-guide": {
+      "file": "images/covers/software-engineering/clean-architecture-a-craftsmans-guide.svg",
+      "family": "software-engineering",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "clean-architecture": {
+      "file": "images/covers/software-engineering/clean-architecture.svg",
+      "family": "software-engineering",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "clean-code": {
+      "file": "images/covers/software-engineering/clean-code.svg",
+      "family": "software-engineering",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "cloud-computing-erl": {
+      "file": "images/covers/cloud/cloud-computing-erl.svg",
+      "family": "cloud",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract cloud artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-algorithms": {
+      "file": "images/covers/algorithms/computer-algorithms.svg",
+      "family": "algorithms",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-architecture-and-organization": {
+      "file": "images/covers/networking/computer-architecture-and-organization.svg",
+      "family": "networking",
+      "palette": "teal",
+      "variant": 0,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-fundamentals": {
+      "file": "images/covers/programming/computer-fundamentals.svg",
+      "family": "programming",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-networking-a-top-down-approach": {
+      "file": "images/covers/networking/computer-networking-a-top-down-approach.svg",
+      "family": "networking",
+      "palette": "forest",
+      "variant": 2,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-networks-tanenbaum": {
+      "file": "images/covers/networking/computer-networks-tanenbaum.svg",
+      "family": "networking",
+      "palette": "slate",
+      "variant": 1,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-networks-topdown": {
+      "file": "images/covers/networking/computer-networks-topdown.svg",
+      "family": "networking",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-organization-architecture": {
+      "file": "images/covers/operating-systems/computer-organization-architecture.svg",
+      "family": "operating-systems",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-security-principles-practice": {
+      "file": "images/covers/cybersecurity/computer-security-principles-practice.svg",
+      "family": "cybersecurity",
+      "palette": "oxide",
+      "variant": 0,
+      "alt": "Abstract cybersecurity artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "computer-system-architecture": {
+      "file": "images/covers/operating-systems/computer-system-architecture.svg",
+      "family": "operating-systems",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "content-strategy-web": {
+      "file": "images/covers/web/content-strategy-web.svg",
+      "family": "web",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "core-java-fundamentals": {
+      "file": "images/covers/programming/core-java-fundamentals.svg",
+      "family": "programming",
+      "palette": "ink",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "cracking-coding-interview": {
+      "file": "images/covers/employability/cracking-coding-interview.svg",
+      "family": "employability",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract employability artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "cryptography-network-security-forouzan": {
+      "file": "images/covers/cybersecurity/cryptography-network-security-forouzan.svg",
+      "family": "cybersecurity",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract cybersecurity artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "data-communications-networking": {
+      "file": "images/covers/networking/data-communications-networking.svg",
+      "family": "networking",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "data-mining-practical-ml": {
+      "file": "images/covers/data-science/data-mining-practical-ml.svg",
+      "family": "data-science",
+      "palette": "oxide",
+      "variant": 0,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "dsa-cpp": {
+      "file": "images/covers/algorithms/dsa-cpp.svg",
+      "family": "algorithms",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "dsa-python": {
+      "file": "images/covers/algorithms/dsa-python.svg",
+      "family": "algorithms",
+      "palette": "teal",
+      "variant": 0,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "data-warehousing-fundamentals": {
+      "file": "images/covers/business/data-warehousing-fundamentals.svg",
+      "family": "business",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract business artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "database-management-systems": {
+      "file": "images/covers/databases/database-management-systems.svg",
+      "family": "databases",
+      "palette": "teal",
+      "variant": 2,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "dbms-lab-manual": {
+      "file": "images/covers/databases/dbms-lab-manual.svg",
+      "family": "databases",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "database-system-concepts": {
+      "file": "images/covers/databases/database-system-concepts.svg",
+      "family": "databases",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "decision-support-business-intelligence": {
+      "file": "images/covers/business/decision-support-business-intelligence.svg",
+      "family": "business",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract business artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "algorithms-question-bank": {
+      "file": "images/covers/algorithms/algorithms-question-bank.svg",
+      "family": "algorithms",
+      "palette": "ink",
+      "variant": 2,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "designing-data-intensive-applications": {
+      "file": "images/covers/databases/designing-data-intensive-applications.svg",
+      "family": "databases",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "designing-the-obvious": {
+      "file": "images/covers/web/designing-the-obvious.svg",
+      "family": "web",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "digital-design-and-computer-architecture": {
+      "file": "images/covers/networking/digital-design-and-computer-architecture.svg",
+      "family": "networking",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "digital-marketing-excellence": {
+      "file": "images/covers/marketing/digital-marketing-excellence.svg",
+      "family": "marketing",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract marketing artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "digital-marketing-chaffey": {
+      "file": "images/covers/marketing/digital-marketing-chaffey.svg",
+      "family": "marketing",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract marketing artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "discrete-mathematics-and-its-applications": {
+      "file": "images/covers/mathematics/discrete-mathematics-and-its-applications.svg",
+      "family": "mathematics",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "discrete-mathematics-applications": {
+      "file": "images/covers/mathematics/discrete-mathematics-applications.svg",
+      "family": "mathematics",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "discrete-mathematics-epp": {
+      "file": "images/covers/mathematics/discrete-mathematics-epp.svg",
+      "family": "mathematics",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "distributed-cloud-computing": {
+      "file": "images/covers/cloud/distributed-cloud-computing.svg",
+      "family": "cloud",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract cloud artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "dont-make-me-think": {
+      "file": "images/covers/web/dont-make-me-think.svg",
+      "family": "web",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "effective-java": {
+      "file": "images/covers/programming/effective-java.svg",
+      "family": "programming",
+      "palette": "forest",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "eloquent-javascript": {
+      "file": "images/covers/web/eloquent-javascript.svg",
+      "family": "web",
+      "palette": "slate",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "project-work-guidelines": {
+      "file": "images/covers/employability/project-work-guidelines.svg",
+      "family": "employability",
+      "palette": "oxide",
+      "variant": 0,
+      "alt": "Abstract employability artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "foundations-software-testing": {
+      "file": "images/covers/software-engineering/foundations-software-testing.svg",
+      "family": "software-engineering",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "fundamentals-of-data-engineering": {
+      "file": "images/covers/databases/fundamentals-of-data-engineering.svg",
+      "family": "databases",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "fundamentals-database-systems": {
+      "file": "images/covers/databases/fundamentals-database-systems.svg",
+      "family": "databases",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "fundamentals-software-engineering-mall": {
+      "file": "images/covers/software-engineering/fundamentals-software-engineering-mall.svg",
+      "family": "software-engineering",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "html-css-design-build": {
+      "file": "images/covers/web/html-css-design-build.svg",
+      "family": "web",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "hands-on-machine-learning": {
+      "file": "images/covers/artificial-intelligence/hands-on-machine-learning.svg",
+      "family": "artificial-intelligence",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "head-first-android": {
+      "file": "images/covers/mobile/head-first-android.svg",
+      "family": "mobile",
+      "palette": "forest",
+      "variant": 2,
+      "alt": "Abstract mobile artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "it-project-management": {
+      "file": "images/covers/employability/it-project-management.svg",
+      "family": "employability",
+      "palette": "slate",
+      "variant": 1,
+      "alt": "Abstract employability artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "internet-technologies-study-pack": {
+      "file": "images/covers/web/internet-technologies-study-pack.svg",
+      "family": "web",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "internship-handbook": {
+      "file": "images/covers/employability/internship-handbook.svg",
+      "family": "employability",
+      "palette": "oxide",
+      "variant": 0,
+      "alt": "Abstract employability artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "introduction-to-algorithms": {
+      "file": "images/covers/algorithms/introduction-to-algorithms.svg",
+      "family": "algorithms",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "introduction-machine-learning": {
+      "file": "images/covers/artificial-intelligence/introduction-machine-learning.svg",
+      "family": "artificial-intelligence",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "levitin-algorithms": {
+      "file": "images/covers/algorithms/levitin-algorithms.svg",
+      "family": "algorithms",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "introductory-statistics-r": {
+      "file": "images/covers/data-science/introductory-statistics-r.svg",
+      "family": "data-science",
+      "palette": "forest",
+      "variant": 2,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "java-complete-reference": {
+      "file": "images/covers/programming/java-complete-reference.svg",
+      "family": "programming",
+      "palette": "ink",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "javascript-definitive-guide": {
+      "file": "images/covers/web/javascript-definitive-guide.svg",
+      "family": "web",
+      "palette": "ink",
+      "variant": 2,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "learning-php-mysql-javascript": {
+      "file": "images/covers/web/learning-php-mysql-javascript.svg",
+      "family": "web",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "learning-php": {
+      "file": "images/covers/web/learning-php.svg",
+      "family": "web",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "learning-python": {
+      "file": "images/covers/programming/learning-python.svg",
+      "family": "programming",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "learning-sql": {
+      "file": "images/covers/databases/learning-sql.svg",
+      "family": "databases",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "learning-web-design": {
+      "file": "images/covers/web/learning-web-design.svg",
+      "family": "web",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "let-us-c": {
+      "file": "images/covers/programming/let-us-c.svg",
+      "family": "programming",
+      "palette": "oxide",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "machine-learning-mitchell": {
+      "file": "images/covers/artificial-intelligence/machine-learning-mitchell.svg",
+      "family": "artificial-intelligence",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "marketing-management": {
+      "file": "images/covers/marketing/marketing-management.svg",
+      "family": "marketing",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract marketing artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "mastering-cloud-computing": {
+      "file": "images/covers/cloud/mastering-cloud-computing.svg",
+      "family": "cloud",
+      "palette": "oxide",
+      "variant": 2,
+      "alt": "Abstract cloud artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "modern-operating-systems": {
+      "file": "images/covers/operating-systems/modern-operating-systems.svg",
+      "family": "operating-systems",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "mysql-reference-manual-study": {
+      "file": "images/covers/databases/mysql-reference-manual-study.svg",
+      "family": "databases",
+      "palette": "forest",
+      "variant": 2,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "network-security-private-communication": {
+      "file": "images/covers/cybersecurity/network-security-private-communication.svg",
+      "family": "cybersecurity",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract cybersecurity artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "java-lab-manual": {
+      "file": "images/covers/programming/java-lab-manual.svg",
+      "family": "programming",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "operating-system-concepts": {
+      "file": "images/covers/operating-systems/operating-system-concepts.svg",
+      "family": "operating-systems",
+      "palette": "teal",
+      "variant": 0,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "os-internals-design-principles": {
+      "file": "images/covers/operating-systems/os-internals-design-principles.svg",
+      "family": "operating-systems",
+      "palette": "oxide",
+      "variant": 2,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "operating-systems-three-easy-pieces": {
+      "file": "images/covers/operating-systems/operating-systems-three-easy-pieces.svg",
+      "family": "operating-systems",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "operations-research-sharma": {
+      "file": "images/covers/mathematics/operations-research-sharma.svg",
+      "family": "mathematics",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "operations-research-gupta-hira": {
+      "file": "images/covers/mathematics/operations-research-gupta-hira.svg",
+      "family": "mathematics",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "operations-research-taha": {
+      "file": "images/covers/mathematics/operations-research-taha.svg",
+      "family": "mathematics",
+      "palette": "slate",
+      "variant": 1,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "php-manual-companion": {
+      "file": "images/covers/web/php-manual-companion.svg",
+      "family": "web",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "php-mysql-web-development": {
+      "file": "images/covers/web/php-mysql-web-development.svg",
+      "family": "web",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "pattern-recognition-machine-learning": {
+      "file": "images/covers/artificial-intelligence/pattern-recognition-machine-learning.svg",
+      "family": "artificial-intelligence",
+      "palette": "slate",
+      "variant": 2,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "probability-statistics-engineers": {
+      "file": "images/covers/mathematics/probability-statistics-engineers.svg",
+      "family": "mathematics",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "professional-android": {
+      "file": "images/covers/mobile/professional-android.svg",
+      "family": "mobile",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract mobile artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "programming-in-ansi-c": {
+      "file": "images/covers/programming/programming-in-ansi-c.svg",
+      "family": "programming",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "python-crash-course": {
+      "file": "images/covers/programming/python-crash-course.svg",
+      "family": "programming",
+      "palette": "slate",
+      "variant": 0,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "python-data-science-handbook": {
+      "file": "images/covers/data-science/python-data-science-handbook.svg",
+      "family": "data-science",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "python-machine-learning": {
+      "file": "images/covers/artificial-intelligence/python-machine-learning.svg",
+      "family": "artificial-intelligence",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract artificial intelligence artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "python-programming-thareja": {
+      "file": "images/covers/programming/python-programming-thareja.svg",
+      "family": "programming",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "python-network-lab-manual": {
+      "file": "images/covers/networking/python-network-lab-manual.svg",
+      "family": "networking",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract networking artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "python-for-data-analysis": {
+      "file": "images/covers/data-science/python-for-data-analysis.svg",
+      "family": "data-science",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "r-for-data-science": {
+      "file": "images/covers/data-science/r-for-data-science.svg",
+      "family": "data-science",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "readings-in-distributed-systems": {
+      "file": "images/covers/databases/readings-in-distributed-systems.svg",
+      "family": "databases",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract databases artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "refactoring-improving-design": {
+      "file": "images/covers/software-engineering/refactoring-improving-design.svg",
+      "family": "software-engineering",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "schaums-data-structures": {
+      "file": "images/covers/algorithms/schaums-data-structures.svg",
+      "family": "algorithms",
+      "palette": "teal",
+      "variant": 2,
+      "alt": "Abstract algorithms artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "schaums-programming-c": {
+      "file": "images/covers/programming/schaums-programming-c.svg",
+      "family": "programming",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "schaums-statistics": {
+      "file": "images/covers/mathematics/schaums-statistics.svg",
+      "family": "mathematics",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract mathematics artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "security-engineering": {
+      "file": "images/covers/cybersecurity/security-engineering.svg",
+      "family": "cybersecurity",
+      "palette": "forest",
+      "variant": 1,
+      "alt": "Abstract cybersecurity artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "software-engineering-sommerville": {
+      "file": "images/covers/software-engineering/software-engineering-sommerville.svg",
+      "family": "software-engineering",
+      "palette": "teal",
+      "variant": 2,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "software-engineering-aggarwal": {
+      "file": "images/covers/software-engineering/software-engineering-aggarwal.svg",
+      "family": "software-engineering",
+      "palette": "ink",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "software-engineering-a-practitioners-approach": {
+      "file": "images/covers/software-engineering/software-engineering-a-practitioners-approach.svg",
+      "family": "software-engineering",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "software-engineering-pressman": {
+      "file": "images/covers/software-engineering/software-engineering-pressman.svg",
+      "family": "software-engineering",
+      "palette": "ink",
+      "variant": 2,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "software-requirements": {
+      "file": "images/covers/software-engineering/software-requirements.svg",
+      "family": "software-engineering",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "software-test-automation": {
+      "file": "images/covers/software-engineering/software-test-automation.svg",
+      "family": "software-engineering",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "r-programming-lab-manual": {
+      "file": "images/covers/data-science/r-programming-lab-manual.svg",
+      "family": "data-science",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "technical-communication": {
+      "file": "images/covers/employability/technical-communication.svg",
+      "family": "employability",
+      "palette": "oxide",
+      "variant": 1,
+      "alt": "Abstract employability artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "art-of-invisibility": {
+      "file": "images/covers/cybersecurity/art-of-invisibility.svg",
+      "family": "cybersecurity",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract cybersecurity artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "art-of-r-programming": {
+      "file": "images/covers/data-science/art-of-r-programming.svg",
+      "family": "data-science",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "art-of-software-testing": {
+      "file": "images/covers/software-engineering/art-of-software-testing.svg",
+      "family": "software-engineering",
+      "palette": "slate",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "book-of-r": {
+      "file": "images/covers/data-science/book-of-r.svg",
+      "family": "data-science",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "c-programming-language-2e": {
+      "file": "images/covers/programming/c-programming-language-2e.svg",
+      "family": "programming",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "the-c-programming-language": {
+      "file": "images/covers/programming/the-c-programming-language.svg",
+      "family": "programming",
+      "palette": "parchment",
+      "variant": 2,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "data-warehouse-toolkit": {
+      "file": "images/covers/business/data-warehouse-toolkit.svg",
+      "family": "business",
+      "palette": "teal",
+      "variant": 0,
+      "alt": "Abstract business artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "mythical-man-month": {
+      "file": "images/covers/software-engineering/mythical-man-month.svg",
+      "family": "software-engineering",
+      "palette": "oxide",
+      "variant": 2,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "the-pragmatic-programmer": {
+      "file": "images/covers/employability/the-pragmatic-programmer.svg",
+      "family": "employability",
+      "palette": "parchment",
+      "variant": 1,
+      "alt": "Abstract employability artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "principles-beautiful-web-design": {
+      "file": "images/covers/web/principles-beautiful-web-design.svg",
+      "family": "web",
+      "palette": "forest",
+      "variant": 0,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "think-python": {
+      "file": "images/covers/programming/think-python.svg",
+      "family": "programming",
+      "palette": "teal",
+      "variant": 1,
+      "alt": "Abstract programming artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "think-stats": {
+      "file": "images/covers/data-science/think-stats.svg",
+      "family": "data-science",
+      "palette": "slate",
+      "variant": 1,
+      "alt": "Abstract data science artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "uml-distilled": {
+      "file": "images/covers/software-engineering/uml-distilled.svg",
+      "family": "software-engineering",
+      "palette": "ink",
+      "variant": 1,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "upgrading-repairing-pcs": {
+      "file": "images/covers/operating-systems/upgrading-repairing-pcs.svg",
+      "family": "operating-systems",
+      "palette": "teal",
+      "variant": 0,
+      "alt": "Abstract operating systems artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "web-content-management-handbook": {
+      "file": "images/covers/web/web-content-management-handbook.svg",
+      "family": "web",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract web artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    },
+    "working-effectively-legacy-code": {
+      "file": "images/covers/software-engineering/working-effectively-legacy-code.svg",
+      "family": "software-engineering",
+      "palette": "parchment",
+      "variant": 0,
+      "alt": "Abstract software engineering artwork for the LibTrack edition cover.",
+      "provenance": "Original deterministic LibTrack artwork (SVG, text-free)."
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Study Buddy — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="dashboard-hero">
+      <div class="discover-copy">
+        <p class="app-eyebrow">YOUR STUDY COMPANION</p>
+        <h1>Study Buddy<br><em>{% if study_buddy_ready %}is ready.{% else %}awaits a key.{% endif %}</em></h1>
+        <p>{% if study_buddy_ready %}Ask questions against your course context and the library catalogue.{% else %}An AI study companion wired into the library: pick a subject, choose a book, and Study Buddy explains, quizzes and builds revision plans. The librarian enables it by configuring an API key; until then nothing leaves the library.{% endif %}</p>
+      </div>
+    </section>
+
+    <section class="content-pad">
+      {% if not study_buddy_ready %}
+        <div class="panel buddy-status">
+          <div class="buddy-status-row">
+            <div class="intel-icon"><i data-lucide="key-round"></i></div>
+            <div>
+              <p class="app-eyebrow">FEATURE STATUS</p>
+              <h2>Awaiting configuration</h2>
+              <p class="panel-note">Study Buddy is fully built but disabled. No request can leave LibTrack until the librarian sets the provider environment variables below. Your library account, loans and reading lists are unaffected.</p>
+            </div>
+          </div>
+          <ul class="buddy-env-list" aria-label="Required configuration">
+            <li><code>STUDY_BUDDY_ENABLED</code><span>not set</span></li>
+            <li><code>STUDY_BUDDY_PROVIDER</code><span>not set</span></li>
+            <li><code>STUDY_BUDDY_MODEL</code><span>not set</span></li>
+            <li><code>STUDY_BUDDY_API_KEY</code><span>not set — never displayed here</span></li>
+          </ul>
+        </div>
+      {% endif %}
+
+      <div class="section-heading">
+        <div>
+          <p class="app-eyebrow">LEARNING CONTEXT</p>
+          <h2>What are we studying today?</h2>
+        </div>
+      </div>
+
+      <form method="get" action="{% url 'core:study_buddy' %}" class="buddy-form">
+        <div class="toolbar-row">
+          <div class="form-field">
+            <label for="id_buddy_semester">Semester</label>
+            <select class="field-input" id="id_buddy_semester" name="semester">
+              <option value="">Choose a semester</option>
+              {% for semester in choices.semesters %}
+                <option value="{{ semester.pk }}" {% if selected.semester|stringformat:'s' == semester.pk|stringformat:'s' %}selected{% endif %}>{{ semester }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_buddy_subject">Subject</label>
+            <select class="field-input" id="id_buddy_subject" name="subject">
+              <option value="">Choose a subject</option>
+              {% for subject in choices.subjects %}
+                <option value="{{ subject.pk }}" {% if selected.subject|stringformat:'s' == subject.pk|stringformat:'s' %}selected{% endif %}>{{ subject }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_buddy_book">Library text</label>
+            <select class="field-input" id="id_buddy_book" name="book">
+              <option value="">Any library book</option>
+              {% for book in choices.books %}
+                <option value="{{ book.pk }}" {% if selected.book|stringformat:'s' == book.pk|stringformat:'s' %}selected{% endif %}>{{ book.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_buddy_topic">Chapter or topic</label>
+            <input class="field-input" id="id_buddy_topic" name="topic" value="{{ selected.topic }}" maxlength="160" placeholder="e.g. Dynamic programming">
+          </div>
+        </div>
+        <div class="toolbar-row" style="margin-top:14px">
+          <div class="form-field">
+            <label for="id_buddy_mode">Learning mode</label>
+            <select class="field-input" id="id_buddy_mode" name="mode">
+              {% for value, label in mode_choices %}
+                <option value="{{ value }}" {% if selected.mode == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field buddy-question">
+            <label for="id_buddy_question">Your question</label>
+            <input class="field-input" id="id_buddy_question" name="question" value="{{ selected.question }}" maxlength="{{ max_chars }}" placeholder="What would you like to understand?">
+          </div>
+          <div class="toolbar-actions">
+            <button class="button button-primary" type="submit" {% if not study_buddy_ready %}disabled title="Study Buddy is not configured yet"{% endif %}>Ask Study Buddy</button>
+          </div>
+        </div>
+        {% if study_buddy_ready %}<p class="panel-note" style="margin-top:10px">Daily limit: {{ daily_limit }} answers. Answers are generated for your own study; they never expose other students' records.</p>{% endif %}
+      </form>
+    </section>
+  </main>
+</div>
+{% endblock %}

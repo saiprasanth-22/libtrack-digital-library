@@ -1,8 +1,24 @@
 <a class="catalog-book" href="{% url 'core:book_detail' book.slug %}" data-resource data-search="{{ book.title }} {{ book.author_names }} {{ book.category_names|join:' ' }} {{ book.isbn|default:'' }}">
-  <div class="mini-cover cover-{{ book.cover_variant }}"><span>{{ book.category_names|first|default:"Library"|upper }}</span><strong>{{ book.title }}</strong><small>{{ book.publisher|default:"LIBTRACK PRESS"|upper }}</small></div>
+  <div class="mini-cover cover-{{ book.cover_variant }}{% if book.cover_family %} cover-family-{{ book.cover_family }}{% endif %}">
+    {% if book.cover %}
+      <img class="mini-cover-image" src="{{ book.cover.url }}" alt="Cover of {{ book.title }}">
+    {% elif book.generated_cover_file %}
+      <img class="mini-cover-image" src="/static/{{ book.generated_cover_file }}" alt="{{ book.generated_cover_alt }}">
+      <span class="mini-cover-label">{{ book.category_names|first|default:"Library"|upper }}</span>
+    {% else %}
+      <span>{{ book.category_names|first|default:"Library"|upper }}</span>
+      <strong>{{ book.title }}</strong>
+      <small>{{ book.publisher|default:"LIBTRACK PRESS"|upper }}</small>
+    {% endif %}
+  </div>
   <div>
     <h3>{{ book.title }}</h3>
     <p>{{ book.author_names }}</p>
+    {% with mapping=book.subject_mappings.first %}
+      {% if mapping %}
+        <p class="card-academic">{{ mapping.subject.name }}{% if mapping.subject.semester %} · Sem {{ mapping.subject.semester.number }}{% endif %} · {{ mapping.get_resource_type_display }}</p>
+      {% endif %}
+    {% endwith %}
     {% if book.is_available %}
       <span class="available"><i></i>{{ book.available_copies }} available</span>
     {% else %}

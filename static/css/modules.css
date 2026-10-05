@@ -212,3 +212,55 @@ select.field-input,textarea.field-input{min-height:42px}
 .review-form .field-input{width:100%;margin-bottom:11px}
 .review-form .app-eyebrow{margin-bottom:11px}
 .review-form .button{margin-top:5px}
+
+/* ---- Academic catalogue extensions ---------------------------------- */
+.card-academic{font-size:8px;color:#25886b;margin:2px 0 0}
+.toolbar-actions{display:flex;align-items:center;gap:12px}
+.clear-filters{font-size:10px;color:#8a8178;text-decoration:none;border-bottom:1px dotted #b9a68f;padding-bottom:1px}
+.clear-filters:hover{color:#33251d}
+.subject-code{font-family:var(--sans);font-size:9px;background:#eee5d7;border-radius:6px;padding:3px 7px;letter-spacing:.04em}
+.reco{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:4px 9px}
+.reco-prescribed{background:#173c34;color:#f7f0e3}
+.reco-recommended{background:#e2eee7;color:#175343}
+.reco-supplementary{background:#eee5d7;color:#7a5e46}
+.syllabus-note{font-size:10px;color:#625d56;margin:12px 0 0;line-height:1.6}
+.syllabus-note strong{color:#33251d}
+.panel-note{font-size:10px;color:#8a8178;margin:0 0 16px;line-height:1.6}
+.confidence-chip{display:inline-block;font-size:8px;border-radius:99px;padding:3px 8px;background:#eee5d7;color:#7a5e46;margin-left:6px}
+.confidence-chip.verified-current,.confidence-chip.verified-syllabus{background:#e2eee7;color:#175343}
+
+/* ---- Study Buddy ---------------------------------------------------- */
+.buddy-status-row{display:flex;gap:18px;align-items:flex-start}
+.buddy-status-row h2{font:26px var(--serif);margin:0 0 6px;color:#33251d}
+.buddy-status-row .intel-icon{background:#e2eee7;color:#175343}
+.buddy-env-list{list-style:none;margin:18px 0 0;padding:0}
+.buddy-env-list li{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 0;border-top:1px solid #e2d8c8;font-size:11px}
+.buddy-env-list code{font-family:var(--sans);font-weight:700;color:#33251d;font-size:10px;letter-spacing:.03em}
+.buddy-env-list span{color:#8a8178;font-size:9px}
+.buddy-form .buddy-question{flex:2 1 320px}
+
+/* ---- Librarian academics -------------------------------------------- */
+.panel-grid.two-col{grid-template-columns:1.6fr 1fr;align-items:start}
+.scheme-row{display:flex;flex-direction:column;gap:3px;padding:13px 0;border-top:1px solid #e2d8c8;margin-top:13px}
+.scheme-row strong{font-size:12px;color:#33251d}
+.scheme-row small{font-size:9px;color:#8a8178}
+.scheme-row .reco{align-self:flex-start;margin-top:4px}
+.scheme-semesters{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip-link{font-size:9px;background:#eee5d7;color:#7a5e46;border-radius:99px;padding:5px 10px;text-decoration:none}
+.chip-link:hover{background:#e2eee7;color:#175343}
+.report-list{list-style:none;margin:0;padding:0}
+.report-list li{padding:8px 0;border-top:1px solid #efe7da;font-size:11px}
+.report-list li:first-child{border-top:0}
+.report-list a{color:#1d6f57;text-decoration:none}
+.report-list a:hover{text-decoration:underline}
+.import-command{font-family:var(--sans);font-size:11px;background:#173c34;color:#f7f0e3;border-radius:10px;padding:16px 18px;line-height:1.9;margin:0;overflow:auto}
+.table-action{border:1px solid #ded4c4;background:transparent;border-radius:8px;padding:6px 11px;font-size:9px;color:#7a5e46;cursor:pointer}
+.table-action:hover{border-color:#c65a49;color:#c65a49}
+@media(max-width:760px){.panel-grid.two-col{grid-template-columns:1fr}.buddy-status-row{flex-direction:column}}
+
+/* ---- Generated cover artwork ---------------------------------------- */
+.mini-cover{position:relative;overflow:hidden}
+.mini-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mini-cover-label{position:absolute;left:10px;top:10px;font-size:5px;letter-spacing:.1em;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.large-cover .cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.large-cover .cover-family-label{position:absolute;left:24px;bottom:20px;font-size:6px;letter-spacing:.19em;color:rgba(255,255,255,.8);z-index:2}

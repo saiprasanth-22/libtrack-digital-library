@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ subject }} — Academic management — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="content-pad">
+      <div class="breadcrumb">
+        <a href="{% url 'core:librarian_academics' %}">Academic management</a><span>/</span>
+        <b>{{ subject }}</b>
+      </div>
+
+      <div class="panel-grid two-col">
+        <div>
+          <div class="panel">
+            <div class="card-head">
+              <div>
+                <p class="app-eyebrow">{{ subject.semester.curriculum_scheme.course.code }} · SEM {{ subject.semester.number }}</p>
+                <h2 style="font:30px var(--serif);margin:0">{{ subject.name }}</h2>
+                <p class="panel-note"><code class="subject-code">{{ subject.code }}</code>
+                  <span class="confidence-chip">{{ subject.get_confidence_display }}</span>
+                </p>
+              </div>
+            </div>
+            {% if subject.description %}<p style="font-size:11px;line-height:1.7;color:#625d56">{{ subject.description }}</p>{% endif %}
+            <p class="panel-note">{{ subject.get_classification_display }}{% if subject.source_url %} · <a href="{{ subject.source_url }}" target="_blank" rel="noopener noreferrer">syllabus source</a>{% endif %}</p>
+          </div>
+
+          <div class="panel" style="margin-top:16px">
+            <div class="card-head"><h3 style="font:20px var(--serif);margin:0">Mapped books</h3><span class="result-count">{{ mappings|length }}</span></div>
+            {% if mappings %}
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Book</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col"></th></tr></thead>
+                  <tbody>
+                    {% for mapping in mappings %}
+                      <tr>
+                        <td>{{ mapping.book.title }}</td>
+                        <td>{{ mapping.get_resource_type_display }}</td>
+                        <td><span class="reco reco-{{ mapping.recommendation_status }}">{{ mapping.get_recommendation_status_display }}</span></td>
+                        <td>
+                          <form method="post" action="{% url 'core:librarian_subject_detail' subject.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="unmap">
+                            <input type="hidden" name="mapping" value="{{ mapping.pk }}">
+                            <button class="table-action" type="submit">Remove</button>
+                          </form>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="panel-note">No books mapped yet. Use the panel on the right to place the first title on this reading list.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="card-head"><h3 style="font:20px var(--serif);margin:0">Map a book</h3></div>
+            <form method="post" action="{% url 'core:librarian_subject_detail' subject.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="map">
+              <div class="form-field" style="margin-bottom:12px">
+                <label for="id_map_book">Book</label>
+                <select class="field-input" id="id_map_book" name="book" required>
+                  <option value="">Choose a title…</option>
+                  {% for book in available_books %}
+                    <option value="{{ book.pk }}">{{ book.title }}{% if book.author_names %} — {{ book.author_names }}{% endif %}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-field" style="margin-bottom:12px">
+                <label for="id_map_resource">Resource type</label>
+                <select class="field-input" id="id_map_resource" name="resource_type">
+                  {% for value, label in resource_choices %}<option value="{{ value }}" {% if value == 'textbook' %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="form-field" style="margin-bottom:16px">
+                <label for="id_map_reco">Recommendation</label>
+                <select class="field-input" id="id_map_reco" name="recommendation_status">
+                  {% for value, label in reco_choices %}<option value="{{ value }}" {% if value == 'recommended' %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+              <button class="button button-primary" type="submit">Add to reading list</button>
+              <p class="panel-note" style="margin-top:10px">A book may serve many subjects; mapping never duplicates the bibliographic record.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -10,7 +10,10 @@ record or dashboard statistic is hard-coded in the interface.
 
 - Live site (front-end reference): <https://libtrack-digital-library.vercel.app/>
 - Documentation: [Database schema](docs/DATABASE_SCHEMA.md) ·
-  [Mermaid ER diagram](docs/DATABASE_SCHEMA.md#1-entity-relationship-diagram)
+  [Mermaid ER diagram](docs/DATABASE_SCHEMA.md#1-entity-relationship-diagram) ·
+  [Catalogue import](docs/CATALOGUE_IMPORT.md) ·
+  [Cover-art pipeline](docs/COVER_ART.md) ·
+  [Study Buddy](docs/STUDY_BUDDY.md)
 
 ---
 
@@ -50,10 +53,16 @@ python manage.py migrate
 # 5. Load demonstration data
 python manage.py seed_demo_data
 
-# 6. Collect static files
+# 6. Import the BCA academic catalogue (120 titles, scheme-aware)
+python manage.py import_bca_catalogue
+
+# 7. Generate the original cover artwork for every title
+python manage.py generate_covers
+
+# 8. Collect static files
 python manage.py collectstatic --noinput
 
-# 7. Start the server
+# 9. Start the server
 python manage.py runserver
 ```
 
@@ -209,6 +218,40 @@ plus 12 extensions beyond the reference. Three reference patterns were
 deliberately redesigned rather than copied (unsafe student deletion, unsafe
 book deletion, `GET`-reachable mutating links).
 
+### Academic catalogue
+
+The collection is curated for the BCA programme (2023–2026 NEP cohort,
+Bengaluru North University) through a scheme-aware structure:
+`Course → CurriculumScheme → Semester → Subject → BookSubjectMapping → Book`.
+
+- **120 titles**, 173 authors, 38 curriculum subjects across six semesters,
+  135 book-to-subject mappings and 17 subject-linked digital materials —
+  imported idempotently from versioned CSV under `data/bca/` (see
+  [docs/CATALOGUE_IMPORT.md](docs/CATALOGUE_IMPORT.md)).
+- Confidence labels (`verified-current`, `verified-syllabus`,
+  `curriculum-supported`) from the
+  [curriculum research](docs/BCA_CURRICULUM_RESEARCH.md) are stored on
+  subjects and mappings; nothing provisional is presented as officially
+  prescribed. Recommended is the strongest book status used; no seeded book
+  is claimed as "prescribed".
+- Combinable server-side filters: course, curriculum, semester, subject,
+  classification, resource type, recommendation status, category,
+  availability and search across academic metadata (subject names, codes and
+  course names included), with pagination that preserves every filter.
+- The path BCA → Semester V → Statistical Computing and R → Recommended
+  books is four selects in one form.
+- Original text-free cover artwork is generated deterministically for every
+  title (see [docs/COVER_ART.md](docs/COVER_ART.md)).
+
+### Study Buddy (foundation)
+
+A future AI study companion, shipped scaffolded and **disabled**:
+context selectors (course → semester → subject → book → topic), seven
+learning modes, a provider-independent service boundary, and an honest
+"awaiting configuration" state. No network call is possible until the
+`STUDY_BUDDY_*` environment variables are set; see
+[docs/STUDY_BUDDY.md](docs/STUDY_BUDDY.md).
+
 ---
 
 ## 7. Business rules
@@ -319,7 +362,8 @@ templates/                 Django templates
 static/css/                Design system (app.css, product.css, modules.css)
 static/js/app.js           UI interactions
 static/js/tabs.js          Book detail tab panels (progressive enhancement)
-docs/                      Schema and ER diagram
+docs/                      Schema, ER diagram, import + cover + Study Buddy docs,
+                           reference-coverage matrix, curriculum research
   DATABASE_SCHEMA.md       Tables, relationships, Mermaid ER diagram, 3NF notes
   REFERENCE_COVERAGE.md    Reference video -> LibTrack coverage matrix
 ```
@@ -338,7 +382,7 @@ templates easier to follow for a single-author project.
 python manage.py test
 ```
 
-**167 tests, all passing.** They cover:
+**216 tests, all passing.** They cover:
 
 - Registration (success, duplicate email, duplicate student number, password
   mismatch, weak password, semester range)
@@ -398,6 +442,12 @@ LIBRARY_LOAN_DAYS=14
 LIBRARY_MAX_ACTIVE_LOANS=3
 LIBRARY_MAX_RENEWALS=1
 LIBRARY_RENEWAL_DAYS=7
+
+# Optional — Study Buddy stays disabled until all four are set
+STUDY_BUDDY_ENABLED=false
+STUDY_BUDDY_PROVIDER=
+STUDY_BUDDY_MODEL=
+STUDY_BUDDY_API_KEY=
 ```
 
 Build and release commands:
@@ -459,6 +509,20 @@ project) and keep the Vercel URL for the front-end reference if you wish.
    `User.is_active` are switched off, keeping all borrowing history intact.
 7. **Fine calculation** is a flat ₹10 per overdue day, applied when a book is
    returned. It is a simple demonstration rule, configurable in `services.py`.
+8. **Academic structure is provisional until confirmed.** The curriculum seed
+   follows the 2023–2026 NEP research handoff, but scheme, subjects and
+   mappings all carry confidence fields and the scheme row is labelled
+   explicitly. When the student's official timetable arrives, the CSV is
+   corrected and re-imported — the import updates in place and never
+   duplicates.
+9. **Elective choice is browseable, not assumed.** Cloud Computing and
+   Business Intelligence (Semester V) and the Semester VI electives are
+   modelled as mapped subjects with "elective" classification so any student
+   can browse their real reading list once the timetable is known; LibTrack
+   does not claim which elective a student takes.
+10. **Cover artwork is generated, not sourced.** Every title gets original,
+    deterministic, text-free SVG artwork from the subject-family system
+    (docs/COVER_ART.md); uploaded librarian covers still take precedence.
 
 ---
 

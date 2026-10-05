@@ -284,7 +284,12 @@ class OverdueTests(TestCase):
     def test_overdue_is_derived_from_due_date(self):
         loan = services.borrow_book(self.profile, self.book)
         self.assertFalse(loan.is_overdue)
-        self.assertEqual(loan.days_until_due, FAST_RULES["LOAN_DAYS"])
+        # ``days_until_due`` is a calendar-date difference, so a loan taken at
+        # 09:00 has 14 whole days left while one taken at 23:30 has 13 whole
+        # days plus the remainder of today. Accept the two valid values so the
+        # assertion tests the derivation, not the clock.
+        self.assertIn(loan.days_until_due,
+                      (FAST_RULES["LOAN_DAYS"], FAST_RULES["LOAN_DAYS"] - 1))
 
         # Move the whole window back so issued_at still precedes due_at.
         Loan.objects.filter(pk=loan.pk).update(
@@ -292,7 +297,8 @@ class OverdueTests(TestCase):
             due_at=timezone.now() - timedelta(days=1))
         loan.refresh_from_db()
         self.assertTrue(loan.is_overdue)
-        self.assertEqual(loan.days_until_due, -1)
+        # Same calendar-boundary caveat on the overdue side.
+        self.assertIn(loan.days_until_due, (-1, -2))
 
     def test_sync_updates_stale_issued_rows_to_overdue(self):
         loan = services.borrow_book(self.profile, self.book)

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Academic management — LibTrack{% endblock %}
+{% block content %}
+<div class="app-shell">
+  {% include "partials/sidebar.html" %}
+  <main class="app-main">
+    {% include "partials/topbar.html" %}
+
+    <section class="librarian-hero">
+      <div>
+        <p class="app-eyebrow">CURRICULUM &amp; CATALOGUE</p>
+        <h1>Academic management</h1>
+        <p>The scheme-aware structure behind the collection: courses, curriculum schemes, semesters, subjects and the book mappings that place every title on a reading list.</p>
+      </div>
+    </section>
+
+    <section class="content-pad">
+      <div class="metric-grid four">
+        <article><div class="metric-icon"><i data-lucide="graduation-cap"></i></div><div><small>COURSES</small><strong>{{ overview.courses }}</strong></div></article>
+        <article><div class="metric-icon"><i data-lucide="scroll-text"></i></div><div><small>SCHEMES</small><strong>{{ overview.schemes }}</strong></div></article>
+        <article><div class="metric-icon"><i data-lucide="calendar-range"></i></div><div><small>SEMESTERS</small><strong>{{ overview.semesters }}</strong></div></article>
+        <article><div class="metric-icon"><i data-lucide="book-marked"></i></div><div><small>SUBJECTS</small><strong>{{ overview.subjects }}</strong></div></article>
+      </div>
+
+      <div class="section-heading">
+        <div><p class="app-eyebrow">STRUCTURE</p><h2>Courses &amp; schemes</h2></div>
+        <span class="result-count">{{ overview.mappings }} book mappings</span>
+      </div>
+
+      <div class="panel-grid">
+        {% for course in course_rows %}
+          <div class="panel">
+            <div class="card-head">
+              <div>
+                <p class="app-eyebrow">{{ course.code }}</p>
+                <h3 style="font:22px var(--serif);margin:0">{{ course.name }}</h3>
+              </div>
+              <span class="confidence-chip">{{ course.subject_total }} subjects</span>
+            </div>
+            {% for scheme in course.schemes.all %}
+              <div class="scheme-row">
+                <strong>{{ scheme.name }}</strong>
+                <small>{{ scheme.university|default:"—" }}{% if scheme.academic_year_from %} · {{ scheme.academic_year_from }}–{{ scheme.academic_year_to }}{% endif %}</small>
+                <span class="reco reco-{{ scheme.verification_status|default:'supplementary' }}">{{ scheme.get_verification_status_display }}</span>
+              </div>
+              <div class="scheme-semesters">
+                {% for semester in scheme.semesters.all %}
+                  <a class="chip-link" href="{% url 'core:librarian_academics' %}#sem-{{ semester.pk }}">{{ semester }}</a>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="section-heading">
+        <div><p class="app-eyebrow">DATA QUALITY</p><h2>Catalogue reports</h2></div>
+        <span class="result-count">{{ books_total }} active titles</span>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="card-head"><h3 style="font:20px var(--serif);margin:0">Missing author</h3><span class="reco reco-supplementary">{{ missing_author|length }}</span></div>
+          {% if missing_author %}
+            <ul class="report-list">{% for book in missing_author|slice:":8" %}<li><a href="{% url 'core:book_detail' book.slug %}">{{ book.title }}</a></li>{% endfor %}</ul>
+          {% else %}<p class="panel-note">Every active title names a real author or is explicitly institutional. ✓</p>{% endif %}
+        </div>
+        <div class="panel">
+          <div class="card-head"><h3 style="font:20px var(--serif);margin:0">No academic mapping</h3><span class="reco reco-supplementary">{{ missing_mapping|length }}</span></div>
+          {% if missing_mapping %}
+            <ul class="report-list">{% for book in missing_mapping|slice:":8" %}<li><a href="{% url 'core:book_detail' book.slug %}">{{ book.title }}</a></li>{% endfor %}</ul>
+          {% else %}<p class="panel-note">Every active title maps to at least one curriculum subject. ✓</p>{% endif %}
+        </div>
+        <div class="panel">
+          <div class="card-head"><h3 style="font:20px var(--serif);margin:0">No cover treatment</h3><span class="reco reco-supplementary">{{ missing_cover|length }}</span></div>
+          {% if missing_cover %}
+            <ul class="report-list">{% for book in missing_cover|slice:":8" %}<li><a href="{% url 'core:book_detail' book.slug %}">{{ book.title }}</a></li>{% endfor %}</ul>
+          {% else %}<p class="panel-note">Every active title resolves to a cover treatment. ✓</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div><p class="app-eyebrow">BULK CHANGES</p><h2>Structured import</h2></div>
+      </div>
+      <div class="panel">
+        <p class="panel-note">The catalogue is maintained through versioned CSV files. Run a dry run first, then import; every run is reported row by row and <code>--strict</code> rolls back atomically on any error.</p>
+        <pre class="import-command">{{ import_hint }} --dry-run
+{{ import_hint }}
+{{ import_hint }} --strict</pre>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

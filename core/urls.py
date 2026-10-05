@@ -2,6 +2,7 @@
 
 from django.urls import path
 
+from . import study_buddy_views
 from . import views
 
 app_name = "core"
@@ -25,6 +26,7 @@ urlpatterns = [
 
     # Student
     path("student/", views.student_dashboard, name="student"),
+    path("study-buddy/", study_buddy_views.study_buddy_home, name="study_buddy"),
     path("student/loans/", views.student_loans, name="student_loans"),
     path("student/profile/", views.student_profile, name="student_profile"),
     path("student/profile/update/", views.student_profile_update, name="student_profile_update"),
@@ -50,4 +52,6 @@ urlpatterns = [
     path("librarian/materials/<int:pk>/edit/", views.librarian_material_edit, name="librarian_material_edit"),
     path("librarian/materials/<int:pk>/delete/", views.librarian_material_delete, name="librarian_material_delete"),
     path("librarian/reports/", views.librarian_reports, name="librarian_reports"),
+    path("librarian/academics/", views.librarian_academics, name="librarian_academics"),
+    path("librarian/subjects/<int:pk>/", views.librarian_subject_detail, name="librarian_subject_detail"),
 ]

@@ -1,0 +1,136 @@
+book_slug,subject_code,subject_name,semester_number,scheme_code,resource_type,recommendation_status,syllabus_note,confidence
+c-programming-language-2e,BCA132F,Problem Solving with C,1,NEP2020,textbook,recommended,,curriculum_supported
+programming-in-ansi-c,BCA132F,Problem Solving with C,1,NEP2020,textbook,recommended,,curriculum_supported
+let-us-c,BCA132F,Problem Solving with C,1,NEP2020,textbook,recommended,,curriculum_supported
+schaums-programming-c,BCA132F,Problem Solving with C,1,NEP2020,study_notes,supplementary,,curriculum_supported
+computer-fundamentals,BCA131F,Fundamentals of Computers,1,NEP2020,textbook,recommended,,curriculum_supported
+discrete-mathematics-and-its-applications,BCA133F,Discrete and Mathematical Foundations,1,NEP2020,textbook,recommended,,curriculum_supported
+discrete-mathematics-epp,BCA133F,Discrete and Mathematical Foundations,1,NEP2020,reference,supplementary,,curriculum_supported
+classic-data-structures,BCA134F,Data Structures Foundations,1,NEP2020,textbook,recommended,,curriculum_supported
+schaums-data-structures,BCA134F,Data Structures Foundations,1,NEP2020,study_notes,supplementary,,curriculum_supported
+technical-communication,BCA135V,Office Tools and Communication Skills,1,NEP2020,reference,supplementary,,curriculum_supported
+computer-organization-architecture,BCA231F,Computer Architecture,2,NEP2020,textbook,recommended,,curriculum_supported
+computer-system-architecture,BCA231F,Computer Architecture,2,NEP2020,reference,supplementary,,curriculum_supported
+core-java-fundamentals,BCA232F,Object-Oriented Programming with Java,2,NEP2020,textbook,recommended,,curriculum_supported
+java-complete-reference,BCA232F,Object-Oriented Programming with Java,2,NEP2020,reference,recommended,,curriculum_supported
+effective-java,BCA232F,Object-Oriented Programming with Java,2,NEP2020,reference,supplementary,,curriculum_supported
+database-system-concepts,BCA233F,Database Management Systems,2,NEP2020,textbook,recommended,,curriculum_supported
+fundamentals-database-systems,BCA233F,Database Management Systems,2,NEP2020,reference,recommended,,curriculum_supported
+database-management-systems,BCA233F,Database Management Systems,2,NEP2020,reference,supplementary,,curriculum_supported
+learning-sql,BCA233F,Database Management Systems,2,NEP2020,study_notes,supplementary,Hands-on SQL practice for the lab paper,curriculum_supported
+dbms-lab-manual,BCA234L,Java and DBMS Laboratory,2,NEP2020,lab_manual,supplementary,,curriculum_supported
+java-lab-manual,BCA234L,Java and DBMS Laboratory,2,NEP2020,lab_manual,supplementary,,curriculum_supported
+textbook-environmental-studies,AECC21,Environmental and Value Studies,2,NEP2020,textbook,supplementary,,curriculum_supported
+operating-system-concepts,BCA331F,Operating Systems,3,NEP2020,textbook,recommended,,curriculum_supported
+modern-operating-systems,BCA331F,Operating Systems,3,NEP2020,reference,recommended,,curriculum_supported
+os-internals-design-principles,BCA331F,Operating Systems,3,NEP2020,reference,supplementary,,curriculum_supported
+operating-systems-three-easy-pieces,BCA331F,Operating Systems,3,NEP2020,reference,supplementary,,curriculum_supported
+computer-networks-topdown,BCA332F,Computer Networks,3,NEP2020,textbook,recommended,,curriculum_supported
+computer-networks-tanenbaum,BCA332F,Computer Networks,3,NEP2020,reference,recommended,,curriculum_supported
+data-communications-networking,BCA332F,Computer Networks,3,NEP2020,reference,supplementary,,curriculum_supported
+learning-python,BCA333F,Python Programming,3,NEP2020,textbook,recommended,,curriculum_supported
+python-crash-course,BCA333F,Python Programming,3,NEP2020,textbook,recommended,,curriculum_supported
+python-programming-thareja,BCA333F,Python Programming,3,NEP2020,textbook,supplementary,,curriculum_supported
+think-python,BCA333F,Python Programming,3,NEP2020,reference,supplementary,,curriculum_supported
+python-network-lab-manual,BCA334L,Network and Python Laboratory,3,NEP2020,lab_manual,supplementary,,curriculum_supported
+upgrading-repairing-pcs,BCA335S,Computer Hardware and Maintenance,3,NEP2020,reference,supplementary,,curriculum_supported
+software-engineering-sommerville,BCA431F,Software Engineering,4,NEP2020,textbook,recommended,,curriculum_supported
+software-engineering-a-practitioners-approach,BCA431F,Software Engineering,4,NEP2020,textbook,recommended,,curriculum_supported
+fundamentals-software-engineering-mall,BCA431F,Software Engineering,4,NEP2020,textbook,supplementary,,curriculum_supported
+software-engineering-aggarwal,BCA431F,Software Engineering,4,NEP2020,textbook,supplementary,,curriculum_supported
+artificial-intelligence-a-modern-approach,BCA432F,Artificial Intelligence,4,NEP2020,textbook,recommended,,curriculum_supported
+artificial-intelligence-rich,BCA432F,Artificial Intelligence,4,NEP2020,textbook,recommended,,curriculum_supported
+ai-new-synthesis,BCA432F,Artificial Intelligence,4,NEP2020,reference,supplementary,,curriculum_supported
+html-css-design-build,BCA433F,Internet and Web Technologies,4,NEP2020,textbook,recommended,,curriculum_supported
+javascript-definitive-guide,BCA433F,Internet and Web Technologies,4,NEP2020,reference,recommended,,curriculum_supported
+eloquent-javascript,BCA433F,Internet and Web Technologies,4,NEP2020,reference,supplementary,,curriculum_supported
+learning-web-design,BCA433F,Internet and Web Technologies,4,NEP2020,reference,supplementary,,curriculum_supported
+internet-technologies-study-pack,BCA433F,Internet and Web Technologies,4,NEP2020,study_notes,supplementary,,curriculum_supported
+levitin-algorithms,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,textbook,recommended,,verified_current
+introduction-to-algorithms,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,reference,recommended,The standard reference for the design-strategies unit,verified_current
+computer-algorithms,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,reference,supplementary,,verified_current
+algorithms-sedgewick,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,reference,supplementary,,verified_current
+algorithm-design,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,reference,supplementary,,verified_current
+dsa-python,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,reference,supplementary,,verified_current
+dsa-cpp,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,reference,supplementary,,verified_current
+algorithms-question-bank,DCCAS01,Design and Analysis of Algorithms,5,NEP2020,question_bank,supplementary,,verified_current
+r-for-data-science,DCCAS02,Statistical Computing and R Programming,5,NEP2020,textbook,recommended,,verified_current
+art-of-r-programming,DCCAS02,Statistical Computing and R Programming,5,NEP2020,reference,recommended,,verified_current
+book-of-r,DCCAS02,Statistical Computing and R Programming,5,NEP2020,textbook,supplementary,,verified_current
+introductory-statistics-r,DCCAS02,Statistical Computing and R Programming,5,NEP2020,reference,supplementary,,verified_current
+introduction-statistical-learning,DCCAS02,Statistical Computing and R Programming,5,NEP2020,reference,supplementary,,verified_current
+probability-statistics-engineers,DCCAS02,Statistical Computing and R Programming,5,NEP2020,reference,supplementary,Statistics background for the hypothesis-testing unit,verified_current
+schaums-statistics,DCCAS02,Statistical Computing and R Programming,5,NEP2020,study_notes,supplementary,,verified_current
+r-programming-lab-manual,DCCAS02,Statistical Computing and R Programming,5,NEP2020,lab_manual,supplementary,,verified_current
+software-engineering-sommerville,DCCAS03,Software Engineering,5,NEP2020,textbook,recommended,Also mapped to the Semester IV paper; the same text serves both,verified_current
+software-engineering-a-practitioners-approach,DCCAS03,Software Engineering,5,NEP2020,textbook,recommended,,verified_current
+fundamentals-software-engineering-mall,DCCAS03,Software Engineering,5,NEP2020,textbook,supplementary,,verified_current
+software-engineering-aggarwal,DCCAS03,Software Engineering,5,NEP2020,textbook,supplementary,,verified_current
+clean-code,DCCAS03,Software Engineering,5,NEP2020,reference,supplementary,Supports the code-quality and craftsmanship discussion,verified_current
+uml-distilled,DCCAS03,Software Engineering,5,NEP2020,reference,recommended,Directly supports the UML and modelling unit,verified_current
+software-requirements,DCCAS03,Software Engineering,5,NEP2020,reference,supplementary,Deepens the requirements-engineering unit,verified_current
+clean-architecture,DCCAS03,Software Engineering,5,NEP2020,reference,supplementary,,verified_current
+mythical-man-month,DCCAS03,Software Engineering,5,NEP2020,reference,supplementary,Context reading for the project-management unit,verified_current
+refactoring-improving-design,DCCAS03,Software Engineering,5,NEP2020,reference,supplementary,,verified_current
+digital-marketing-chaffey,CAVOCS01,Digital Marketing,5,NEP2020,textbook,recommended,,verified_current
+digital-marketing-excellence,CAVOCS01,Digital Marketing,5,NEP2020,reference,supplementary,,verified_current
+marketing-management,CAVOCS01,Digital Marketing,5,NEP2020,reference,supplementary,Foundational marketing context for the vocational paper,verified_current
+cloud-computing-erl,DSECAS03,Cloud Computing,5,NEP2020,textbook,recommended,Discipline-elective option; selected by some students only,verified_current
+mastering-cloud-computing,DSECAS03,Cloud Computing,5,NEP2020,textbook,recommended,Discipline-elective option,verified_current
+distributed-cloud-computing,DSECAS03,Cloud Computing,5,NEP2020,reference,supplementary,,verified_current
+data-warehouse-toolkit,DSECAS04,Business Intelligence,5,NEP2020,textbook,recommended,Discipline-elective option; alternative to Cloud Computing,verified_current
+decision-support-business-intelligence,DSECAS04,Business Intelligence,5,NEP2020,textbook,recommended,Discipline-elective option,verified_current
+data-warehousing-fundamentals,DSECAS04,Business Intelligence,5,NEP2020,reference,supplementary,,verified_current
+computer-security-principles-practice,SECSBS01,Cyber Security,5,NEP2020,textbook,recommended,,verified_current
+security-engineering,SECSBS01,Cyber Security,5,NEP2020,reference,supplementary,Advanced context reading for the security paper,verified_current
+network-security-private-communication,SECSBS01,Cyber Security,5,NEP2020,reference,supplementary,,verified_current
+cryptography-network-security-forouzan,SECSBS01,Cyber Security,5,NEP2020,reference,supplementary,,verified_current
+art-of-invisibility,SECSBS01,Cyber Security,5,NEP2020,reference,supplementary,Accessible awareness reading for the cybercrime unit,verified_current
+the-pragmatic-programmer,SECSBS02,Employability Skills,5,NEP2020,reference,recommended,,verified_current
+cracking-coding-interview,SECSBS02,Employability Skills,5,NEP2020,reference,recommended,Interview-preparation resource for placements,verified_current
+it-project-management,SECSBS02,Employability Skills,5,NEP2020,reference,supplementary,,verified_current
+technical-communication,SECSBS02,Employability Skills,5,NEP2020,reference,supplementary,Supports written-communication practice,verified_current
+php-mysql-web-development,BCA631P,PHP and MySQL,6,NEP2020,textbook,recommended,,curriculum_supported
+learning-php-mysql-javascript,BCA631P,PHP and MySQL,6,NEP2020,reference,recommended,,curriculum_supported
+learning-php,BCA631P,PHP and MySQL,6,NEP2020,reference,supplementary,,curriculum_supported
+beginning-php-mysql,BCA631P,PHP and MySQL,6,NEP2020,reference,supplementary,,curriculum_supported
+mysql-reference-manual-study,BCA631P,PHP and MySQL,6,NEP2020,study_notes,supplementary,Institutional companion to the official MySQL documentation,curriculum_supported
+database-system-concepts,BCA631P,PHP and MySQL,6,NEP2020,reference,supplementary,SQL grounding shared with the Semester II paper,curriculum_supported
+html-css-design-build,BCA632P,Web Application Development,6,NEP2020,textbook,recommended,,curriculum_supported
+javascript-definitive-guide,BCA632P,Web Application Development,6,NEP2020,reference,recommended,,curriculum_supported
+eloquent-javascript,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,,curriculum_supported
+learning-web-design,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,,curriculum_supported
+php-mysql-web-development,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,Server-side development context shared with PHP and MySQL,curriculum_supported
+content-strategy-web,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,,curriculum_supported
+dont-make-me-think,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,Usability context for interface decisions,curriculum_supported
+designing-the-obvious,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,,curriculum_supported
+principles-beautiful-web-design,BCA632P,Web Application Development,6,NEP2020,reference,supplementary,,curriculum_supported
+artificial-intelligence-a-modern-approach,BCA633P,Artificial Intelligence and Applications,6,NEP2020,textbook,recommended,The Semester IV core text also serves the applied final-year paper,curriculum_supported
+artificial-intelligence-rich,BCA633P,Artificial Intelligence and Applications,6,NEP2020,textbook,recommended,,curriculum_supported
+ai-new-synthesis,BCA633P,Artificial Intelligence and Applications,6,NEP2020,reference,supplementary,,curriculum_supported
+machine-learning-mitchell,BCA634E,Machine Learning,6,NEP2020,textbook,recommended,Discipline-elective option,curriculum_supported
+hands-on-machine-learning,BCA634E,Machine Learning,6,NEP2020,textbook,recommended,Discipline-elective option,curriculum_supported
+pattern-recognition-machine-learning,BCA634E,Machine Learning,6,NEP2020,reference,supplementary,,curriculum_supported
+python-machine-learning,BCA634E,Machine Learning,6,NEP2020,reference,supplementary,,curriculum_supported
+introduction-machine-learning,BCA634E,Machine Learning,6,NEP2020,reference,supplementary,,curriculum_supported
+data-mining-practical-ml,BCA634E,Machine Learning,6,NEP2020,reference,supplementary,,curriculum_supported
+android-programming-bignerdranch,BCA635E,Mobile Application Development,6,NEP2020,textbook,recommended,Discipline-elective option,verified_syllabus
+professional-android,BCA635E,Mobile Application Development,6,NEP2020,reference,recommended,Discipline-elective option,verified_syllabus
+head-first-android,BCA635E,Mobile Application Development,6,NEP2020,reference,supplementary,,verified_syllabus
+art-of-software-testing,BCA636E,Software Testing,6,NEP2020,textbook,recommended,Elective option,curriculum_supported
+foundations-software-testing,BCA636E,Software Testing,6,NEP2020,textbook,recommended,Elective option,curriculum_supported
+software-test-automation,BCA636E,Software Testing,6,NEP2020,reference,supplementary,,curriculum_supported
+refactoring-improving-design,BCA636E,Software Testing,6,NEP2020,reference,supplementary,Refactoring context for test-driven change,curriculum_supported
+working-effectively-legacy-code,BCA636E,Software Testing,6,NEP2020,reference,supplementary,Testing strategies for inherited codebases,curriculum_supported
+operations-research-taha,BCA637E,Operations Research,6,NEP2020,textbook,recommended,Elective option,curriculum_supported
+operations-research-sharma,BCA637E,Operations Research,6,NEP2020,textbook,recommended,Elective option,curriculum_supported
+operations-research-gupta-hira,BCA637E,Operations Research,6,NEP2020,textbook,supplementary,,curriculum_supported
+web-content-management-handbook,BCA638V,Web Content Management,6,NEP2020,study_notes,supplementary,,curriculum_supported
+content-strategy-web,BCA638V,Web Content Management,6,NEP2020,reference,recommended,,curriculum_supported
+principles-beautiful-web-design,BCA638V,Web Content Management,6,NEP2020,reference,supplementary,,curriculum_supported
+project-work-guidelines,BCA640J,Project Work,6,NEP2020,study_notes,supplementary,,curriculum_supported
+it-project-management,BCA640J,Project Work,6,NEP2020,reference,recommended,Project planning methods for the capstone,curriculum_supported
+mythical-man-month,BCA640J,Project Work,6,NEP2020,reference,supplementary,Classic context on software project realities,curriculum_supported
+internship-handbook,BCA639I,Internship,6,NEP2020,study_notes,supplementary,,curriculum_supported
+cracking-coding-interview,BCA639I,Internship,6,NEP2020,reference,supplementary,Placement-interview preparation for interns,curriculum_supported
+the-pragmatic-programmer,BCA639I,Internship,6,NEP2020,reference,supplementary,Professional craft reading for interns,curriculum_supported

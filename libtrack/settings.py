@@ -190,6 +190,21 @@ LIBRARY_RULES = {
 LIBRARY_COVER_VARIANTS = ("architecture", "topography", "grid", "orbital")
 
 # --------------------------------------------------------------------------
+# Study Buddy (optional AI study companion)
+#
+# The feature stays disabled until every marked variable is configured. No
+# network call is possible while STUDY_BUDDY_ENABLED is false, and the API
+# key is only ever read server-side by the provider adapter.
+# --------------------------------------------------------------------------
+
+STUDY_BUDDY_ENABLED = env_bool("STUDY_BUDDY_ENABLED", False)
+STUDY_BUDDY_PROVIDER = os.getenv("STUDY_BUDDY_PROVIDER", "")
+STUDY_BUDDY_MODEL = os.getenv("STUDY_BUDDY_MODEL", "")
+STUDY_BUDDY_API_KEY = os.getenv("STUDY_BUDDY_API_KEY", "")
+STUDY_BUDDY_MAX_INPUT_CHARS = int(os.getenv("STUDY_BUDDY_MAX_INPUT_CHARS", "4000"))
+STUDY_BUDDY_DAILY_LIMIT = int(os.getenv("STUDY_BUDDY_DAILY_LIMIT", "20"))
+
+# --------------------------------------------------------------------------
 # Uploads
 # --------------------------------------------------------------------------
 

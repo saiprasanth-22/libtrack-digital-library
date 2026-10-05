@@ -25,8 +25,9 @@ from . import services
 from .forms import (BookCopyForm, BookForm, BookReviewForm, BookSearchForm,
                     DigitalMaterialForm, LoanIssueForm, LoginForm,
                     StudentProfileForm, StudentRegistrationForm)
-from .models import (ActivityLog, Author, Book, BookCopy, Category, DigitalMaterial,
-                     Loan, Review, SavedResource, StudentProfile)
+from .models import (ActivityLog, Author, Book, BookCopy, BookSubjectMapping,
+                     Category, Course, CurriculumScheme, DigitalMaterial, Loan,
+                     Review, SavedResource, Semester, StudentProfile, Subject)
 
 
 # ---------------------------------------------------------------------------
@@ -73,23 +74,53 @@ def _page(request, queryset, per_page=None):
 
 
 def _book_queryset(request):
-    """Build the catalogue queryset from the current query string."""
+    """Build the catalogue queryset from the current query string.
+
+    Academic filters are combinable: course, scheme, semester, subject,
+    classification, resource type and recommendation status all drill through
+    the ``BookSubjectMapping`` join. They are applied server-side and compose
+    with the plain text search.
+    """
     form = BookSearchForm(request.GET or None)
-    books = Book.objects.active().with_availability().select_related("subject").prefetch_related(
-        "authors", "categories")
+    books = (Book.objects.active().with_availability().select_related("subject")
+             .prefetch_related("authors", "categories", "subject_mappings__subject__semester"))
     if form.is_valid():
         books = books.searchable(form.cleaned_data.get("q"))
         category = form.cleaned_data.get("category")
         if category:
             books = books.filter(categories=category)
+        course = form.cleaned_data.get("course")
+        if course:
+            books = books.filter(subject_mappings__subject__semester__curriculum_scheme__course=course)
+        scheme = form.cleaned_data.get("scheme")
+        if scheme:
+            books = books.filter(subject_mappings__subject__semester__curriculum_scheme=scheme)
+        semester = form.cleaned_data.get("semester")
+        if semester:
+            books = books.filter(subject_mappings__subject__semester=semester)
+        subject = form.cleaned_data.get("subject")
+        if subject:
+            books = books.filter(subject_mappings__subject=subject)
+        classification = form.cleaned_data.get("classification")
+        if classification:
+            books = books.filter(subject_mappings__subject__classification=classification)
+        resource_type = form.cleaned_data.get("resource_type")
+        if resource_type:
+            books = books.filter(subject_mappings__resource_type=resource_type)
+        recommendation = form.cleaned_data.get("recommendation")
+        if recommendation:
+            books = books.filter(subject_mappings__recommendation_status=recommendation)
         availability = form.cleaned_data.get("availability")
         if availability == "available":
             books = books.available_only()
         elif availability == "unavailable":
             books = books.unavailable_only()
+        if any((course, scheme, semester, subject, classification, resource_type,
+                recommendation)):
+            books = books.distinct()
         sort = form.cleaned_data.get("sort") or "title"
         if sort == "author":
-            books = books.order_by("authors__name", "title")
+            books = books.order_by("authors__name", "title").distinct()
         elif sort == "newest":
             books = books.order_by("-created_at", "title")
         elif sort == "availability":
@@ -187,6 +218,8 @@ def book_detail(request, slug):
         "related": related,
         "is_saved": saved,
         "materials": book.digital_materials.filter(is_public=True),
+        "mappings": (book.subject_mappings.select_related(
+            "subject__semester__curriculum_scheme__course").all()),
         "rating_average": ratings.aggregate(value=Avg("rating"))["value"],
         "rating_count": ratings.count(),
         "reviews": ratings.select_related("student__user")[:6],
@@ -481,6 +514,115 @@ def book_review(request, slug):
 # ---------------------------------------------------------------------------
 # Librarian area
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Librarian academic management
+# ---------------------------------------------------------------------------
+
+def _academic_overview():
+    """Aggregate academic structure counts for the management page."""
+    return {
+        "courses": Course.objects.count(),
+        "schemes": CurriculumScheme.objects.count(),
+        "semesters": Semester.objects.count(),
+        "subjects": Subject.objects.filter(semester__isnull=False).count(),
+        "mappings": BookSubjectMapping.objects.count(),
+    }
+
+
+@_librarian_required
+def librarian_academics(request):
+    """One management surface for the academic catalogue.
+
+    Lists courses, schemes, semesters and subjects with quick stats, plus the
+    data-quality reports the librarian needs before an import: books without
+    authors, without mappings and without a cover treatment.
+    """
+    books_total = Book.objects.active().count()
+    missing_author = (Book.objects.active().filter(authors__isnull=True)
+                      .distinct().order_by("title"))
+    missing_mapping = (Book.objects.active().filter(subject_mappings__isnull=True)
+                       .distinct().order_by("title"))
+    missing_cover = (Book.objects.active().filter(cover="", cover_family="")
+                     .order_by("title"))
+    orphan_books = (Book.objects.active()
+                    .annotate(n_authors=Count("authors", distinct=True),
+                              n_mappings=Count("subject_mappings", distinct=True))
+                    .filter(n_authors=0)
+                    .order_by("title"))
+    course_rows = (Course.objects.prefetch_related("schemes")
+                   .annotate(subject_total=Count("schemes__semesters__subjects",
+                                                 distinct=True))
+                   .order_by("code"))
+    return render(request, "librarian/academics.html", {
+        "section": "librarian",
+        "overview": _academic_overview(),
+        "course_rows": course_rows,
+        "books_total": books_total,
+        "missing_author": missing_author,
+        "missing_mapping": missing_mapping,
+        "missing_cover": missing_cover,
+        "import_hint": "python manage.py import_bca_catalogue",
+    })
+
+
+@_librarian_required
+def librarian_subject_detail(request, pk):
+    """One scheme subject with its mapped books and a mapping editor."""
+    subject = get_object_or_404(
+        Subject.objects.select_related("semester__curriculum_scheme__course"), pk=pk)
+    mappings = (subject.book_mappings.select_related("book")
+                .prefetch_related("book__authors").order_by("book__title"))
+    mapped_ids = set(mappings.values_list("book_id", flat=True))
+    available_books = (Book.objects.active().exclude(pk__in=mapped_ids)
+                       .prefetch_related("authors").order_by("title"))
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "map" :
+            book_id = request.POST.get("book")
+            book = Book.objects.filter(pk=book_id).first()
+            if book is None:
+                messages.error(request, "Choose a book to map.")
+            else:
+                resource = request.POST.get("resource_type", "textbook")
+                reco = request.POST.get("recommendation_status", "recommended")
+                if resource not in BookSubjectMapping.ResourceType.values:
+                    resource = "textbook"
+                if reco not in BookSubjectMapping.Recommendation.values:
+                    reco = "recommended"
+                mapping, created = BookSubjectMapping.objects.get_or_create(
+                    book=book, subject=subject,
+                    defaults={"resource_type": resource,
+                              "recommendation_status": reco})
+                if created:
+                    services.log_action(
+                        ActivityLog.Action.ADMIN, user=request.user,
+                        description=f"Mapped '{book.title}' to {subject}", obj=subject)
+                    messages.success(request, f"Mapped '{book.title}' to {subject}.")
+                else:
+                    messages.info(request, "That mapping already exists.")
+        elif action == "unmap":
+            mapping_id = request.POST.get("mapping")
+            mapping = mappings.filter(pk=mapping_id).first()
+            if mapping:
+                title = mapping.book.title
+                mapping.delete()
+                services.log_action(
+                    ActivityLog.Action.ADMIN, user=request.user,
+                    description=f"Removed mapping of '{title}' from {subject}", obj=subject)
+                messages.success(request, f"Removed '{title}' from {subject}.")
+            else:
+                messages.error(request, "That mapping no longer exists.")
+        return redirect("core:librarian_subject_detail", pk=subject.pk)
+    return render(request, "librarian/subject_detail.html", {
+        "section": "librarian",
+        "subject": subject,
+        "mappings": mappings,
+        "available_books": available_books[:50],
+        "resource_choices": BookSubjectMapping.ResourceType.choices,
+        "reco_choices": BookSubjectMapping.Recommendation.choices,
+    })
+
 
 @_librarian_required
 def librarian_dashboard(request):

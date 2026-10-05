@@ -42,11 +42,58 @@
             <input class="field-input" id="id_q" name="q" value="{{ form.q.value|default:'' }}" placeholder="Title, author, ISBN or keyword…">
           </div>
           <div class="form-field">
-            <label for="id_category">Category</label>
-            <select class="field-input" id="id_category" name="category">
-              <option value="">All categories</option>
-              {% for category in categories %}
-                <option value="{{ category.pk }}" {% if form.category.value|stringformat:'s' == category.pk|stringformat:'s' %}selected{% endif %}>{{ category.name }} ({{ category.book_count }})</option>
+            <label for="id_course">Course</label>
+            <select class="field-input" id="id_course" name="course">
+              {% for value, label in form.fields.course.choices %}
+                <option value="{{ value }}" {% if form.course.value|stringformat:'s' == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_scheme">Curriculum</label>
+            <select class="field-input" id="id_scheme" name="scheme">
+              {% for value, label in form.fields.scheme.choices %}
+                <option value="{{ value }}" {% if form.scheme.value|stringformat:'s' == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_semester">Semester</label>
+            <select class="field-input" id="id_semester" name="semester">
+              {% for value, label in form.fields.semester.choices %}
+                <option value="{{ value }}" {% if form.semester.value|stringformat:'s' == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_subject">Subject</label>
+            <select class="field-input" id="id_subject" name="subject">
+              {% for value, label in form.fields.subject.choices %}
+                <option value="{{ value }}" {% if form.subject.value|stringformat:'s' == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_classification">Classification</label>
+            <select class="field-input" id="id_classification" name="classification">
+              {% for value, label in form.fields.classification.choices %}
+                <option value="{{ value }}" {% if form.classification.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_resource_type">Resource type</label>
+            <select class="field-input" id="id_resource_type" name="resource_type">
+              {% for value, label in form.fields.resource_type.choices %}
+                <option value="{{ value }}" {% if form.resource_type.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="id_recommendation">Recommendation</label>
+            <select class="field-input" id="id_recommendation" name="recommendation">
+              {% for value, label in form.fields.recommendation.choices %}
+                <option value="{{ value }}" {% if form.recommendation.value == value %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
             </select>
           </div>
@@ -66,7 +113,10 @@
               {% endfor %}
             </select>
           </div>
-          <button class="button button-primary" type="submit" style="height:42px">Apply</button>
+          <div class="toolbar-actions">
+            <button class="button button-primary" type="submit" style="height:42px">Apply</button>
+            {% if form.is_filtered %}<a class="clear-filters" href="{% url 'core:discover' %}">Clear all</a>{% endif %}
+          </div>
         </div>
       </form>
 

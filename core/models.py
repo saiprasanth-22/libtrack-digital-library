@@ -87,15 +87,210 @@ class Category(TimestampedModel):
 
 
 class Subject(TimestampedModel):
-    name = models.CharField(max_length=120, unique=True)
-    code = models.CharField(max_length=24, unique=True, null=True, blank=True)
+    """A catalogue subject.
+
+    Subjects may stand alone (the four legacy browse areas) or belong to one
+    semester of a curriculum scheme. Scheme subjects carry a code that is only
+    unique within their semester, plus the confidence metadata from the
+    curriculum research so provisional syllabi are never mistaken for official
+    ones.
+    """
+
+    class Classification(models.TextChoices):
+        CORE = "core", "Core"
+        ELECTIVE = "elective", "Elective"
+        VOCATIONAL = "vocational", "Vocational"
+        SKILL = "skill", "Skill enhancement"
+        LABORATORY = "laboratory", "Laboratory"
+        INTERNSHIP = "internship", "Internship"
+        PROJECT = "project", "Project work"
+
+    class Confidence(models.TextChoices):
+        VERIFIED_CURRENT = "verified_current", "Verified current"
+        VERIFIED_SYLLABUS = "verified_syllabus", "Verified syllabus"
+        CURRICULUM_SUPPORTED = "curriculum_supported", "Curriculum supported"
+        LIBRARY_ENRICHMENT = "library_enrichment", "Library enrichment"
+
+    name = models.CharField(max_length=120, db_index=True)
+    code = models.CharField(max_length=24, null=True, blank=True, db_index=True)
+    semester = models.ForeignKey(
+        "Semester", null=True, blank=True, on_delete=models.CASCADE,
+        related_name="subjects",
+        help_text="Set when the subject belongs to a curriculum scheme.")
+    classification = models.CharField(
+        max_length=12, choices=Classification.choices,
+        default=Classification.CORE, db_index=True)
     description = models.TextField(blank=True)
+    confidence = models.CharField(
+        max_length=22, choices=Confidence.choices,
+        default=Confidence.CURRICULUM_SUPPORTED, db_index=True)
+    source_url = models.URLField(max_length=500, blank=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        ordering = ["semester__number", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["semester", "code"], name="subject_semester_code_uniq"),
+            models.UniqueConstraint(
+                fields=["semester", "name"], name="subject_semester_name_uniq"),
+            # Legacy standalone subjects keep global uniqueness so the four
+            # seed rows (CS/IT/EC/MA) can never collide or duplicate.
+            models.UniqueConstraint(
+                fields=["name"], condition=models.Q(semester__isnull=True),
+                name="subject_standalone_name_uniq"),
+            models.UniqueConstraint(
+                fields=["code"], condition=models.Q(semester__isnull=True),
+                name="subject_standalone_code_uniq"),
+            models.CheckConstraint(
+                condition=(models.Q(semester__isnull=False, code__isnull=False)
+                           | models.Q(semester__isnull=True)),
+                name="scheme_subject_needs_a_code"),
+        ]
+
+    def __str__(self):
+        if self.semester_id and self.code:
+            return f"{self.code} — {self.name}"
+        return self.name
+
+
+class Course(TimestampedModel):
+    """An academic programme the collection is curated for, e.g. BCA."""
+
+    name = models.CharField(max_length=140, unique=True)
+    code = models.CharField(max_length=24, unique=True)
+    duration_semesters = models.PositiveSmallIntegerField(default=6)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         ordering = ["name"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(duration_semesters__gte=1,
+                                   duration_semesters__lte=12),
+                name="course_duration_1_to_12"),
+        ]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.code})"
+
+
+class CurriculumScheme(TimestampedModel):
+    """One regulation under which a course runs, e.g. BNU NEP-2020.
+
+    A scheme records its own verification status so a provisional curriculum
+    is never presented to students as official.
+    """
+
+    class Verification(models.TextChoices):
+        VERIFIED_CURRENT = "verified_current", "Verified current"
+        VERIFIED_SYLLABUS = "verified_syllabus", "Verified syllabus"
+        CURRICULUM_SUPPORTED = "curriculum_supported", "Curriculum supported"
+        PROVISIONAL = "provisional", "Provisional"
+
+    course = models.ForeignKey(
+        Course, on_delete=models.PROTECT, related_name="schemes")
+    name = models.CharField(max_length=160)
+    code = models.CharField(max_length=40, unique=True)
+    university = models.CharField(max_length=160, blank=True)
+    academic_year_from = models.PositiveSmallIntegerField(null=True, blank=True)
+    academic_year_to = models.PositiveSmallIntegerField(null=True, blank=True)
+    verification_status = models.CharField(
+        max_length=22, choices=Verification.choices, default=Verification.PROVISIONAL)
+    source_url = models.URLField(max_length=500, blank=True)
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        ordering = ["course__code", "-academic_year_from"]
+        constraints = [
+            models.UniqueConstraint(
+                condition=models.Q(academic_year_from__isnull=False,
+                                   academic_year_to__isnull=False),
+                fields=["course", "academic_year_from", "academic_year_to"],
+                name="scheme_course_years_uniq"),
+            models.CheckConstraint(
+                condition=(models.Q(academic_year_to__isnull=True)
+                           | models.Q(academic_year_from__isnull=True)
+                           | models.Q(academic_year_to__gte=models.F("academic_year_from"))),
+                name="scheme_years_ordered"),
+        ]
+
+    def __str__(self):
+        return f"{self.course.code} — {self.name}"
+
+
+class Semester(TimestampedModel):
+    """One semester inside a curriculum scheme."""
+
+    curriculum_scheme = models.ForeignKey(
+        CurriculumScheme, on_delete=models.PROTECT, related_name="semesters")
+    number = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(12)])
+    display_name = models.CharField(max_length=80, blank=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        ordering = ["curriculum_scheme__course__code", "number"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["curriculum_scheme", "number"], name="semester_scheme_number_uniq"),
+        ]
+
+    def __str__(self):
+        return self.display_name or f"Semester {self.number}"
+
+
+class BookSubjectMapping(TimestampedModel):
+    """Links a bibliographic record to a scheme subject.
+
+    One book may support many subjects and one subject many books; the
+    bibliographic ``Book`` row is never duplicated for that reason.
+    """
+
+    class ResourceType(models.TextChoices):
+        TEXTBOOK = "textbook", "Textbook"
+        REFERENCE = "reference", "Reference"
+        STUDY_NOTES = "study_notes", "Study notes"
+        QUESTION_BANK = "question_bank", "Question bank"
+        HANDBOOK = "handbook", "Handbook"
+        LAB_MANUAL = "lab_manual", "Lab manual"
+
+    class Recommendation(models.TextChoices):
+        PRESCRIBED = "prescribed", "Prescribed"
+        RECOMMENDED = "recommended", "Recommended"
+        SUPPLEMENTARY = "supplementary", "Supplementary"
+
+    book = models.ForeignKey(
+        "Book", on_delete=models.CASCADE, related_name="subject_mappings")
+    subject = models.ForeignKey(
+        Subject, on_delete=models.PROTECT, related_name="book_mappings")
+    resource_type = models.CharField(
+        max_length=14, choices=ResourceType.choices,
+        default=ResourceType.TEXTBOOK, db_index=True)
+    recommendation_status = models.CharField(
+        max_length=14, choices=Recommendation.choices,
+        default=Recommendation.RECOMMENDED, db_index=True)
+    syllabus_note = models.CharField(max_length=240, blank=True)
+    confidence = models.CharField(
+        max_length=22, choices=Subject.Confidence.choices,
+        default=Subject.Confidence.CURRICULUM_SUPPORTED)
+    source_url = models.URLField(max_length=500, blank=True)
+
+    class Meta:
+        ordering = ["subject__semester__number", "subject__code", "book__title"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["book", "subject"], name="mapping_book_subject_uniq"),
+        ]
+        indexes = [
+            models.Index(fields=["recommendation_status", "resource_type"],
+                         name="mapping_reco_type_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.book.title} → {self.subject}"
 
 
 class BookQuerySet(models.QuerySet):
@@ -109,7 +304,7 @@ class BookQuerySet(models.QuerySet):
         return self.prefetch_related("copies")
 
     def searchable(self, term):
-        """Match the term against title, author, ISBN, publisher and category."""
+        """Match the term against bibliographic and academic metadata."""
         if not term:
             return self
         return self.filter(
@@ -121,6 +316,11 @@ class BookQuerySet(models.QuerySet):
             | models.Q(authors__name__icontains=term)
             | models.Q(categories__name__icontains=term)
             | models.Q(subject__name__icontains=term)
+            # Academic layer: subject names/codes and the course a scheme
+            # belongs to, through the book-to-subject mappings.
+            | models.Q(subject_mappings__subject__name__icontains=term)
+            | models.Q(subject_mappings__subject__code__icontains=term)
+            | models.Q(subject_mappings__subject__semester__curriculum_scheme__course__name__icontains=term)
         ).distinct()
 
     def available_only(self):
@@ -150,6 +350,10 @@ class Book(TimestampedModel):
     page_count = models.PositiveIntegerField(null=True, blank=True)
     description = models.TextField(blank=True)
     cover = models.ImageField(upload_to="covers/", blank=True, null=True)
+    #: Which subject-family artwork family this title belongs to. Blank for
+    #: books added before the academic catalogue; they keep the hash-based
+    #: CSS cover treatments.
+    cover_family = models.CharField(max_length=40, blank=True, db_index=True)
     featured = models.BooleanField(default=False, db_index=True)
     is_active = models.BooleanField(default=True, db_index=True)
 
@@ -208,7 +412,12 @@ class Book(TimestampedModel):
     @property
     def author_names(self):
         names = [author.name for author in self.authors.all()]
-        return ", ".join(names) if names else "LibTrack Collection"
+        if names:
+            return ", ".join(names)
+        # Truthful when the librarian has not catalogued an author yet: the
+        # gap is announced, never papered over with a plausible-sounding
+        # collection name.
+        return "Author not yet catalogued"
 
     @property
     def category_names(self):
@@ -225,6 +434,22 @@ class Book(TimestampedModel):
         variants = getattr(settings, "LIBRARY_COVER_VARIANTS",
                            ("architecture", "topography", "grid", "orbital"))
         return variants[sum(ord(ch) for ch in (self.slug or self.title)) % len(variants)]
+
+    @property
+    def generated_cover_file(self):
+        """Static-relative path of the generated artwork, if it exists.
+
+        Resolution goes through the cover manifest so no per-request file
+        stats are needed. Returns '' when no generated asset exists and the
+        CSS treatment should render instead.
+        """
+        from . import cover_art
+        return cover_art.cover_path(self)
+
+    @property
+    def generated_cover_alt(self):
+        from . import cover_art
+        return cover_art.cover_alt(self)
 
 
 class BookCopy(TimestampedModel):

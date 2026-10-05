@@ -162,6 +162,88 @@ erDiagram
         datetime occurred_at "INDEXED"
     }
 ```
+```
+
+### 1a. Academic structure (added with the curriculum layer)
+
+```mermaid
+erDiagram
+    COURSE ||--o{ CURRICULUM_SCHEME : "has"
+    CURRICULUM_SCHEME ||--o{ SEMESTER : "contains"
+    SEMESTER ||--o{ SUBJECT : "contains"
+    BOOK ||--o{ BOOK_SUBJECT_MAPPING : "supports"
+    SUBJECT ||--o{ BOOK_SUBJECT_MAPPING : "collects"
+
+    COURSE {
+        int id PK
+        varchar name "UNIQUE"
+        varchar code "UNIQUE"
+        smallint duration_semesters "CHECK 1-12"
+        boolean is_active
+        datetime created_at
+        datetime updated_at
+    }
+    CURRICULUM_SCHEME {
+        int id PK
+        int course_id FK "PROTECT"
+        varchar name
+        varchar code "UNIQUE"
+        varchar university
+        smallint academic_year_from
+        smallint academic_year_to ">= from"
+        varchar verification_status "verified_current | verified_syllabus | curriculum_supported | provisional"
+        varchar source_url
+        text notes
+        boolean is_active
+    }
+    SEMESTER {
+        int id PK
+        int curriculum_scheme_id FK "PROTECT"
+        smallint number "CHECK 1-12"
+        varchar display_name
+        boolean is_active
+    }
+    SUBJECT {
+        int id PK
+        int semester_id FK "CASCADE, nullable (legacy standalone rows)"
+        varchar name
+        varchar code "nullable for legacy"
+        varchar classification "core | elective | vocational | skill | laboratory | internship | project"
+        text description
+        varchar confidence
+        varchar source_url
+        boolean is_active
+    }
+    BOOK_SUBJECT_MAPPING {
+        int id PK
+        int book_id FK "CASCADE"
+        int subject_id FK "PROTECT"
+        varchar resource_type "textbook | reference | study_notes | question_bank | handbook | lab_manual"
+        varchar recommendation_status "prescribed | recommended | supplementary"
+        varchar syllabus_note
+        varchar confidence
+        varchar source_url
+    }
+```
+
+**Academic integrity rules**
+
+- `UNIQUE (curriculum_scheme, number)` — a scheme has each semester once.
+- `UNIQUE (semester, code)` and `UNIQUE (semester, name)` — subject identity
+  is scoped to its semester.
+- Standalone legacy subjects (the four original browse areas) keep global
+  uniqueness via partial unique constraints on `name`/`code` where
+  `semester IS NULL`.
+- `CHECK` — a scheme subject must carry a code.
+- `CHECK` — `academic_year_to >= academic_year_from` (or either null).
+- `CHECK` — course duration between 1 and 12.
+- `UNIQUE (book, subject)` on mappings — a book supports a subject once; a
+  book supporting several subjects means several mapping rows, never a
+  duplicated bibliographic record.
+- `Subject` delete is **PROTECT**ed while book mappings reference it, and
+  `Semester`/`CurriculumScheme`/`Course` are PROTECTed while they contain
+  structure, so borrowing history and curated mappings can never be silently
+  destroyed. `is_active` flags provide archival instead.
 
 ---
 
@@ -173,7 +255,11 @@ erDiagram
 | `core_studentprofile` | Academic details hanging off a user | — |
 | `core_author` | One writer, referenced many times | — |
 | `core_category` | Subject area shown in catalogue filters | — |
-| `core_subject` | Department the book belongs to | — |
+| `core_subject` | Catalogue subject; legacy standalone rows or one semester of a scheme | — |
+| `core_course` | Academic programme the collection is curated for (BCA) | `PROTECT` from schemes |
+| `core_curriculumscheme` | One regulation under which a course runs, with verification status | `PROTECT` from semesters |
+| `core_semester` | One semester inside a scheme | `PROTECT` from subjects |
+| `core_booksubjectmapping` | Places a book on a subject's reading list (type + status + confidence) | `PROTECT` from subject; `CASCADE` from book |
 | `core_book` | **Bibliographic record** — title, ISBN, publisher, year, cover | `PROTECT` from copies and loans |
 | `core_bookcopy` | **One physical copy** — accession number, shelf, status | `PROTECT` from loans |
 | `core_loan` | **One borrowing event** — the borrow record | `PROTECT` from student, book, copy |

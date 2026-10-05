@@ -10,8 +10,9 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from .models import (Book, BookCopy, Category, DigitalMaterial, Loan, StudentProfile,
-                     Subject)
+from .models import (Book, BookCopy, BookSubjectMapping, Category, Course,
+                     CurriculumScheme, DigitalMaterial, Loan, Semester,
+                     StudentProfile, Subject)
 
 User = get_user_model()
 
@@ -159,7 +160,12 @@ class StudentProfileForm(forms.ModelForm):
 
 
 class BookSearchForm(forms.Form):
-    """Catalogue search box, filters and sort control."""
+    """Catalogue search box, academic filters and sort control.
+
+    Every filter is optional and combinable: BCA -> Semester V -> Statistical
+    Computing and R -> Recommended books is four fields used together on one
+    GET request, all applied server-side.
+    """
 
     SORT_CHOICES = (
         ("title", "Title (A–Z)"),
@@ -180,21 +186,60 @@ class BookSearchForm(forms.Form):
                         label="Search")
     category = forms.ModelChoiceField(required=False, queryset=Category.objects.none(),
                                       empty_label="All categories", label="Category")
+    course = forms.ModelChoiceField(required=False, queryset=Course.objects.none(),
+                                    empty_label="All courses", label="Course")
+    scheme = forms.ModelChoiceField(required=False, queryset=CurriculumScheme.objects.none(),
+                                    empty_label="All curricula", label="Curriculum scheme")
+    semester = forms.ModelChoiceField(required=False, queryset=Semester.objects.none(),
+                                      empty_label="All semesters", label="Semester")
+    subject = forms.ModelChoiceField(required=False, queryset=Subject.objects.none(),
+                                     empty_label="All subjects", label="Subject")
+    classification = forms.ChoiceField(required=False,
+                                       choices=[("", "All classifications")]
+                                       + list(Subject.Classification.choices),
+                                       widget=forms.Select(attrs={"class": "field-input"}),
+                                       label="Classification")
+    resource_type = forms.ChoiceField(required=False,
+                                      choices=[("", "All resource types")]
+                                      + list(BookSubjectMapping.ResourceType.choices),
+                                      widget=forms.Select(attrs={"class": "field-input"}),
+                                      label="Resource type")
+    recommendation = forms.ChoiceField(required=False,
+                                       choices=[("", "Any status")]
+                                       + list(BookSubjectMapping.Recommendation.choices),
+                                       widget=forms.Select(attrs={"class": "field-input"}),
+                                       label="Recommendation")
     availability = forms.ChoiceField(required=False, choices=AVAILABILITY_CHOICES,
                                      widget=forms.Select(attrs={"class": "field-input"}),
                                      label="Availability")
     sort = forms.ChoiceField(required=False, choices=SORT_CHOICES,
                              widget=forms.Select(attrs={"class": "field-input"}), label="Sort by")
 
+    FILTER_FIELDS = ("q", "category", "course", "scheme", "semester", "subject",
+                     "classification", "resource_type", "recommendation",
+                     "availability")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["category"].queryset = Category.objects.order_by("name")
-        for name in ("category", "availability", "sort"):
+        self.fields["course"].queryset = Course.objects.filter(is_active=True).order_by("name")
+        self.fields["scheme"].queryset = (CurriculumScheme.objects.filter(is_active=True)
+                                          .select_related("course").order_by("course__code"))
+        self.fields["semester"].queryset = (Semester.objects.filter(is_active=True)
+                                            .select_related("curriculum_scheme__course")
+                                            .order_by("curriculum_scheme__course__code", "number"))
+        self.fields["subject"].queryset = (Subject.objects.filter(is_active=True,
+                                                                  semester__isnull=False)
+                                           .select_related("semester")
+                                           .order_by("semester__number", "name"))
+        for name in ("category", "course", "scheme", "semester", "subject",
+                     "classification", "resource_type", "recommendation",
+                     "availability", "sort"):
             self.fields[name].widget.attrs.setdefault("class", "field-input")
 
     @property
     def is_filtered(self):
-        return any(self.data.get(name) for name in ("q", "category", "availability"))
+        return any(self.data.get(name) for name in self.FILTER_FIELDS)
 
 
 class BookForm(forms.ModelForm):

@@ -21,6 +21,9 @@
           <div class="large-cover">
             {% if book.cover %}
               <img class="cover-image" src="{{ book.cover.url }}" alt="Cover of {{ book.title }}">
+            {% elif book.generated_cover_file %}
+              <img class="cover-image" src="/static/{{ book.generated_cover_file }}" alt="{{ book.generated_cover_alt }}">
+              <small class="cover-family-label">LIBTRACK ACADEMIC EDITIONS</small>
             {% else %}
               <small>{{ book.edition|default:"LIBTRACK EDITION"|upper }}</small>
               <h2>{{ book.title|upper }}</h2>
@@ -114,6 +117,7 @@
 
       <div class="detail-tabs" role="tablist" aria-label="Book sections" data-tabs>
         <button class="active" type="button" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" data-tab="overview">Overview</button>
+        <button type="button" role="tab" id="tab-academic" aria-controls="panel-academic" aria-selected="false" data-tab="academic">Academic relevance{% if mappings %} <span>{{ mappings|length }}</span>{% endif %}</button>
         <button type="button" role="tab" id="tab-availability" aria-controls="panel-availability" aria-selected="false" data-tab="availability">Availability</button>
         <button type="button" role="tab" id="tab-resources" aria-controls="panel-resources" aria-selected="false" data-tab="resources">Digital resources{% if materials %} <span>{{ materials|length }}</span>{% endif %}</button>
         <button type="button" role="tab" id="tab-reviews" aria-controls="panel-reviews" aria-selected="false" data-tab="reviews">Reviews <span>{{ rating_count }}</span></button>
@@ -138,6 +142,39 @@
               </ul>
             </aside>
           </section>
+        </div>
+
+        <div class="detail-panel" role="tabpanel" id="panel-academic" aria-labelledby="tab-academic" data-panel="academic">
+          <div class="panel">
+            <p class="app-eyebrow">ACADEMIC RELEVANCE</p>
+            {% if mappings %}
+              <p class="panel-note">Where this title fits the {{ course_count|default:"" }}curriculum. Status labels come from the librarian's mapping, not from the publisher.</p>
+              <div class="table-wrap">
+                <table class="data-table mapping-table">
+                  <thead>
+                    <tr><th scope="col">Course</th><th scope="col">Semester</th><th scope="col">Subject</th><th scope="col">Code</th><th scope="col">Type</th><th scope="col">Status</th></tr>
+                  </thead>
+                  <tbody>
+                    {% for mapping in mappings %}
+                      <tr>
+                        <td>{{ mapping.subject.semester.curriculum_scheme.course.code }}</td>
+                        <td>Sem {{ mapping.subject.semester.number }}</td>
+                        <td>{{ mapping.subject.name }}</td>
+                        <td><code class="subject-code">{{ mapping.subject.code }}</code></td>
+                        <td>{{ mapping.get_resource_type_display }}</td>
+                        <td><span class="reco reco-{{ mapping.recommendation_status }}">{{ mapping.get_recommendation_status_display }}</span></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% for mapping in mappings %}{% if mapping.syllabus_note %}
+                <p class="syllabus-note"><strong>{{ mapping.subject.code }}:</strong> {{ mapping.syllabus_note }}</p>
+              {% endif %}{% endfor %}
+            {% else %}
+              <p class="panel-note">This title is part of the general collection and is not yet mapped to a curriculum subject. The librarian can map it from the catalogue manager.</p>
+            {% endif %}
+          </div>
         </div>
 
         <div class="detail-panel" role="tabpanel" id="panel-availability" aria-labelledby="tab-availability" data-panel="availability">
