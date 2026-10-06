@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Choose your portal — LibTrack{% endblock %}
+{% block content %}
+<main class="portal-shell">
+  <a class="brand portal-brand" href="{% url 'core:home' %}"><span class="brand-mark">L</span><span>LibTrack</span></a>
+  <section class="portal-intro">
+    <p class="app-eyebrow">WELCOME TO LIBTRACK</p>
+    <h1>Choose your way in.</h1>
+    <p>One library, two focused workspaces. Select the portal that belongs to you.</p>
+  </section>
+  <section class="portal-grid" aria-label="Choose a LibTrack portal">
+    <article class="portal-card portal-student">
+      <span class="portal-icon"><i data-lucide="graduation-cap"></i></span>
+      <p class="app-eyebrow">FOR READERS</p><h2>Student Portal</h2>
+      <p>Discover books, access study materials, manage loans, and prepare with Study Buddy.</p>
+      <a class="button button-primary" href="{% url 'core:student_login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Continue as Student <i data-lucide="arrow-right"></i></a>
+      <small>New here? <a href="{% url 'core:register' %}">Create a student account</a></small>
+    </article>
+    <article class="portal-card portal-librarian">
+      <span class="portal-icon"><i data-lucide="library"></i></span>
+      <p class="app-eyebrow">FOR LIBRARY STAFF</p><h2>Librarian Portal</h2>
+      <p>Manage the catalogue, students, circulation, academic structure, and reports.</p>
+      <a class="button button-primary" href="{% url 'core:librarian_login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Enter Librarian Desk <i data-lucide="arrow-right"></i></a>
+      <small>Staff accounts are created by an administrator.</small>
+    </article>
+  </section>
+  <a class="portal-back" href="{% url 'core:home' %}">← Back to the library</a>
+</main>
+{% endblock %}

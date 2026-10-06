@@ -17,9 +17,9 @@
       <a class="{% if section == 'materials' %}active{% endif %}" href="{% url 'core:materials' %}"><i data-lucide="file-text"></i>Digital resources</a>
       <a class="{% if section == 'study_buddy' %}active{% endif %}" href="{% url 'core:study_buddy' %}"><i data-lucide="graduation-cap"></i>Study Buddy</a>
       <p class="nav-label">My Space</p>
-      <a class="{% if section == 'student' and request.resolver_match.url_name == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
-      <a class="{% if request.resolver_match.url_name == 'student_loans' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_loans' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="book-open"></i>My books</a>
-      <a class="{% if request.resolver_match.url_name == 'student_profile' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_profile' %}{% else %}{% url 'core:login' %}{% endif %}"><i data-lucide="user-round"></i>My profile</a>
+      <a class="{% if section == 'student' and request.resolver_match.url_name == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+      <a class="{% if request.resolver_match.url_name == 'student_loans' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_loans' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="book-open"></i>My books</a>
+      <a class="{% if request.resolver_match.url_name == 'student_profile' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_profile' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="user-round"></i>My profile</a>
     {% endif %}
   </nav>
   <div class="sidebar-user">
@@ -31,7 +31,7 @@
     {% if request.user.is_authenticated %}
       <form method="post" action="{% url 'core:logout' %}">{% csrf_token %}<button type="submit" aria-label="Sign out" title="Sign out" class="sidebar-icon-button"><i data-lucide="log-out"></i></button></form>
     {% else %}
-      <a href="{% url 'core:login' %}" aria-label="Sign in"><i data-lucide="log-in"></i></a>
+      <a href="{% url 'core:portal_select' %}" aria-label="Sign in"><i data-lucide="log-in"></i></a>
     {% endif %}
   </div>
 </aside>

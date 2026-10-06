@@ -17,9 +17,11 @@ from django.db.models import Avg, Count, Q
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.urls import Resolver404, resolve
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from urllib.parse import unquote, urlsplit
 
 from . import services
 from .forms import (BookCopyForm, BookForm, BookReviewForm, BookSearchForm,
@@ -44,10 +46,10 @@ def _profile_for(user):
 def _librarian_required(view):
     """Allow only authenticated staff through."""
     return user_passes_test(
-        lambda u: u.is_authenticated and u.is_staff, login_url="core:login")(view)
+        lambda u: u.is_authenticated and u.is_staff, login_url="core:portal_select")(view)
 
 
-def _safe_next(request, fallback):
+def _safe_next(request, fallback, role=None):
     """Resolve a user-supplied ``next`` target, refusing anything off-site.
 
     Templates always post a URL built by ``{% url %}``, but the value arrives
@@ -55,17 +57,45 @@ def _safe_next(request, fallback):
     every form on the site into an open redirect, so an absolute or
     protocol-relative target is discarded in favour of the named fallback.
     """
-    target = (request.POST.get("next") or "").strip()
-    if target and url_has_allowed_host_and_scheme(
+    target = (request.POST.get("next") or request.GET.get("next") or "").strip()
+    if not target or not url_has_allowed_host_and_scheme(
             target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
-        return target
-    return fallback
+        return fallback
+
+    # Decode before inspection so encoded traversal, separators, or protocol
+    # forms cannot evade the checks. Resolve the canonical Django route instead
+    # of trusting a textual prefix such as `/books/../librarian/`.
+    decoded = unquote(target)
+    parts = urlsplit(decoded)
+    path = parts.path
+    segments = path.split("/")
+    if (not path.startswith("/") or path.startswith("//") or "\\" in decoded
+            or any(segment in {".", ".."} for segment in segments)):
+        return fallback
+    try:
+        match = resolve(path)
+    except Resolver404:
+        return fallback
+
+    url_name = match.url_name or ""
+    if role == "student":
+        allowed = {"discover", "book_detail", "materials", "study_buddy",
+                   "student", "student_loans", "student_profile",
+                   "student_profile_update", "student_password",
+                   "student_password_done"}
+        if url_name not in allowed:
+            return fallback
+    elif role == "librarian":
+        if not url_name.startswith("librarian"):
+            return fallback
+
+    return target
 
 
 def _student_required(view):
     """Allow only authenticated non-staff students through."""
     return user_passes_test(
-        lambda u: u.is_authenticated and not u.is_staff, login_url="core:login")(view)
+        lambda u: u.is_authenticated and not u.is_staff, login_url="core:portal_select")(view)
 
 
 def _page(request, queryset, per_page=None):
@@ -161,6 +191,7 @@ def home(request):
     return render(request, "landing/home.html", context)
 
 
+@login_required(login_url="core:portal_select")
 def discover(request):
     """Searchable, filterable, sortable, paginated catalogue."""
     books, form = _book_queryset(request)
@@ -184,6 +215,7 @@ def discover(request):
     })
 
 
+@login_required(login_url="core:portal_select")
 def book_detail(request, slug):
     """One catalogue title with live availability and the borrow actions."""
     book = get_object_or_404(
@@ -245,6 +277,7 @@ def book_detail(request, slug):
     return render(request, "library/book_detail.html", context)
 
 
+@login_required(login_url="core:portal_select")
 def materials(request):
     """Public list of permitted digital learning materials."""
     query = (request.GET.get("q") or "").strip()
@@ -267,20 +300,54 @@ def materials(request):
 # Authentication
 # ---------------------------------------------------------------------------
 
-def login_view(request):
+def portal_select(request):
+    """Single gateway into the two authenticated LibTrack experiences."""
+    if request.user.is_authenticated:
+        return redirect("core:dashboard")
+    return render(request, "auth/portal_select.html", {
+        "next": _safe_next(request, ""),
+    })
+
+
+def _role_login(request, role):
     if request.user.is_authenticated:
         return redirect("core:dashboard")
     form = LoginForm(request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
-        login(request, user)
-        services.log_action(ActivityLog.Action.LOGIN, user=request.user,
-                            description="Signed in")
-        messages.success(request, f"Welcome back, {user.first_name or user.username}.")
-        # Send each role straight to its own home screen.
-        landing = "core:librarian" if user.is_staff else "core:student"
-        return redirect(_safe_next(request, landing))
-    return render(request, "auth/login.html", {"form": form})
+        role_matches = (role == "librarian" and user.is_staff) or (
+            role == "student" and not user.is_staff)
+        if not role_matches:
+            form.add_error(None, "These credentials belong to the other LibTrack portal.")
+        else:
+            login(request, user)
+            services.log_action(ActivityLog.Action.LOGIN, user=user, description="Signed in")
+            messages.success(request, f"Welcome back, {user.first_name or user.username}.")
+            landing = "core:librarian" if role == "librarian" else "core:student"
+            return redirect(_safe_next(request, landing, role=role))
+    return render(request, "auth/login.html", {
+        "form": form, "portal_role": role,
+        "next": _safe_next(request, ""),
+    })
+
+
+def student_login(request):
+    return _role_login(request, "student")
+
+
+def librarian_login(request):
+    return _role_login(request, "librarian")
+
+def login_view(request):
+    """Send legacy bookmarks through the explicit role-selection gateway."""
+    if request.user.is_authenticated:
+        return redirect("core:dashboard")
+    target = _safe_next(request, "")
+    destination = reverse("core:portal_select")
+    if target:
+        from urllib.parse import urlencode
+        destination += "?" + urlencode({"next": target})
+    return redirect(destination)
 
 
 def register(request):

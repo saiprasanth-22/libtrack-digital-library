@@ -4,17 +4,17 @@
 <main class="auth-shell">
   <section class="auth-card">
     <a class="brand auth-brand" href="{% url 'core:home' %}"><span class="brand-mark">L</span><span>LibTrack</span></a>
-    <p class="app-eyebrow">WELCOME BACK</p>
-    <h1 class="auth-title">Your library awaits.</h1>
-    <p class="auth-lead">Sign in to manage your loans, reading list, and resources.</p>
+    <p class="app-eyebrow">{% if portal_role == 'librarian' %}LIBRARIAN PORTAL{% else %}STUDENT PORTAL{% endif %}</p>
+    <h1 class="auth-title">{% if portal_role == 'librarian' %}The library desk awaits.{% else %}Your library awaits.{% endif %}</h1>
+    <p class="auth-lead">{% if portal_role == 'librarian' %}Sign in with an authorized staff account.{% else %}Sign in to manage your loans, reading list, and resources.{% endif %}</p>
     <form method="post" novalidate>{% csrf_token %}
       {% if form.non_field_errors %}<ul class="form-errors" role="alert">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
       {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
-      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      <input type="hidden" name="next" value="{{ next }}">
       <button class="button button-primary auth-submit" type="submit">Sign in <i data-lucide="arrow-right"></i></button>
     </form>
-    <p class="auth-alt">New to LibTrack? <a href="{% url 'core:register' %}">Create a student account</a></p>
-    <a class="auth-ghost" href="{% url 'core:discover' %}">Continue browsing the catalogue</a>
+    {% if portal_role != 'librarian' %}<p class="auth-alt">New to LibTrack? <a href="{% url 'core:register' %}">Create a student account</a></p>{% endif %}
+    <a class="auth-ghost" href="{% url 'core:portal_select' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Choose another portal</a>
   </section>
   <aside class="auth-aside" aria-hidden="true">
     <p class="app-eyebrow">CENTRAL LIBRARY</p>

@@ -77,19 +77,19 @@ class LoginTests(TestCase):
     def test_student_login_redirects_to_student_dashboard(self):
         make_student(username="maya.rao", password="LibTrackDemo2026!")
         response = self.client.post(
-            reverse("core:login"), {"username": "maya.rao", "password": "LibTrackDemo2026!"})
+            reverse("core:student_login"), {"username": "maya.rao", "password": "LibTrackDemo2026!"})
         self.assertRedirects(response, reverse("core:student"))
 
     def test_librarian_login_redirects_to_librarian_dashboard(self):
         make_librarian(username="library.admin", password="LibTrackDemo2026!")
         response = self.client.post(
-            reverse("core:login"), {"username": "library.admin", "password": "LibTrackDemo2026!"})
+            reverse("core:librarian_login"), {"username": "library.admin", "password": "LibTrackDemo2026!"})
         self.assertRedirects(response, reverse("core:librarian"))
 
     def test_wrong_password_shows_friendly_error_and_no_login(self):
         make_student(username="maya.rao", password="LibTrackDemo2026!")
         response = self.client.post(
-            reverse("core:login"), {"username": "maya.rao", "password": "wrong-password"},
+            reverse("core:student_login"), {"username": "maya.rao", "password": "wrong-password"},
             follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "did not match an account")
@@ -100,7 +100,7 @@ class LoginTests(TestCase):
         user.is_active = False
         user.save(update_fields=["is_active"])
         response = self.client.post(
-            reverse("core:login"), {"username": "suspended.user", "password": "test-pass-4321"},
+            reverse("core:student_login"), {"username": "suspended.user", "password": "test-pass-4321"},
             follow=True)
         self.assertContains(response, "deactivated")
         self.assertNotIn("_auth_user_id", self.client.session)
@@ -110,7 +110,7 @@ class LoginTests(TestCase):
         user.is_active = False
         user.save(update_fields=["is_active"])
         response = self.client.post(
-            reverse("core:login"), {"username": "suspended.user", "password": "guessing"},
+            reverse("core:student_login"), {"username": "suspended.user", "password": "guessing"},
             follow=True)
         self.assertContains(response, "did not match an account")
         self.assertNotContains(response, "deactivated")
@@ -143,7 +143,7 @@ class RouteProtectionTests(TestCase):
             with self.subTest(route=name):
                 response = self.client.get(reverse(name, kwargs=kwargs))
                 self.assertEqual(response.status_code, 302)
-                self.assertIn(reverse("core:login"), response["Location"])
+                self.assertIn(reverse("core:portal_select"), response["Location"])
 
     def test_students_cannot_open_librarian_pages(self):
         user, _ = make_student(username="plain.student")
@@ -152,7 +152,7 @@ class RouteProtectionTests(TestCase):
             with self.subTest(route=name):
                 response = self.client.get(reverse(name, kwargs=kwargs))
                 self.assertEqual(response.status_code, 302)
-                self.assertIn(reverse("core:login"), response["Location"])
+                self.assertIn(reverse("core:portal_select"), response["Location"])
 
     def test_librarians_cannot_open_student_pages(self):
         self.client.force_login(make_librarian())

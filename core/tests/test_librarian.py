@@ -238,7 +238,7 @@ class StudentManagementTests(LibrarianTestCase):
 
         # The new student can immediately sign in and reach their dashboard.
         self.client.logout()
-        self.client.post(reverse("core:login"),
+        self.client.post(reverse("core:student_login"),
                          {"username": "nikhil.rao", "password": "Desk-Registered-2026"})
         self.assertEqual(self.client.get(reverse("core:student")).status_code, 200)
 
@@ -416,6 +416,8 @@ class MaterialManagementTests(LibrarianTestCase):
     def test_hidden_material_is_not_shown_to_students(self):
         make_material(title="Internal Only", is_public=False)
         self.client.logout()
+        student, _ = make_student(username="materials.reader")
+        self.client.force_login(student)
         response = self.client.get(reverse("core:materials"))
         self.assertNotContains(response, "Internal Only")
 

@@ -16,7 +16,7 @@ from .models import Book, Semester, Subject
 
 def _student_required(view):
     return user_passes_test(
-        lambda u: u.is_authenticated and not u.is_staff, login_url="core:login")(view)
+        lambda u: u.is_authenticated and not u.is_staff, login_url="core:portal_select")(view)
 
 
 def _context_choices(user):

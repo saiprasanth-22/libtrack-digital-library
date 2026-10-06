@@ -19,6 +19,9 @@ urlpatterns = [
     path("books/<slug:slug>/review/", views.book_review, name="book_review"),
 
     # Authentication
+    path("accounts/choose/", views.portal_select, name="portal_select"),
+    path("accounts/student/login/", views.student_login, name="student_login"),
+    path("accounts/librarian/login/", views.librarian_login, name="librarian_login"),
     path("accounts/login/", views.login_view, name="login"),
     path("accounts/register/", views.register, name="register"),
     path("accounts/logout/", views.logout_view, name="logout"),

@@ -26,6 +26,10 @@ class SearchTests(TestCase):
     def get(self, **params):
         return self.client.get(reverse("core:discover"), params)
 
+    def setUp(self):
+        user, _ = make_student()
+        self.client.force_login(user)
+
     def test_landing_page_lists_database_titles_only(self):
         response = self.get(q="Database")
         self.assertEqual(response.status_code, 200)
@@ -104,6 +108,10 @@ class BookDetailTests(TestCase):
                              publication_year=2019, edition="7th",
                              description="Foundations of database management.")
 
+    def setUp(self):
+        user, _ = make_student()
+        self.client.force_login(user)
+
     def test_detail_shows_bibliographic_fields_and_live_availability(self):
         response = self.client.get(reverse("core:book_detail", args=[self.book.slug]))
         self.assertEqual(response.status_code, 200)
@@ -145,8 +153,10 @@ class BookDetailTests(TestCase):
                          Book.objects.get(pk=self.book.pk).cover_variant)
 
     def test_anonymous_visitor_is_prompted_to_sign_in(self):
+        self.client.logout()
         response = self.client.get(reverse("core:book_detail", args=[self.book.slug]))
-        self.assertContains(response, "Sign in to borrow")
+        self.assertRedirects(response, reverse("core:portal_select") +
+                             f"?next=/books/{self.book.slug}/", fetch_redirect_response=False)
 
 
 class DigitalMaterialTests(TestCase):
@@ -156,6 +166,10 @@ class DigitalMaterialTests(TestCase):
         cls.public = make_material(title="Relational Design Notes")
         cls.hidden = make_material(title="Internal Guide", is_public=False)
         cls.linked = make_material(title="Linked Notes", book=cls.book)
+
+    def setUp(self):
+        user, _ = make_student()
+        self.client.force_login(user)
 
     def test_public_materials_are_listed(self):
         response = self.client.get(reverse("core:materials"))

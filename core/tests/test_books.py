@@ -16,6 +16,8 @@ class TabPanelTests(TestCase):
         self.book = make_book(title="Database System Concepts", copies=2,
                               authors=("A. Silberschatz",))
         self.url = reverse("core:book_detail", args=[self.book.slug])
+        user, _ = make_student()
+        self.client.force_login(user)
 
     def test_every_tab_button_is_wired_to_a_panel(self):
         response = self.client.get(self.url)
@@ -48,6 +50,8 @@ class AvailabilityPanelTests(TestCase):
         self.book = make_book(copies=3)
         self.copies = list(self.book.copies.order_by("accession_number"))
         self.url = reverse("core:book_detail", args=[self.book.slug])
+        user, _ = make_student()
+        self.client.force_login(user)
 
     def test_panel_lists_every_accession_number(self):
         response = self.client.get(self.url)
@@ -156,7 +160,7 @@ class ReaderReviewTests(TestCase):
         self.client.logout()
         response = self.client.post(self.post, {"rating": 5, "body": ""})
         self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse("core:login"), response["Location"])
+        self.assertIn(reverse("core:portal_select"), response["Location"])
         self.assertFalse(Review.objects.exists())
 
     def test_staff_do_not_get_a_review_form(self):
@@ -190,20 +194,20 @@ class OpenRedirectTests(TestCase):
         return response["Location"]
 
     def test_login_ignores_an_absolute_next(self):
-        response = self.client.post(reverse("core:login"), {
+        response = self.client.post(reverse("core:student_login"), {
             "username": self.user.username, "password": "test-pass-4321",
             "next": "https://evil.example/steal"})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self._host(response), reverse("core:student"))
 
     def test_login_ignores_a_protocol_relative_next(self):
-        response = self.client.post(reverse("core:login"), {
+        response = self.client.post(reverse("core:student_login"), {
             "username": self.user.username, "password": "test-pass-4321",
             "next": "//evil.example/steal"})
         self.assertEqual(self._host(response), reverse("core:student"))
 
     def test_login_still_honours_a_safe_local_next(self):
-        response = self.client.post(reverse("core:login"), {
+        response = self.client.post(reverse("core:student_login"), {
             "username": self.user.username, "password": "test-pass-4321",
             "next": "/discover/"})
         self.assertEqual(self._host(response), "/discover/")
@@ -233,6 +237,10 @@ class OpenRedirectTests(TestCase):
 
 
 class DigitalResourcesPanelTests(TestCase):
+    def setUp(self):
+        user, _ = make_student()
+        self.client.force_login(user)
+
     def test_resources_panel_links_to_each_material(self):
         book = make_book()
         material = make_material(title="Indexing Strategies",

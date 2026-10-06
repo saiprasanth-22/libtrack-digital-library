@@ -139,6 +139,8 @@ class CatalogueFilterTests(TestCase):
             book=self.ai_book, subject=self.ai_subject,
             recommendation_status="supplementary", resource_type="reference")
         self.client = Client()
+        user, _ = make_student()
+        self.client.force_login(user)
 
     def _get(self, **params):
         return self.client.get(reverse("core:discover"), params)
@@ -415,6 +417,8 @@ class BookDetailAcademicTests(TestCase):
         self.semester = make_semester(self.scheme, 5)
         self.subject = make_subject(self.semester, "D01", "Design and Analysis of Algorithms")
         self.client = Client()
+        user, _ = make_student()
+        self.client.force_login(user)
 
     def test_academic_tab_renders_mappings(self):
         book = make_book(title="Algorithms illustrated")
