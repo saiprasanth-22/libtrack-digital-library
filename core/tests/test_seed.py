@@ -60,6 +60,11 @@ class SeedDemoDataTests(TestCase):
         self.assertIn(Loan.Status.OVERDUE, statuses)
         self.assertIn(Loan.Status.REQUESTED, statuses)
 
+    def test_seeded_materials_use_real_resource_urls(self):
+        self.seed()
+        self.assertFalse(DigitalMaterial.objects.filter(
+            external_url__icontains="example.edu").exists())
+
     def test_running_the_command_twice_creates_no_duplicates(self):
         self.seed()
         first = counts()

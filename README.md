@@ -130,27 +130,22 @@ Django's built-in back office.
 
 ## 5. Demo walkthrough (5 minutes)
 
-1. **Landing page** — headline numbers come from the database: 14 titles,
-   40 copies, availability count, registered students.
-2. **Sign in as `maya.rao`** — the dashboard greets Maya by name and shows
-   *her* numbers: active loans, due soon, returned, overdue.
-3. **Open "Database System Concepts"** — the availability panel reads
-   "4 of 5 copies", taken live from the `BookCopy` table. Borrow it; the
-   count drops to 3 and a loan record appears on the dashboard.
-4. **Try to borrow it again** — blocked: *"You already have this title on loan."*
-5. **Borrow three books, then a fourth** — blocked: *"You already have 3 books
-   on loan."* Change `LIBRARY_MAX_ACTIVE_LOANS` in `.env` to show the limit is
-   configuration, not code.
-6. **Renew a book** — due date moves out by 7 days. Renew again — blocked at
-   the configured maximum of one renewal.
-7. **Return a book** — availability goes back up by exactly one.
-8. **Sign out, sign in as `library.admin`** — the librarian dashboard shows
-   totals, copies, students, active and overdue loans, pending requests and
-   most-borrowed titles, all from aggregate queries.
-9. **Circulation desk** — issue a book to a student, approve or reject the
-   pending request, and record a return.
-10. **Reports** — set a date range and see active loans, returns, overdue
-    books, most-borrowed titles, borrowing by course and inventory.
+1. **Landing page** — headline numbers come from the database: 126 titles,
+   354 copies, live availability and registered students.
+2. **Sign in as `maya.rao`** — the dashboard greets Maya and shows her active,
+   due-soon, returned and overdue loan counts.
+3. **Discover a title** — open *The Pragmatic Programmer*, which is available
+   and is not among Maya's seeded loans. Borrow one copy and show the updated
+   availability and new loan on her dashboard.
+4. **Open My Books** — show the due date and renew the new loan once. The due
+   date moves out by seven days; a second renewal is blocked at the configured
+   maximum.
+5. **Switch to `library.admin`** — show live totals, student activity, active
+   and overdue loans, pending requests and most-borrowed titles on the librarian
+   dashboard.
+6. **Circulation and Reports** — briefly show the issue/return desk, then the
+   date-filtered loans, overdue books, popular titles, course breakdown and
+   inventory. The flow stays within the existing seeded catalog and loan data.
 
 ---
 

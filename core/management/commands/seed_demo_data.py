@@ -167,22 +167,22 @@ DESCRIPTIONS = {
 MATERIALS = [
     ("Relational Design and Normalisation Notes", DigitalMaterial.MaterialType.NOTES,
      "Data Systems", "Step-by-step normalisation worked examples used in the DBMS unit.",
-     "https://example.edu/resources/relational-design", True),
+     "https://www.db-book.com/slides-dir/PDF-dir/ch7.pdf", True),
     ("Transaction Management Cheat Sheet", DigitalMaterial.MaterialType.NOTES,
      "Data Systems", "Isolation levels, lock granularity and commit protocols on two pages.",
-     "https://example.edu/resources/transaction-cheatsheet", True),
+     "https://www.postgresql.org/docs/current/mvcc.html", True),
     ("A Survey of Modern Database Systems", DigitalMaterial.MaterialType.PAPER,
      "Data Systems", "Comparative study of row-store and column-store engines.",
-     "https://example.edu/papers/modern-database-systems", True),
+     "https://15445.courses.cs.cmu.edu/fall2024/", True),
     ("Foundations of Machine Learning", DigitalMaterial.MaterialType.EBOOK,
      "Artificial Intelligence", "Introductory companion notes for the AI course sequence.",
-     "https://example.edu/resources/ml-foundations", True),
+     "https://developers.google.com/machine-learning/crash-course", True),
     ("Indexing Strategies Reference", DigitalMaterial.MaterialType.PAPER,
      "Computer Science", "B-tree, hash and inverted index selection guidance.",
-     "https://example.edu/papers/indexing-strategies", True),
+     "https://www.postgresql.org/docs/current/indexes.html", True),
     ("Internal Testing Resource", DigitalMaterial.MaterialType.OTHER,
      "Software Engineering", "Visibility check: this material is not public.",
-     "https://example.edu/internal/testing-guide", False),
+     "https://martinfowler.com/testing/", False),
 ]
 
 # Demo identities are deliberately neutral placeholders, not real people.
@@ -354,12 +354,27 @@ class Command(BaseCommand):
                     "is_public": is_public,
                 })
             material.categories.set([categories[category_name]])
+            if material.external_url != url:
+                material.external_url = url
+                material.save(update_fields=["external_url", "updated_at"])
             # Attach the first three notes to a related title for the detail page.
             if material.material_type == DigitalMaterial.MaterialType.NOTES and not material.book_id:
                 linked = by_title.get("Database System Concepts") or (catalog[0] if catalog else None)
                 if linked:
                     material.book = linked
                     material.save(update_fields=["book", "updated_at"])
+
+        # Repair links from an earlier presentation snapshot without creating
+        # additional materials that are not part of the current seed dataset.
+        legacy_urls = {
+            "Introduction to Relational Database Design":
+                "https://www.db-book.com/slides-dir/PDF-dir/ch7.pdf",
+            "Foundations of Artificial Intelligence":
+                "https://inst.eecs.berkeley.edu/~cs188/fa24/",
+        }
+        for title, url in legacy_urls.items():
+            DigitalMaterial.objects.filter(title=title).exclude(
+                external_url=url).update(external_url=url)
 
     @staticmethod
     def _seed_loans(catalog, students, librarian, now):

@@ -312,7 +312,9 @@ def portal_select(request):
 def _role_login(request, role):
     if request.user.is_authenticated:
         return redirect("core:dashboard")
-    form = LoginForm(request, data=request.POST or None)
+    form = LoginForm(request, data=request.POST or None,
+                     username_placeholder=("library.admin" if role == "librarian"
+                                           else "maya.rao"))
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
         role_matches = (role == "librarian" and user.is_staff) or (

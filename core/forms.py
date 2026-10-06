@@ -24,9 +24,13 @@ MAX_MATERIAL_UPLOAD_MB = 10
 class LoginForm(AuthenticationForm):
     """Sign-in form with placeholders and non-field error styling."""
 
+    def __init__(self, *args, username_placeholder="maya.rao", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs["placeholder"] = username_placeholder
+
     username = forms.CharField(
         widget=forms.TextInput(attrs={
-            "autocomplete": "username", "placeholder": "e.g. maya.rao",
+            "autocomplete": "username", "placeholder": "maya.rao",
             "class": "field-input"}),
         label="Username")
     password = forms.CharField(
