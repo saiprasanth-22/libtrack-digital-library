@@ -4,6 +4,7 @@ __pycache__/
 .env
 .vercel/
 db.sqlite3
+!demo.sqlite3
 staticfiles/
 media/
 work/

@@ -7,6 +7,8 @@ clearly-marked development default.
 """
 
 import os
+import shutil
+import tempfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,9 +97,23 @@ if os.getenv("MYSQL_DATABASE"):
         },
     }}
 else:
+    # Vercel's deployed bundle is read-only.  For the presentation build we
+    # ship a seeded SQLite snapshot and copy it into the function's writable
+    # /tmp directory on each fresh instance.  This intentionally provides
+    # demo-grade persistence: changes work during a presentation session and
+    # a cold start restores the clean catalogue.
+    sqlite_name = Path(os.getenv("LIBTRACK_SQLITE_PATH", BASE_DIR / "db.sqlite3"))
+    demo_snapshot = BASE_DIR / "demo.sqlite3"
+    if os.getenv("VERCEL") and demo_snapshot.exists():
+        fingerprint = f"{demo_snapshot.stat().st_size}-{demo_snapshot.stat().st_mtime_ns}"
+        sqlite_name = Path(tempfile.gettempdir()) / f"libtrack-demo-{fingerprint}.sqlite3"
+        if not sqlite_name.exists():
+            staged_copy = sqlite_name.with_suffix(f".{os.getpid()}.tmp")
+            shutil.copy2(demo_snapshot, staged_copy)
+            os.replace(staged_copy, sqlite_name)
     DATABASES = {"default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": sqlite_name,
         "OPTIONS": {"timeout": 20},
     }}
 
