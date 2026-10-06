@@ -108,10 +108,8 @@ Created by `python manage.py seed_demo_data`. **Local demonstration only.**
 
 | Role | Username | Name | Password |
 |---|---|---|---|
-| Student | `maya.rao` | Maya Rao | `LibTrackDemo2026!` |
-| Student | `arjun.nair` | Arjun Nair | `LibTrackDemo2026!` |
-| Student | `leela.venkat` | Leela Venkat | `LibTrackDemo2026!` |
-| Librarian | `library.admin` | Library Administrator | `LibTrackDemo2026!` |
+| Student | `student` | Student User | `1` |
+| Librarian | `admin` | Library Administrator | `1` |
 
 Set `LIBTRACK_DEMO_PASSWORD` before seeding any shared environment. The seed
 command only sets a password when it *creates* an account, so re-running it
@@ -132,15 +130,15 @@ Django's built-in back office.
 
 1. **Landing page** — headline numbers come from the database: 126 titles,
    354 copies, live availability and registered students.
-2. **Sign in as `maya.rao`** — the dashboard greets Maya and shows her active,
+2. **Sign in as `student`** — the dashboard greets the student and shows their active,
    due-soon, returned and overdue loan counts.
 3. **Discover a title** — open *The Pragmatic Programmer*, which is available
-   and is not among Maya's seeded loans. Borrow one copy and show the updated
-   availability and new loan on her dashboard.
+   and is not among the student's seeded loans. Borrow one copy and show the
+   updated availability and new loan on the dashboard.
 4. **Open My Books** — show the due date and renew the new loan once. The due
    date moves out by seven days; a second renewal is blocked at the configured
    maximum.
-5. **Switch to `library.admin`** — show live totals, student activity, active
+5. **Switch to `admin`** — show live totals, student activity, active
    and overdue loans, pending requests and most-borrowed titles on the librarian
    dashboard.
 6. **Circulation and Reports** — briefly show the issue/return desk, then the

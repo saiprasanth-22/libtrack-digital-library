@@ -63,10 +63,10 @@ class PortalFlowTests(TestCase):
     def test_each_login_suggests_the_matching_demo_username(self):
         student = self.client.get(reverse("core:student_login"))
         librarian = self.client.get(reverse("core:librarian_login"))
-        self.assertContains(student, 'placeholder="maya.rao"')
-        self.assertNotContains(student, 'placeholder="library.admin"')
-        self.assertContains(librarian, 'placeholder="library.admin"')
-        self.assertNotContains(librarian, 'placeholder="maya.rao"')
+        self.assertContains(student, 'placeholder="student"')
+        self.assertNotContains(student, 'placeholder="admin"')
+        self.assertContains(librarian, 'placeholder="admin"')
+        self.assertNotContains(librarian, 'placeholder="student"')
 
     def test_safe_role_appropriate_next_is_preserved(self):
         target = reverse("core:book_detail", args=[self.book.slug])

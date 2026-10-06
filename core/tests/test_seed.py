@@ -42,14 +42,14 @@ class SeedDemoDataTests(TestCase):
     def test_seed_creates_a_student_and_a_librarian(self):
         self.seed()
         student = StudentProfile.objects.get(student_id="LT260001")
-        self.assertEqual(student.display_name, "Maya Rao")
+        self.assertEqual(student.display_name, "Student User")
         self.assertTrue(student.user.is_staff is False)
 
-        librarian = User.objects.get(username="library.admin")
+        librarian = User.objects.get(username="admin")
         self.assertTrue(librarian.is_staff)
         self.assertEqual(librarian.get_full_name(), "Library Administrator")
         self.assertFalse(
-            StudentProfile.objects.filter(user__username="library.admin").exists(),
+            StudentProfile.objects.filter(user__username="admin").exists(),
             "staff accounts must not also be student profiles")
 
     def test_seed_creates_a_mixture_of_loan_states(self):

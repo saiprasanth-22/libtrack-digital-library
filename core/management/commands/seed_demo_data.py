@@ -186,13 +186,13 @@ MATERIALS = [
 ]
 
 # Demo identities are deliberately neutral placeholders, not real people.
-DEMO_STUDENT = ("maya.rao", "Maya", "Rao", "Computer Science", 5)
+DEMO_STUDENT = ("student", "Student", "User", "Computer Science", 5)
 DEMO_STUDENTS = [
     DEMO_STUDENT,
     ("arjun.nair", "Arjun", "Nair", "Electronics", 3),
     ("leela.venkat", "Leela", "Venkat", "Information Technology", 7),
 ]
-LIBRARIAN = ("library.admin", "Library", "Administrator")
+LIBRARIAN = ("admin", "Library", "Administrator")
 
 
 class Command(BaseCommand):
@@ -200,7 +200,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--password", default=os.getenv("LIBTRACK_DEMO_PASSWORD", "LibTrackDemo2026!"),
+            "--password", default=os.getenv("LIBTRACK_DEMO_PASSWORD", "1"),
             help="Password applied only to demo accounts that are created by this run.")
         parser.add_argument(
             "--students", type=int, default=len(DEMO_STUDENTS),
