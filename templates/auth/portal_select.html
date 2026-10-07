@@ -12,14 +12,14 @@
     <article class="portal-card portal-student">
       <span class="portal-icon"><i data-lucide="graduation-cap"></i></span>
       <p class="app-eyebrow">FOR READERS</p><h2>Student Portal</h2>
-      <p>Discover books, access study materials, manage loans, and prepare with Study Buddy.</p>
+      <p>Browse available books, borrow a copy, and keep track of due dates.</p>
       <a class="button button-primary" href="{% url 'core:student_login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Continue as Student <i data-lucide="arrow-right"></i></a>
       <small>New here? <a href="{% url 'core:register' %}">Create a student account</a></small>
     </article>
     <article class="portal-card portal-librarian">
       <span class="portal-icon"><i data-lucide="library"></i></span>
       <p class="app-eyebrow">FOR LIBRARY STAFF</p><h2>Librarian Portal</h2>
-      <p>Manage the catalogue, students, circulation, academic structure, and reports.</p>
+      <p>Manage books and students, then issue and return library copies.</p>
       <a class="button button-primary" href="{% url 'core:librarian_login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Enter Librarian Desk <i data-lucide="arrow-right"></i></a>
       <small>Staff accounts are created by an administrator.</small>
     </article>

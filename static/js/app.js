@@ -1,9 +1,8 @@
 const tourData = [
-  { icon: "search", title: "Find knowledge in seconds.", body: "Search across books, research papers, journals, course material, authors, subjects and ISBNs from one command centre." },
-  { icon: "sparkles", title: "Recommendations with academic context.", body: "Surface useful resources from subjects, reading activity and the courses a student is currently studying." },
-  { icon: "book-open", title: "Move from discovery to access.", body: "Check availability, reserve a copy, borrow a book or open a permitted digital resource without breaking the journey." },
-  { icon: "graduation-cap", title: "A personal academic workspace.", body: "Bring active loans, due dates, saved resources, reading progress and course-aware suggestions into one calm dashboard." },
-  { icon: "chart-no-axes-combined", title: "Turn operations into intelligence.", body: "Help librarians understand demand, circulation, engagement and collection gaps—not simply maintain CRUD tables." }
+  { icon: "search", title: "Find a book.", body: "Students can search the catalogue by title, author, subject or ISBN and immediately see whether a copy is available." },
+  { icon: "book-open", title: "Borrow and track it.", body: "Every issue records the student, exact book copy, issue date, due date and current loan status in the database." },
+  { icon: "graduation-cap", title: "Student portal.", body: "Students can view their borrowed books, due dates and borrowing history from one simple dashboard." },
+  { icon: "library", title: "Librarian portal.", body: "The librarian manages books and students, issues available copies and records returns." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,10 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const draw = () => {
     if (!stage || !steps) return;
     const item = tourData[current];
-    steps.innerHTML = tourData.map((_, i) => `<button class="tour-step ${i === current ? "active" : ""}" data-step="${i}">${String(i + 1).padStart(2, "0")} ${["Search", "Recommend", "Borrow / Read", "Student", "Librarian"][i]}</button>`).join("");
+    steps.innerHTML = tourData.map((_, i) => `<button class="tour-step ${i === current ? "active" : ""}" data-step="${i}">${String(i + 1).padStart(2, "0")} ${["Search", "Borrow", "Student", "Librarian"][i]}</button>`).join("");
     stage.innerHTML = `<div class="tour-icon"><i data-lucide="${item.icon}"></i></div><div><p class="tour-count">Step ${current + 1} of ${tourData.length}</p><h3>${item.title}</h3><p>${item.body}</p></div>`;
     const next = dialog.querySelector("[data-tour-next]");
-    next.innerHTML = current === tourData.length - 1 ? "Finish Tour" : `Next: ${["", "Recommendations", "Borrow / Read", "Student View", "Librarian Intelligence"][current + 1]} <i data-lucide="arrow-right"></i>`;
+    next.innerHTML = current === tourData.length - 1 ? "Finish Tour" : `Next: ${["", "Borrow", "Student Portal", "Librarian Portal"][current + 1]} <i data-lucide="arrow-right"></i>`;
     dialog.querySelector("[data-tour-prev]").disabled = current === 0;
     lucide.createIcons();
   };

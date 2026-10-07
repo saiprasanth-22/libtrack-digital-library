@@ -10,6 +10,7 @@ record or dashboard statistic is hard-coded in the interface.
 
 - Live site (front-end reference): <https://libtrack-digital-library.vercel.app/>
 - Documentation: [Database schema](docs/DATABASE_SCHEMA.md) ·
+  [Presentation guide](docs/PRESENTATION_GUIDE.md) ·
   [Mermaid ER diagram](docs/DATABASE_SCHEMA.md#1-entity-relationship-diagram) ·
   [Catalogue import](docs/CATALOGUE_IMPORT.md) ·
   [Cover-art pipeline](docs/COVER_ART.md) ·
