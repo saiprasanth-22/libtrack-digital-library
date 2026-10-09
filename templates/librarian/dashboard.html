@@ -16,6 +16,32 @@
     </section>
 
     <section class="content-pad" id="analytics">
+      <div class="section-heading module-heading">
+        <div><p class="app-eyebrow">ADMIN MODULES</p><h2>Run the library from here</h2></div>
+      </div>
+      <nav class="module-grid admin-modules" aria-label="Librarian modules">
+        <a class="module-card module-card-emerald" href="{% url 'core:librarian_students' %}">
+          <span class="module-icon"><i data-lucide="users-round"></i></span>
+          <span class="module-copy"><small>STUDENT MANAGEMENT</small><strong>Manage students</strong><em>Register students, review accounts and inspect borrowing records.</em></span>
+          <span class="module-value">{{ stats.student_count }}</span>
+        </a>
+        <a class="module-card" href="{% url 'core:librarian_circulation' %}">
+          <span class="module-icon"><i data-lucide="arrow-right-left"></i></span>
+          <span class="module-copy"><small>TRANSACTIONS</small><strong>Issue &amp; return</strong><em>Approve requests, issue copies, track due dates and record returns.</em></span>
+          <span class="module-value">{{ stats.current_loans }}</span>
+        </a>
+        <a class="module-card module-card-warm" href="{% url 'core:librarian_reports' %}">
+          <span class="module-icon"><i data-lucide="chart-no-axes-combined"></i></span>
+          <span class="module-copy"><small>REPORTS &amp; ANALYTICS</small><strong>Understand activity</strong><em>Explore demand, overdue books, inventory and course-wise borrowing.</em></span>
+          <span class="module-arrow">→</span>
+        </a>
+        <a class="module-card" href="{% url 'core:librarian_books' %}">
+          <span class="module-icon"><i data-lucide="library-big"></i></span>
+          <span class="module-copy"><small>COLLECTION</small><strong>Manage books</strong><em>Add titles, maintain copies and keep availability accurate.</em></span>
+          <span class="module-value">{{ stats.total_books }}</span>
+        </a>
+      </nav>
+
       <div class="metric-grid four">
         <article><span class="metric-icon"><i data-lucide="library"></i></span><div><small>TOTAL TITLES</small><strong>{{ stats.total_books }}</strong><p>Active in the catalogue</p></div></article>
         <article><span class="metric-icon"><i data-lucide="copy"></i></span><div><small>COPIES</small><strong>{{ stats.total_copies }}</strong><p>{{ stats.available_copies }} available now</p></div></article>

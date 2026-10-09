@@ -7,6 +7,7 @@
       <a class="{% if request.resolver_match.url_name == 'librarian_books' or request.resolver_match.url_name == 'librarian_book_edit' or request.resolver_match.url_name == 'librarian_copies' %}active{% endif %}" href="{% url 'core:librarian_books' %}"><i data-lucide="book-copy"></i>Books</a>
       <a class="{% if request.resolver_match.url_name == 'librarian_students' or request.resolver_match.url_name == 'librarian_student_detail' %}active{% endif %}" href="{% url 'core:librarian_students' %}"><i data-lucide="users"></i>Students</a>
       <a class="{% if request.resolver_match.url_name == 'librarian_circulation' %}active{% endif %}" href="{% url 'core:librarian_circulation' %}"><i data-lucide="repeat-2"></i>Issue / Return</a>
+      <a class="{% if request.resolver_match.url_name == 'librarian_reports' %}active{% endif %}" href="{% url 'core:librarian_reports' %}"><i data-lucide="chart-no-axes-combined"></i>Reports &amp; Analytics</a>
     {% else %}
       <p class="nav-label">Student</p>
       <a class="{% if section == 'student' and request.resolver_match.url_name == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a>

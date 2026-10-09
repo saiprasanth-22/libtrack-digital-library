@@ -20,6 +20,32 @@
 
     <section class="content-pad student-grid">
       <div class="student-main">
+        <div class="section-heading module-heading">
+          <div><p class="app-eyebrow">STUDENT SERVICES</p><h2>Everything you need, in one place</h2></div>
+        </div>
+        <nav class="module-grid" aria-label="Student services">
+          <a class="module-card module-card-emerald" href="{% url 'core:discover' %}">
+            <span class="module-icon"><i data-lucide="search"></i></span>
+            <span class="module-copy"><small>DISCOVER &amp; REQUEST</small><strong>Find a book</strong><em>Search the catalogue, borrow an available copy or request a title.</em></span>
+            <span class="module-arrow">→</span>
+          </a>
+          <a class="module-card" href="{% url 'core:student_loans' %}?tab=active">
+            <span class="module-icon"><i data-lucide="calendar-clock"></i></span>
+            <span class="module-copy"><small>DUE DATES</small><strong>My current loans</strong><em>See what is due, renew a loan or record a return.</em></span>
+            <span class="module-value">{{ stats.active_loans }}</span>
+          </a>
+          <a class="module-card" href="{% url 'core:student_loans' %}?tab=all">
+            <span class="module-icon"><i data-lucide="history"></i></span>
+            <span class="module-copy"><small>BORROWING HISTORY</small><strong>Every transaction</strong><em>Review requested, issued, overdue and returned books.</em></span>
+            <span class="module-arrow">→</span>
+          </a>
+          <a class="module-card module-card-warm" href="{% url 'core:student_profile' %}">
+            <span class="module-icon"><i data-lucide="user-round-cog"></i></span>
+            <span class="module-copy"><small>YOUR ACCOUNT</small><strong>Update profile</strong><em>Edit academic details, contact information and password.</em></span>
+            <span class="module-arrow">→</span>
+          </a>
+        </nav>
+
         <div class="metric-grid">
           <article><span class="metric-icon"><i data-lucide="book-open"></i></span><div><small>ACTIVE LOANS</small><strong>{{ stats.active_loans|stringformat:"02d" }}</strong><p>of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }} allowed</p></div></article>
           <article><span class="metric-icon amber"><i data-lucide="clock-3"></i></span><div><small>DUE SOON</small><strong>{{ stats.due_soon|stringformat:"02d" }}</strong><p>Next {{ LIBRARY_RULES.DUE_SOON_DAYS }} days</p></div></article>
