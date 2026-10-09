@@ -13,9 +13,23 @@
       <a class="{% if section == 'student' and request.resolver_match.url_name == 'student' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
       <a class="{% if section == 'discover' %}active{% endif %}" href="{% url 'core:discover' %}"><i data-lucide="search"></i>Browse Books</a>
       <a class="{% if request.resolver_match.url_name == 'student_loans' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_loans' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="book-open"></i>My Borrowed Books</a>
-      <a class="{% if request.resolver_match.url_name == 'student_profile' %}active{% endif %}" href="{% if request.user.is_authenticated %}{% url 'core:student_profile' %}{% else %}{% url 'core:portal_select' %}{% endif %}"><i data-lucide="user-round"></i>Profile</a>
     {% endif %}
   </nav>
+  <div class="sidebar-summary">
+    {% if request.user.is_staff %}
+      <span class="sidebar-summary-icon"><i data-lucide="shield-check"></i></span>
+      <small>ADMIN WORKSPACE</small>
+      <strong>Library operations</strong>
+      <p>Books, students, transactions and reports are all managed here.</p>
+      <div class="sidebar-summary-status"><i></i> System ready</div>
+    {% else %}
+      <span class="sidebar-summary-icon"><i data-lucide="graduation-cap"></i></span>
+      <small>STUDENT PORTAL</small>
+      <strong>Your library desk</strong>
+      <p>Discover books, check due dates and review your borrowing history.</p>
+      <div class="sidebar-summary-status"><i></i> Library open</div>
+    {% endif %}
+  </div>
   <div class="sidebar-user">
     <span class="avatar">{% if request.user.is_authenticated %}{{ request.user.first_name|default:request.user.username|slice:":2"|upper }}{% else %}LT{% endif %}</span>
     <div>

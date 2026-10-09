@@ -23,7 +23,7 @@
         <div class="section-heading module-heading">
           <div><p class="app-eyebrow">STUDENT SERVICES</p><h2>Everything you need, in one place</h2></div>
         </div>
-        <nav class="module-grid" aria-label="Student services">
+        <nav class="module-grid student-modules" aria-label="Student services">
           <a class="module-card module-card-emerald" href="{% url 'core:discover' %}">
             <span class="module-icon"><i data-lucide="search"></i></span>
             <span class="module-copy"><small>DISCOVER &amp; REQUEST</small><strong>Find a book</strong><em>Search the catalogue, borrow an available copy or request a title.</em></span>
@@ -37,11 +37,6 @@
           <a class="module-card" href="{% url 'core:student_loans' %}?tab=all">
             <span class="module-icon"><i data-lucide="history"></i></span>
             <span class="module-copy"><small>BORROWING HISTORY</small><strong>Every transaction</strong><em>Review requested, issued, overdue and returned books.</em></span>
-            <span class="module-arrow">→</span>
-          </a>
-          <a class="module-card module-card-warm" href="{% url 'core:student_profile' %}">
-            <span class="module-icon"><i data-lucide="user-round-cog"></i></span>
-            <span class="module-copy"><small>YOUR ACCOUNT</small><strong>Update profile</strong><em>Edit academic details, contact information and password.</em></span>
             <span class="module-arrow">→</span>
           </a>
         </nav>
@@ -159,7 +154,6 @@
             <div><time>YEAR</time><span><i></i><strong>{{ profile.enrollment_year|default:"—" }}</strong><small>Enrollment year</small></span></div>
             <div><time>LOANS</time><span><i></i><strong>{{ stats.active_loans }} of {{ LIBRARY_RULES.MAX_ACTIVE_LOANS }}</strong><small>Active borrowing</small></span></div>
           </div>
-          <a class="btn-inline" href="{% url 'core:student_profile' %}" style="margin-top:16px;width:100%;justify-content:center">Edit profile</a>
         </article>
 
         <article class="reading-card">
