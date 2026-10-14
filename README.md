@@ -1,5 +1,20 @@
 # LibTrack — Digital Library Management System
 
+## One-click Windows demo
+
+For the simplest college presentation setup:
+
+1. Download the repository as a ZIP from GitHub and choose **Extract All**.
+2. Open the extracted project folder.
+3. Double-click **`RUN_LOCAL.bat`**.
+4. Keep the command window open while using the website.
+
+The launcher creates an isolated Python environment, installs the required
+packages, prepares the SQLite demo database, loads the sample catalogue and
+opens <http://127.0.0.1:8000> automatically. The command window also displays
+the demo student and librarian login details. Python 3 and an internet
+connection are required the first time it runs.
+
 LibTrack is a digital library management system for college students and
 librarians, built as a DBMS project with **Python, Django, MySQL, HTML, CSS and
 JavaScript**.
