@@ -27,6 +27,24 @@ class LibrarianTestCase(TestCase):
 
 
 class BookManagementTests(LibrarianTestCase):
+    def test_librarian_can_select_and_create_authors_while_adding_a_book(self):
+        from core.models import Author
+
+        existing = Author.objects.create(name="Existing Writer")
+        response = self.client.post(reverse("core:librarian_books"), {
+            "title": "Authored Online Book",
+            "isbn": "9780000000088",
+            "authors": [str(existing.pk)],
+            "new_authors": "New Writer, Second Writer",
+            "total_copies": "1",
+            "is_active": "on",
+        })
+        self.assertRedirects(response, reverse("core:librarian_books"))
+        book = Book.objects.get(isbn="9780000000088")
+        self.assertSetEqual(
+            set(book.authors.values_list("name", flat=True)),
+            {"Existing Writer", "New Writer", "Second Writer"})
+
     def test_librarian_can_add_a_book_with_copies(self):
         response = self.client.post(reverse("core:librarian_books"), {
             "title": "Transactions in Practice",

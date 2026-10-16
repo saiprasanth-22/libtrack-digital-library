@@ -10,7 +10,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from .models import (Book, BookCopy, BookSubjectMapping, Category, Course,
+from .models import (Author, Book, BookCopy, BookSubjectMapping, Category, Course,
                      CurriculumScheme, DigitalMaterial, Loan, Semester,
                      StudentProfile, Subject)
 
@@ -263,10 +263,15 @@ class BookForm(forms.ModelForm):
     subject = forms.ModelChoiceField(
         queryset=Subject.objects.all(), required=False, label="Subject / department",
         widget=forms.Select(attrs={"class": "field-input"}))
+    new_authors = forms.CharField(
+        required=False, label="New author name(s)",
+        help_text="Type authors not listed above, separated with commas.",
+        widget=forms.TextInput(attrs={
+            "class": "field-input", "placeholder": "Example: R. Elmasri, S. Navathe"}))
 
     class Meta:
         model = Book
-        fields = ("title", "subtitle", "isbn", "authors", "category", "subject",
+        fields = ("title", "subtitle", "isbn", "authors", "new_authors", "category", "subject",
                   "publisher", "publication_year", "edition", "language", "page_count",
                   "description", "cover", "featured", "is_active")
         widgets = {
@@ -292,6 +297,9 @@ class BookForm(forms.ModelForm):
         # as required, so make it optional and fall back on save.
         self.fields["language"].required = False
         self.fields["language"].initial = self.fields["language"].initial or "English"
+        self.fields["authors"].label = "Existing author(s)"
+        self.fields["authors"].help_text = (
+            "Select one or more existing authors, or type new names below.")
         self.fields["total_copies"].help_text = (
             "Currently on the shelf: %(count)s."
             % {"count": self.instance.total_copies if self.instance.pk else 0})
@@ -316,6 +324,17 @@ class BookForm(forms.ModelForm):
         category = self.cleaned_data.get("category")
         if commit:
             book.save()
+            selected_authors = list(self.cleaned_data.get("authors") or [])
+            typed_names = [name.strip() for name in
+                           (self.cleaned_data.get("new_authors") or "").replace(";", ",").split(",")
+                           if name.strip()]
+            for name in typed_names:
+                author = Author.objects.filter(name__iexact=name).first()
+                if author is None:
+                    author = Author.objects.create(name=name)
+                if author not in selected_authors:
+                    selected_authors.append(author)
+            book.authors.set(selected_authors)
             if category:
                 book.categories.set([category])
             else:

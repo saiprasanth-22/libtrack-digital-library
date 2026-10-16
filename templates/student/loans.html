@@ -40,7 +40,7 @@
                 <div class="desk-actions">
                   <a class="btn-inline" href="{% url 'core:book_detail' loan.book.slug %}">View title</a>
                   {% if loan.status == 'issued' or loan.status == 'overdue' %}
-                    <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline">{% csrf_token %}
+                    <form method="post" action="{% url 'core:return_loan' loan.pk %}" class="form-inline" onsubmit="return confirm('Mark this book as returned? It will remain safely available in your borrowing history.');">{% csrf_token %}
                       <input type="hidden" name="next" value="{% url 'core:student_loans' %}?tab={{ tab }}">
                       <button class="btn-inline" type="submit"><i data-lucide="undo-2"></i>Return</button>
                     </form>
