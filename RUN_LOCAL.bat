@@ -39,7 +39,19 @@ echo  [2/5] Installing required packages...
 "%VENV_PYTHON%" -m pip install --disable-pip-version-check -q -r requirements.txt
 if errorlevel 1 goto :failed
 
-echo  [3/5] Preparing the database...
+echo  [3/5] Preparing the complete demonstration database...
+if not exist ".libtrack_full_catalogue_ready" (
+    if exist "demo.sqlite3" (
+        if exist "db.sqlite3" (
+            echo        Saving the previous local database as a backup...
+            copy /Y "db.sqlite3" "db.before-full-catalogue.sqlite3" >nul
+        )
+        echo        Loading all books, authors, courses, semesters and subjects...
+        copy /Y "demo.sqlite3" "db.sqlite3" >nul
+        if errorlevel 1 goto :failed
+        type nul > ".libtrack_full_catalogue_ready"
+    )
+)
 "%VENV_PYTHON%" manage.py migrate --noinput
 if errorlevel 1 goto :failed
 
