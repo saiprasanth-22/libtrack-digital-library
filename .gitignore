@@ -4,8 +4,6 @@ __pycache__/
 .env
 .vercel/
 db.sqlite3
-db.before-full-catalogue.sqlite3
-.libtrack_full_catalogue_ready
 !demo.sqlite3
 staticfiles/
 media/

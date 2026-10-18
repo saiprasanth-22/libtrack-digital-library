@@ -34,30 +34,18 @@ if not exist ".venv\Scripts\python.exe" (
 )
 
 set "VENV_PYTHON=%CD%\.venv\Scripts\python.exe"
+set "LIBTRACK_SQLITE_PATH=%CD%\demo.sqlite3"
 
 echo  [2/5] Installing required packages...
 "%VENV_PYTHON%" -m pip install --disable-pip-version-check -q -r requirements.txt
 if errorlevel 1 goto :failed
 
-echo  [3/5] Preparing the complete demonstration database...
-if not exist ".libtrack_full_catalogue_ready" (
-    if exist "demo.sqlite3" (
-        if exist "db.sqlite3" (
-            echo        Saving the previous local database as a backup...
-            copy /Y "db.sqlite3" "db.before-full-catalogue.sqlite3" >nul
-        )
-        echo        Loading all books, authors, courses, semesters and subjects...
-        copy /Y "demo.sqlite3" "db.sqlite3" >nul
-        if errorlevel 1 goto :failed
-        type nul > ".libtrack_full_catalogue_ready"
-    )
-)
+echo  [3/5] Opening the persistent local database...
+if not exist "demo.sqlite3" goto :database_missing
 "%VENV_PYTHON%" manage.py migrate --noinput
 if errorlevel 1 goto :failed
 
-echo  [4/5] Loading the demonstration books and accounts...
-"%VENV_PYTHON%" manage.py seed_demo_data --password 1
-if errorlevel 1 goto :failed
+echo  [4/5] Your books, users and transactions are saved automatically.
 
 echo  [5/5] Starting LibTrack...
 echo.
@@ -89,6 +77,11 @@ goto :pause_error
 echo  ERROR: Python 3 is not installed or is not available in PATH.
 echo  Install Python 3 from https://www.python.org/downloads/
 echo  During installation, enable "Add Python to PATH".
+goto :pause_error
+
+:database_missing
+echo  ERROR: demo.sqlite3 was not found beside RUN_LOCAL.bat.
+echo  Download and extract the complete source ZIP again.
 goto :pause_error
 
 :failed
